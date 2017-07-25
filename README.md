@@ -1,2 +1,2 @@
 # abcdl
-A c++ light Deep learning framework for ABC
+A c++ light Deep Learning framework for ABC
