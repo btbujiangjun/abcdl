@@ -7,9 +7,12 @@
  **********************************************/
 
 #include "algebra/Matrix.h"
+#include "utils/ParallelOperator.h"
 #include <string.h>
 #include <iostream>
 #include <stdio.h>
+
+using abcdl::utils::ParallelOperator;
 
 namespace abcdl{
 namespace algebra{
@@ -282,9 +285,9 @@ void Matrix<T>::reset(const T& value,
     if(value == 0 || value == -1){
         memset(_data, value, sizeof(T) * size);
     }else{
-        for(uint i = 0; i != size; i++){
-            _data[i] = value;
-        }
+        auto lamda = [](T* a, const T& b){ *a = b; };
+        ParallelOperator po;
+        po.parallel_mul2one<T>(_data, size, value, lamda);
     }
 }
 
