@@ -108,7 +108,8 @@ void MatrixHelper<T>::tanh(const Matrix<T>& mat_a, Matrix<T>& mat){
 
 template<class T>
 Matrix<T> MatrixHelper<T>::relu(const Matrix<T>& mat_a){
-    auto matrix = mat_a.clone();
+    Matrix<T> matrix;
+    mat_a.clone(matrix);
     relu(mat_a, matrix);
     return matrix;
 }
