@@ -10,7 +10,8 @@
 using abcdl::algebra::Matrix;
 
 int main(int argc,char** argv){
-    abcdl::algebra::Matrix<real> m1(1.0, 10, 10);
+    abcdl::algebra::Matrix<real> m1(1.0, 10000, 10000);
+    /*
     auto m2 = m1 + 2.0f;
     m2.log();
     m2.tanh();
@@ -24,4 +25,5 @@ int main(int argc,char** argv){
     m3.display();
     m3 -= m3;
     m3.display();
+    */
 }
