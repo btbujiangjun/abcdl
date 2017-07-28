@@ -127,13 +127,13 @@ void Matrix<T>::set_shallow_data(T* data,
 }
 
 template<class T>
-Matrix<T> Matrix<T>::get_row(const std::size_t row_id, const std::size_t row_size){
+Matrix<T>* Matrix<T>::get_row(const std::size_t row_id, const std::size_t row_size){
     if(row_id + row_size > _rows){
         //todo out_of_range
     }
 
-    Matrix<T> matrix(row_size, _cols);
-    memcpy(matrix.data(), &_data[row_id * _cols], sizeof(T) * row_size * _cols);
+    auto matrix = new Matrix<T>(row_size, _cols);
+    memcpy(matrix->data(), &_data[row_id * _cols], sizeof(T) * row_size * _cols);
     return matrix;
 }
 
@@ -180,19 +180,18 @@ void Matrix<T>::insert_row(const std::size_t row_id, const Matrix<T>& mat){
     if(row_id < _rows){
         memcpy(&data[(row_id + mat.rows()) * _cols], &_data[row_id * _cols], sizeof(T) * (_rows - row_id) * _cols);
     }
-
     set_shallow_data(data, _rows + mat.rows(), _cols);
 }
 
 template<class T>
-Matrix<T> Matrix<T>::get_col(const std::size_t col_id, const std::size_t col_size){
+Matrix<T>* Matrix<T>::get_col(const std::size_t col_id, const std::size_t col_size){
     if(col_id + col_size > _cols){
         //todo out_of_range
     }
 
-    Matrix<T> mat(_rows, col_size);
+    auto mat = new Matrix<T>(_rows, col_size);
     for(std::size_t i = 0; i != _rows; i++){
-        memcpy(&mat.data()[i*col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
+        memcpy(&mat->data()[i*col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
     }
     return mat;
 }
@@ -254,9 +253,12 @@ void Matrix<T>::insert_col(const std::size_t col_id, const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::clone() const{
-    Matrix<T> mat(_data, _rows, _cols);
-    return mat;
+Matrix<T>* Matrix<T>::clone() const{
+    return new Matrix<T>(_data, _rows, _cols);
+}
+template<class T>
+void Matrix<T>::clone(Matrix<T>& mat) const{
+    mat.set_data(_data, _rows, _cols);
 }
 
 template<class T>
