@@ -42,26 +42,28 @@ public:
                          const std::size_t col_id);
     inline void set_data(const T* data,
                          const std::size_t rows,
-                         const std::size_t cols);
+                         const std::size_t cols) const;
     inline void set_data(const Matrix<T>& mat);
 
     void set_shallow_data(T* data,
                           const std::size_t rows,
                           const std::size_t cols);
     
-    Matrix<T> get_row(const std::size_t row_id, const std::size_t row_size = 1);
+    Matrix<T>* get_row(const std::size_t row_id, const std::size_t row_size = 1);
+    void get_row(const std::size_t row_id, const std::size_t row_size = 1);
     void set_row(const Matrix<T>& mat);
     void set_row(const std::size_t row_id, const Matrix<T> mat);
     void insert_row(const Matrix<T>& mat);
     void insert_row(const std::size_t row_id, const Matrix<T>& mat);
 
-    Matrix<T> get_col(const std::size_t col_id, const std::size_t col_size = 1);
+    Matrix<T>* get_col(const std::size_t col_id, const std::size_t col_size = 1);
     void set_col(const Matrix<T>& mat);
     void set_col(const std::size_t col_id, const Matrix<T>& mat);
     void insert_col(const Matrix<T>& mat);
     void insert_col(const std::size_t col_id, const Matrix<T>& mat);
 
-    Matrix<T> clone() const;
+    Matrix<T>* clone() const;
+    void clone(Matrix<T>& mat) const;
 
     void reset(const T& value = 0);
     void reset(const T& value,
