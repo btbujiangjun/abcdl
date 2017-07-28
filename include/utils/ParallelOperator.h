@@ -29,6 +29,29 @@ public:
     template<class T>
     void parallel_mul2one(T* op1,
                           const uint num_op1,
+                          const std::function<void(T*)> &f){
+        uint block_size = get_block_size(num_op1);
+        uint num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+
+        for(uint i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&op1, &f](uint start_idx, uint end_idx){
+                    for(uint ti = start_idx; ti != end_idx; ti++){
+                        f(&op1[ti]);
+                    }
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
+    template<class T>
+    void parallel_mul2one(T* op1,
+                          const uint num_op1,
                           const T& op2,
                           const std::function<void(T*, const T&)> &f){
         uint block_size = get_block_size(num_op1);
@@ -40,6 +63,55 @@ public:
                 [&op1, &op2, &f](uint start_idx, uint end_idx){
                     for(uint ti = start_idx; ti != end_idx; ti++){
                         f(&op1[ti], op2);
+                    }
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
+    template<class T>
+    void parallel_mul2one_copy(const T* op1,
+                               const uint num_op1,
+                               T* result_data,
+                               const std::function<void(T*, const T&)> &f){
+        uint block_size = get_block_size(num_op1);
+        uint num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+
+        for(uint i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&result_data, &op1, &f](uint start_idx, uint end_idx){
+                    for(uint ti = start_idx; ti != end_idx; ti++){
+                        f(&result_data[ti], op1[ti]);
+                    }
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
+    template<class T>
+    void parallel_mul2one_copy(const T* op1,
+                               const uint num_op1,
+                               const T& op2,
+                               T* result_data,
+                               const std::function<void(T*, const T&, const T&)> &f){
+        uint block_size = get_block_size(num_op1);
+        uint num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+
+        for(uint i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&result_data, &op1, &f, &op2](uint start_idx, uint end_idx){
+                    for(uint ti = start_idx; ti != end_idx; ti++){
+                        f(&result_data[ti], op1[ti], op2);
                     }
                 }, i * block_size, std::min(num_op1, (i + 1) * block_size)
             );
@@ -73,7 +145,32 @@ public:
         for(auto& thread : threads){
             thread.join();
         }
-}
+    }
+
+    template<class T>
+    void parallel_reduce(const T* op1,
+                         const uint num_op1,
+                         T* op2,
+                         const std::function<void(const T&, T*)> &f){
+        uint block_size = get_block_size(num_op1);
+        uint num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+
+        for(uint i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&op1, &op2, &f](uint start_idx, uint end_idx){
+                    for(uint ti = start_idx; ti != end_idx; ti++){
+                        f(op1[ti], &op2);
+                    }
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
 
 private:
     uint _num_thread;

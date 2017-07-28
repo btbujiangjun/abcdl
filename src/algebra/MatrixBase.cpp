@@ -42,10 +42,9 @@ Matrix<T>::Matrix(const T& value,
     if(value == 0 || value == -1){
         memset(_data, value, sizeof(T) * _rows * _cols);
     }else{
-        uint size = get_size();
-        for(uint i = 0; i != size; i++){
-            _data[i] = value;
-        }
+        auto lamda = [](T* a, const T& b){ *a = b; };
+        ParallelOperator po;
+        po.parallel_mul2one<T>(_data, get_size(), value, lamda);
     }
 }
 
@@ -62,17 +61,20 @@ Matrix<T>::Matrix(const T* data,
 template<class T>
 Matrix<T>::~Matrix(){
     if(_data != nullptr){
+        printf("~Matrix.\n");
         delete[] _data;
+        printf("~Finished Matrix.\n");
+        _data = nullptr;
     }
 }
 
 template<class T>
-T Matrix<T>::get_data(const uint idx){
+T& Matrix<T>::get_data(const uint idx) const{
     return _data[idx];
 }
 
 template<class T>
-T Matrix<T>::get_data(const uint row_id, const uint col_id){
+T& Matrix<T>::get_data(const uint row_id, const uint col_id) const{
     return _data[row_id * _cols + col_id];
 }
 
@@ -96,19 +98,19 @@ void Matrix<T>::set_data(const T* data,
     if(_rows * _cols != size){
         if(_data != nullptr){
             delete[] _data;
+            _data = nullptr;
         }
         _data = new T[size];
     }
 
-    memcpy(_data, data, sizeof(T) * size);
     _rows = rows;
     _cols = cols;
+    memcpy(_data, data, sizeof(T) * size);
 }
 
 template<class T>
-void Matrix<T>::set_data(Matrix<T>& mat){
-    const T* data = mat.data();
-    set_data(data, mat.rows(), mat.cols());
+void Matrix<T>::set_data(const Matrix<T>& mat){
+    set_data(mat.data(), mat.rows(), mat.cols());
 }
 
 template<class T>
@@ -117,6 +119,7 @@ void Matrix<T>::set_shallow_data(T* data,
                                  const uint cols){
     if(_data != nullptr){
         delete[] _data;
+        _data = nullptr;
     }
     _data = data;
     _rows = rows;
@@ -129,17 +132,13 @@ Matrix<T> Matrix<T>::get_row(const uint row_id, const uint row_size){
         //todo out_of_range
     }
 
-    T* data = new T[row_size * _cols];
-    memcpy(data, &_data[row_id * _cols], sizeof(T) * row_size * _cols);
-
-    Matrix<T> mat;
-    mat.set_shallow_data(data, row_size, _cols);
-
-    return mat;
+    Matrix<T> matrix(row_size, _cols);
+    memcpy(matrix.data(), &_data[row_id * _cols], sizeof(T) * row_size * _cols);
+    return matrix;
 }
 
 template<class T>
-void Matrix<T>::set_row(Matrix<T>& mat){
+void Matrix<T>::set_row(const Matrix<T>& mat){
     set_row(0, mat);
 }
 
@@ -156,11 +155,11 @@ void Matrix<T>::set_row(const uint row_id, Matrix<T> mat){
 }
 
 template<class T>
-void Matrix<T>::insert_row(Matrix<T>& mat){
+void Matrix<T>::insert_row(const Matrix<T>& mat){
     insert_row(_rows, mat);
 }
 template<class T>
-void Matrix<T>::insert_row(const uint row_id, Matrix<T>& mat){
+void Matrix<T>::insert_row(const uint row_id, const Matrix<T>& mat){
     
     if(get_size() == 0){
         set_data(mat.data(), mat.rows(), mat.cols());
@@ -191,23 +190,20 @@ Matrix<T> Matrix<T>::get_col(const uint col_id, const uint col_size){
         //todo out_of_range
     }
 
-    T* data = new T[_rows * col_size];
+    Matrix<T> mat(_rows, col_size);
     for(uint i = 0; i != _rows; i++){
-        memcpy(&data[i*col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
+        memcpy(&mat.data()[i*col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
     }
-
-    Matrix<T> mat;
-    mat.set_shallow_data(data, _rows, col_size);
     return mat;
 }
 
 template<class T>
-void Matrix<T>::set_col(Matrix<T>& mat){
+void Matrix<T>::set_col(const Matrix<T>& mat){
     set_col(0, mat);
 }
 
 template<class T>
-void Matrix<T>::set_col(const uint col_id, Matrix<T>& mat){
+void Matrix<T>::set_col(const uint col_id, const Matrix<T>& mat){
     if(mat.rows() != _rows){
         //todo diff rows
     }
@@ -225,12 +221,12 @@ void Matrix<T>::set_col(const uint col_id, Matrix<T>& mat){
 }
 
 template<class T>
-void Matrix<T>::insert_col(Matrix<T>& mat){
+void Matrix<T>::insert_col(const Matrix<T>& mat){
     set_col(_cols, mat);
 }
 
 template<class T>
-void Matrix<T>::insert_col(const uint col_id, Matrix<T>& mat){
+void Matrix<T>::insert_col(const uint col_id, const Matrix<T>& mat){
     if(_rows != mat.rows()){
         //todo diff rows
     }
@@ -258,7 +254,7 @@ void Matrix<T>::insert_col(const uint col_id, Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::clone(){
+Matrix<T> Matrix<T>::clone() const{
     Matrix<T> mat(_data, _rows, _cols);
     return mat;
 }
@@ -275,6 +271,7 @@ void Matrix<T>::reset(const T& value,
     if(get_size() != rows * cols){
         if(_data != nullptr){
             delete[] _data;
+            _data = nullptr;
         }
         _data = new T[rows * cols];
         _rows = rows;
@@ -307,6 +304,7 @@ void Matrix<T>::display(const std::string& split){
     }
     printf("]\n");
 }
+
 
 template class Matrix<int>;
 template class Matrix<real>;

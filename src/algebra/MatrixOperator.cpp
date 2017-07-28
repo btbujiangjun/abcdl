@@ -6,9 +6,9 @@
  * Description   : 
  **********************************************/
 
+#include <string.h>
 #include "algebra/Matrix.h"
 #include "utils/ParallelOperator.h"
-#include <string.h>
 
 
 using abcdl::utils::ParallelOperator;
@@ -17,68 +17,185 @@ namespace abcdl{
 namespace algebra{
 
 template<class T>
-void Matrix<T>::operator= (const T& value){
+Matrix<T>& Matrix<T>::operator = (const T& value){
     reset(value);
+    return *this;
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator+ (const T& value) const{
-    uint size = get_size();
-    T* data = new T[size];
-    memcpy(data, _data, sizeof(T) * size);
-    
-    auto lamda = [](T* a, const T& b){ *a += b; };
-    ParallelOperator po;
-    po.parallel_mul2one<T>(data, size, value, lamda);
-    
-    Matrix<T> mat;
-    mat.set_shallow_data(data, _rows, _cols);
-
-    return mat;
-}
-
-template<class T>
-Matrix<T> Matrix<T>::operator+ (Matrix<T>& mat) const{
-    if(_rows != mat.rows() || _cols != mat.cols()){
-        //todo diff size
+Matrix<T>& Matrix<T>::operator = (const Matrix<T>& mat){
+    if(_data != nullptr){
+        delete[] _data;
+        _data = nullptr;
     }
 
-    uint size = get_size();
-    T* data = new T[size];
-    memcpy(data, _data, sizeof(T) * size);
-    
-    T* sub_data = mat.data();
+    _rows = mat.rows();
+    _cols = mat.cols();
+    _data = new T[mat.get_size()];
+    memcpy(_data, mat.data(), sizeof(T) * mat.get_size());
+    return *this;
+}
 
+template<class T>
+Matrix<T> Matrix<T>::operator + (const T& value){
     auto lamda = [](T* a, const T& b){ *a += b; };
+    auto matrix = clone();
     ParallelOperator po;
-    po.parallel_mul2mul<T>(data, size, sub_data, lamda);
-
-    Matrix<T> matrix;
-    matrix.set_shallow_data(data, _rows, _cols);
+    po.parallel_mul2one<T>(matrix.data(), matrix.get_size(), value, lamda);
     return matrix;
 }
 
 template<class T>
-void Matrix<T>::operator+= (const T& value){
-    auto lamda = [](T* a, const T& b){ *a += b; };
-    ParallelOperator po;
-    po.parallel_mul2one<T>(_data, get_size(), value, lamda);
-    
-}
-template<class T>
-void Matrix<T>::operator+= (Matrix<T>& mat){
-    if(_rows != mat.rows() || _cols != mat.cols()){
+Matrix<T> Matrix<T>::operator + (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
         //todo diff size
     }
 
-    uint size = get_size();
-    T* sub_data = mat.data();
+    auto lamda = [](T* a, const T& b){ *a += b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(matrix.data(), matrix.get_size(), mat.data(), lamda);
+    return matrix;
+}
 
+template<class T>
+Matrix<T>& Matrix<T>::operator += (const T& value){
     auto lamda = [](T* a, const T& b){ *a += b; };
     ParallelOperator po;
-    po.parallel_mul2mul<T>(_data, size, sub_data, lamda);
-
+    po.parallel_mul2one<T>(_data, get_size(), value, lamda);
+    return *this;
 }
+template<class T>
+Matrix<T>& Matrix<T>::operator += (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+    auto lamda = [](T* a, const T& b){ *a += b; };
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), lamda);
+    return *this;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator - (const T& value){
+    auto lamda = [](T* a, const T& b){ *a -= b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2one<T>(matrix.data(), matrix.get_size(), value, lamda);
+    return matrix;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator - (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto lamda = [](T* a, const T& b){ *a -= b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(matrix.data(), get_size(), mat.data(), lamda);
+    return matrix;
+}
+
+template<class T>
+void Matrix<T>::operator -= (const T& value){
+    auto lamda = [](T* a, const T& b){ *a -= b; };
+    ParallelOperator po;
+    po.parallel_mul2one<T>(_data, get_size(), value, lamda);    
+}
+
+template<class T>
+void Matrix<T>::operator -= (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto lamda = [](T* a, const T& b){ *a -= b; };
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), lamda);
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator * (const T& value){
+    auto lamda = [](T* a, const T& b){ *a *= b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2one<T>(matrix.data(), get_size(), value, lamda);
+    return matrix;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator * (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto lamda = [](T* a, const T& b){ *a *= b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(matrix.data(), get_size(), mat.data(), lamda);
+    return matrix;
+}
+
+template<class T>
+void Matrix<T>::operator *= (const T& value){
+    auto lamda = [](T* a, const T& b){ *a *= b; };
+    ParallelOperator po;
+    po.parallel_mul2one<T>(_data, get_size(), value, lamda);
+}
+
+template<class T>
+void Matrix<T>::operator *= (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto lamda = [](T* a, const T& b){ *a *= b; };
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), lamda);
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator / (const T& value){
+    auto lamda = [](T* a, const T& b){ *a /= b; };
+    auto matrix = clone();
+    ParallelOperator po;
+    po.parallel_mul2one<T>(matrix.data(), get_size(), value, lamda);
+    return matrix;
+}
+
+template<class T>
+Matrix<T> Matrix<T>::operator / (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto matrix = clone();
+    auto lamda = [](T* a, const T& b){ *a /= b; };
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(matrix.data(), mat.get_size(), mat.data(), lamda);
+    return matrix;
+}
+
+template<class T>
+void Matrix<T>::operator /= (const T& value){
+    auto lamda = [](T* a, const T& b){ *a /= b; };
+    ParallelOperator po;
+    po.parallel_mul2one<T>(_data, get_size(), value, lamda);
+}
+
+template<class T>
+void Matrix<T>::operator /= (const Matrix<T>& mat){
+    if(!equal_shape(mat)){
+        //todo diff size
+    }
+
+    auto lamda = [](T* a, const T& b){ *a /= b; };
+    ParallelOperator po;
+    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), lamda);
+}
+
 template class Matrix<int>;
 template class Matrix<real>;
 }//namespace algebra

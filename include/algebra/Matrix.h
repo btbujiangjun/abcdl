@@ -32,9 +32,9 @@ public:
     inline uint cols() const { return _cols;}
     inline uint get_size() const { return _rows * _cols;}
 
-    inline T* data() { return _data; }
-    inline T get_data(const uint idx);
-    inline T get_data(const uint row_id, const uint col_id);
+    inline T* data() const { return _data; }
+    inline T& get_data(const uint idx) const;
+    inline T& get_data(const uint row_id, const uint col_id) const;
 
     inline void set_data(const T& value, const uint idx);
     inline void set_data(const T& value,
@@ -43,25 +43,25 @@ public:
     inline void set_data(const T* data,
                          const uint rows,
                          const uint cols);
-    inline void set_data(Matrix<T>& mat);
+    inline void set_data(const Matrix<T>& mat);
 
     void set_shallow_data(T* data,
                           const uint rows,
                           const uint cols);
     
     Matrix<T> get_row(const uint row_id, const uint row_size = 1);
-    void set_row(Matrix<T>& mat);
-    void set_row(const uint row_id, Matrix<T> mat);
-    void insert_row(Matrix<T>& mat);
-    void insert_row(const uint row_id, Matrix<T>& mat);
+    void set_row(const Matrix<T>& mat);
+    void set_row(const uint row_id, const Matrix<T> mat);
+    void insert_row(const Matrix<T>& mat);
+    void insert_row(const uint row_id, const Matrix<T>& mat);
 
     Matrix<T> get_col(const uint col_id, const uint col_size = 1);
-    void set_col(Matrix<T>& mat);
-    void set_col(const uint col_id, Matrix<T>& mat);
-    void insert_col(Matrix<T>& mat);
-    void insert_col(const uint col_id, Matrix<T>& mat);
+    void set_col(const Matrix<T>& mat);
+    void set_col(const uint col_id, const Matrix<T>& mat);
+    void insert_col(const Matrix<T>& mat);
+    void insert_col(const uint col_id, const Matrix<T>& mat);
 
-    Matrix<T> clone();
+    Matrix<T> clone() const;
 
     void reset(const T& value = 0);
     void reset(const T& value,
@@ -70,49 +70,51 @@ public:
 
     void display(const std::string& split="\t");
 
-    void operator = (const T& value);
+    //operator
+    bool operator == (const Matrix<T>& mat) const;
 
-    Matrix<T> operator + (const T& value) const;
-    Matrix<T> operator + (Matrix<T>& mat) const;
+    Matrix<T>& operator = (const T& value);
+    Matrix<T>& operator = (const Matrix<T>& mat);
 
-    void operator += (const T& value);
-    void operator += (Matrix<T>& mat);
+    Matrix<T> operator + (const T& value);
+    Matrix<T> operator + (const Matrix<T>& mat);
+
+    Matrix<T>& operator += (const T& value);
+    Matrix<T>& operator += (const Matrix<T>& mat);
+
+    Matrix<T> operator - (const T& value);
+    Matrix<T> operator - (const Matrix<T>& mat);
+    void operator -= (const T& value);
+    void operator -= (const Matrix<T>& mat);
+
+    Matrix<T> operator * (const T& value);
+    Matrix<T> operator * (const Matrix<T>& mat);
+    void operator *= (const T& value);
+    void operator *= (const Matrix<T>& mat);
+
+    Matrix<T> operator / (const T& value);
+    Matrix<T> operator / (const Matrix<T>& mat);
+    void operator /= (const T& value);
+    void operator /= (const Matrix<T>& mat);
+
+    //algebra
+    void dot(const Matrix<T>& mat);
+    void outer(const Matrix<T>& mat);
+    void pow(const T& exponent);
+    void log();
+    void exp();
+    void sigmoid();
+    //void derivative_sigmoid();
+	void softmax();
+	void tanh();
+	void relu();
+
 /*
-    Matrix<T> operator - (T value) const;
-    Matrix<T> operator - (Matrix<T>& mat) const;
-    void operator -= (T value) const;
-    void operator -= (Matrix<T>& mat) const;
-
-    Matrix<T> operator * (T value) const;
-    Matrix<T> operator * (Matrix<T>& mat) const;
-    void operator *= (T value) const;
-    void operator *= (Matrix<T>& mat) const;
-
-    Matrix<T> operator / (T value) const;
-    Matrix<T> operator / (Matrix<T>& mat) const;
-    void operator /= (T value) const;
-    void operator /= (Matrix<T>& mat) const;
-*/
-/*
-    bool add(Matrix<T>* mat);
-    bool subtract(Matrix<T>* mat);
-
-    bool dot(Matrix<T>* mat);
-    void outer(Matrix<T>* mat);
-
-    bool add(const T value);
-    bool subtract(const T value);
-    bool multiply(const T value);
-    bool multiply(Matrix<T>* mat);
-    bool division(const T value);
-
     void pow(const T exponent);
     void log();
     void exp();
-
     void sigmoid();
     void derivative_sigmoid();
-
 	void softmax();
 	void tanh();
 	void relu();
@@ -169,13 +171,13 @@ public:
     virtual real var(uint col) = 0;
 
     virtual bool inverse(Matrix<real>* result) = 0;
-
-    virtual void display(const std::string& split="\t") = 0;
-    virtual std::string* to_string() = 0;
-
-    virtual bool operator==(Matrix<T>* mat) const = 0;
 */
-protected:
+
+private:
+    inline bool equal_shape(const Matrix<T>& mat) const{
+        return _rows == mat.rows() && _cols == mat.cols();
+    }
+private:
     uint _rows;
     uint _cols;
     T*   _data;
