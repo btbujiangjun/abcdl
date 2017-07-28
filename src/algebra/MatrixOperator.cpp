@@ -24,15 +24,17 @@ Matrix<T>& Matrix<T>::operator = (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator = (const Matrix<T>& mat){
-    if(_data != nullptr){
-        delete[] _data;
-        _data = nullptr;
-    }
+    if(this != &mat){
+        if(_data != nullptr){
+            delete[] _data;
+            _data = nullptr;
+        }
 
-    _rows = mat.rows();
-    _cols = mat.cols();
-    _data = new T[mat.get_size()];
-    memcpy(_data, mat.data(), sizeof(T) * mat.get_size());
+        _rows = mat.rows();
+        _cols = mat.cols();
+        _data = new T[mat.get_size()];
+        memcpy(_data, mat.data(), sizeof(T) * mat.get_size());
+    }
     return *this;
 }
 
