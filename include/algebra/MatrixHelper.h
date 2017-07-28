@@ -32,22 +32,22 @@ public:
 	Matrix<T> relu(const Matrix<T>& mat);
 
 /*
-    Matrix<int>* argmax(const uint axis);
-    uint argmax(const uint id, const uint axis);
+    Matrix<int>* argmax(const std::size_t axis);
+    std::size_t argmax(const std::size_t id, const std::size_t axis);
 
 	bool isnan();
 	bool isinf();
 
-    virtual bool swap(const uint a_row,
-                      const uint a_col,
-                      const uint b_row,
-                      const uint b_col) = 0;
-    virtual bool swap_row(const uint a, const uint b) = 0;
-    virtual bool swap_col(const uint a, const uint b) = 0;
+    virtual bool swap(const std::size_t a_row,
+                      const std::size_t a_col,
+                      const std::size_t b_row,
+                      const std::size_t b_col) = 0;
+    virtual bool swap_row(const std::size_t a, const std::size_t b) = 0;
+    virtual bool swap_col(const std::size_t a, const std::size_t b) = 0;
 
     virtual Matrix<T>* transpose() = 0;
 
-    bool reshape(uint row, uint col){
+    bool reshape(std::size_t row, std::size_t col){
         if(row * col == _rows * _cols){
             _rows = row;
             _cols = col;
@@ -56,16 +56,16 @@ public:
         return false;
     }
 
-    Matrix<T> expand(uint row_dim, uint col_dim);
+    Matrix<T> expand(std::size_t row_dim, std::size_t col_dim);
 
     //shape is full or valid, default full.
     bool convn(ccma::algebra::Matrix<T>* kernal,
-               uint stride = 1,
+               std::size_t stride = 1,
                std::string shape = "full");
 
     
     //convert dim 1 is row dim, 2 is col dim
-    Matrix<T> flipdim(uint dim = 1);
+    Matrix<T> flipdim(std::size_t dim = 1);
     Matrix<T> flip180();
 
     virtual Matrix<T> add_x0() = 0;
@@ -74,10 +74,10 @@ public:
     virtual bool det(T* result) = 0;
 
     virtual real mean() = 0;
-    virtual real mean(uint col) = 0;
+    virtual real mean(std::size_t col) = 0;
 
     virtual real var() = 0;
-    virtual real var(uint col) = 0;
+    virtual real var(std::size_t col) = 0;
 
     virtual bool inverse(Matrix<real>* result) = 0;
 */
