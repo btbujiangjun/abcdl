@@ -10,8 +10,12 @@
 using abcdl::algebra::Matrix;
 
 int main(int argc,char** argv){
-    abcdl::algebra::Matrix<real> m1(1.0, 100000, 100000);
-    auto m2 = m1 + 2.0f;
+    abcdl::algebra::Matrix<real> m1(1.0, 10000, 10000);
+
+	printf("sum is[%d]\n", (int)m1.sum());
+	
+	/*
+	auto m2 = m1 + 2.0f;
     m2.log();
     m2.tanh();
 	m2 = m2 - 1;
@@ -46,4 +50,5 @@ int main(int argc,char** argv){
     m4.display();
     m4 -= m4;
     m4.display();
+	*/
 }
