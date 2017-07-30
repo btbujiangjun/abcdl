@@ -65,6 +65,24 @@ void Matrix<T>::relu(){
     mh.relu(*this, *this);
 }
 
+template<class T>
+T Matrix<T>::sum() const{
+	T sum = 0;
+	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
+	ParallelOperator po;
+	po.parallel_reduce_mul2one<T>(_data, get_size(), &sum, lamda);
+	return sum;   
+}
+
+template<class T>
+real Matrix<T>::mean() const{
+	return ((real)sum)/get_size();
+}
+
+void Matrix<T>::transpose(){
+
+}
+
 template class Matrix<int>;
 template class Matrix<real>;
 
