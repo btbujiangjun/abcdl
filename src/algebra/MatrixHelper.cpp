@@ -43,6 +43,7 @@ void MatrixHelper<T>::log(Matrix<T>& mat, const Matrix<T>& mat_a){
 template<class T>
 void MatrixHelper<T>::exp(Matrix<T>& mat, const Matrix<T>& mat_a){
     auto lamda = [](T* a, const T& b){ *a = std::exp(std::min(b, (T)EXP_MAX));};
+    //auto lamda = [](T* a, const T& b){ *a = utils::TypeDef::exp<T>(b);};
     po.parallel_mul2one_copy<T>(mat_a.data(), mat_a.get_size(), mat.data(), lamda);
 }
 
