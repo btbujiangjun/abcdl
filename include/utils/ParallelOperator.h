@@ -158,13 +158,15 @@ public:
         std::size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
 		T* data = new T[num_thread];
-		memset(data, 0, sizeof(T) * num_thread);
 
         for(std::size_t i = 0; i != num_thread; i++){
             threads[i] = std::thread(
                 [&op1, &op2, &data, i, &f](std::size_t start_idx, std::size_t end_idx){
-                    for(std::size_t ti = start_idx; ti != end_idx; ti++){
-                        f(&data[i], op1[ti]);
+					for(std::size_t ti = start_idx; ti != end_idx; ti++){
+            			if(ti == start_idx){
+							data[i] = op1[ti];
+						}
+						f(&data[i], op1[ti]);
                     }
 					f(op2, data[i]);
                 }, i * block_size, std::min(num_op1, (i + 1) * block_size)
