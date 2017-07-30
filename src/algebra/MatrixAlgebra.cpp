@@ -69,16 +69,17 @@ template<class T>
 T Matrix<T>::sum() const{
 	T sum = 0;
 	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
-	ParallelOperator po;
+	utils::ParallelOperator po;
 	po.parallel_reduce_mul2one<T>(_data, get_size(), &sum, lamda);
 	return sum;   
 }
 
 template<class T>
 real Matrix<T>::mean() const{
-	return ((real)sum)/get_size();
+	return ((real)sum())/get_size();
 }
 
+template<class T>
 void Matrix<T>::transpose(){
 
 }
