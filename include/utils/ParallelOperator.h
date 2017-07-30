@@ -9,9 +9,11 @@
 #ifndef _ABCDL_UTILS_PARALLEL_OPERATOR_H_
 #define _ABCDL_UTILS_PARALLEL_OPERATOR_H_
 
+#include <cmath>
 #include <vector>
 #include <thread>
 #include <functional>
+#include "utils/TypeDef.h"
 
 namespace abcdl{
 namespace utils{
