@@ -128,13 +128,20 @@ void Matrix<T>::set_shallow_data(T* data,
 
 template<class T>
 Matrix<T>* Matrix<T>::get_row(const std::size_t row_id, const std::size_t row_size){
+    auto matrix = new Matrix<T>();
+	get_row(*matrix, row_id, _cols);
+	return matrix;
+}
+
+template<class T>
+void Matrix<T>::get_row(Matrix<T>& mat, const std::size_t row_id, const std::size_t row_size){
     if(row_id + row_size > _rows){
         //todo out_of_range
     }
 
-    auto matrix = new Matrix<T>(row_size, _cols);
-    memcpy(matrix->data(), &_data[row_id * _cols], sizeof(T) * row_size * _cols);
-    return matrix;
+	T* data = new T[row_size * _cols];
+	memcpy(data, &_data[row_id * _cols], sizeof(T) * row_size * _cols);
+	mat.set_shallow_data(data, row_size, _cols);
 }
 
 template<class T>
@@ -143,7 +150,7 @@ void Matrix<T>::set_row(const Matrix<T>& mat){
 }
 
 template<class T>
-void Matrix<T>::set_row(const std::size_t row_id, Matrix<T> mat){
+void Matrix<T>::set_row(const std::size_t row_id, const Matrix<T>& mat){
     if(_cols != mat.cols()){
         //todo diff cols
     }
@@ -185,15 +192,22 @@ void Matrix<T>::insert_row(const std::size_t row_id, const Matrix<T>& mat){
 
 template<class T>
 Matrix<T>* Matrix<T>::get_col(const std::size_t col_id, const std::size_t col_size){
+    auto matrix = new Matrix<T>();
+	get_col(*matrix, col_id, col_size);
+    return matrix;
+}
+
+template<class T>
+void Matrix<T>::get_col(Matrix<T>& mat, const std::size_t col_id, const std::size_t col_size){
     if(col_id + col_size > _cols){
         //todo out_of_range
     }
 
-    auto mat = new Matrix<T>(_rows, col_size);
-    for(std::size_t i = 0; i != _rows; i++){
-        memcpy(&mat->data()[i*col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
-    }
-    return mat;
+	T* data = new T[_rows * col_size];
+	for(std::size_t i = 0; i != _rows; i++){
+		memcpy(&data[i * col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
+	}
+	mat.set_shallow_data(data, _rows, col_size);
 }
 
 template<class T>
@@ -221,7 +235,7 @@ void Matrix<T>::set_col(const std::size_t col_id, const Matrix<T>& mat){
 
 template<class T>
 void Matrix<T>::insert_col(const Matrix<T>& mat){
-    set_col(_cols, mat);
+    set_col(0, mat);
 }
 
 template<class T>
