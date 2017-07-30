@@ -66,6 +66,30 @@ void Matrix<T>::relu(){
 }
 
 template<class T>
+T Matrix<T>::max() const{
+	if(get_size() == 0){
+		return 0;
+	}
+	T max = _data[0];
+	auto lamda = [](T* a, const T& b){if(b > *a){*a = b;}};
+	utils::ParallelOperator po;
+	po.parallel_reduce_mul2one<T>(_data, get_size(), &max, lamda);
+	return max;   
+}
+
+template<class T>
+T Matrix<T>::min() const{
+	if(get_size() == 0){
+		return 0;
+	}
+	T min = _data[0];
+	auto lamda = [](T* a, const T& b){if(b < *a){*a = b;}};
+	utils::ParallelOperator po;
+	po.parallel_reduce_mul2one<T>(_data, get_size(), &min, lamda);
+	return min;   
+}
+
+template<class T>
 T Matrix<T>::sum() const{
 	T sum = 0;
 	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
