@@ -10,20 +10,40 @@
 using abcdl::algebra::Matrix;
 
 int main(int argc,char** argv){
-    abcdl::algebra::Matrix<real> m1(1.0, 10000, 10000);
-    /*
+    abcdl::algebra::Matrix<real> m1(1.0, 100000, 100000);
     auto m2 = m1 + 2.0f;
     m2.log();
     m2.tanh();
-    auto m3 = m2.get_row(2,2);
+	m2 = m2 - 1;
+	m2 = m2 * 2;
+	m2 = m2 / 0.7;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 += m2;
+    m2 *= m2;
+    m2 /= m2;
+    m2 += m2;
+    m2 += m2;
+
+	Matrix<real> m3;
+    m2.get_row(m3, 2, 2);
     m3 += m3;
-    m3.display("|");
-    m2.display("$");
-    m1.display("@");
-    m3 = m3.get_col(2, 2);
-    m3 += m2.get_row(2, 2).get_col(2, 2);
-    m3.display();
-    m3 -= m3;
-    m3.display();
-    */
+    Matrix<real> m4;
+	m3.get_col(m4, 2, 2);
+    m4.display();
+    m4 -= m4;
+    m4.display();
 }
