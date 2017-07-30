@@ -69,51 +69,6 @@ Matrix<T>::~Matrix(){
 }
 
 template<class T>
-T& Matrix<T>::get_data(const std::size_t idx) const{
-    return _data[idx];
-}
-
-template<class T>
-T& Matrix<T>::get_data(const std::size_t row_id, const std::size_t col_id) const{
-    return _data[row_id * _cols + col_id];
-}
-
-template<class T>
-void Matrix<T>::set_data(const T& value, const std::size_t idx){
-    _data[idx] = value;
-}
-
-template<class T>
-void Matrix<T>::set_data(const T& value,
-                         const std::size_t row_id,
-                         const std::size_t col_id){
-    _data[row_id * _cols + col_id] = value; 
-}
-
-template<class T>
-void Matrix<T>::set_data(const T* data,
-                         const std::size_t rows,
-                         const std::size_t cols){
-    std::size_t size = rows * cols;
-    if(_rows * _cols != size){
-        if(_data != nullptr){
-            delete[] _data;
-            _data = nullptr;
-        }
-        _data = new T[size];
-    }
-
-    _rows = rows;
-    _cols = cols;
-    memcpy(_data, data, sizeof(T) * size);
-}
-
-template<class T>
-void Matrix<T>::set_data(const Matrix<T>& mat){
-    set_data(mat.data(), mat.rows(), mat.cols());
-}
-
-template<class T>
 void Matrix<T>::set_shallow_data(T* data,
                                  const std::size_t rows,
                                  const std::size_t cols){
