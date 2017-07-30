@@ -21,15 +21,26 @@ template<class T>
 class MatrixHelper{
 public:
     //algebra
-    void dot(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b);
-    void outer(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b);
-    void pow(Matrix<T>& mat, const Matrix<T>& mat_a, const T& exponent);
-    void log(Matrix<T>& mat, const Matrix<T>& mat_a);
-    void exp(Matrix<T>& mat, const Matrix<T>& mat_a);
+    void dot(Matrix<T>& mat,
+			 const Matrix<T>& mat_a,
+			 const Matrix<T>& mat_b);
+    void outer(Matrix<T>& mat,
+			   const Matrix<T>& mat_a,
+			   const Matrix<T>& mat_b);
+    void pow(Matrix<T>& mat,
+			 const Matrix<T>& mat_a,
+			 const T& exponent);
+    void log(Matrix<T>& mat,
+			 const Matrix<T>& mat_a);
+    void exp(Matrix<T>& mat,
+			 const Matrix<T>& mat_a);
     void sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void softmax(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void tanh(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);
+
+
+	void transponse(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 /*
     Matrix<int>* argmax(const std::size_t axis);
