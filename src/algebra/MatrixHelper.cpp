@@ -78,7 +78,7 @@ void MatrixHelper<T>::zero_like(Matrix<T>& mat, const Matrix<T>& mat_a){
 template<class T>
 void transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 	if(&mat != &mat_a){
-		mat.set_data(mat_a.data(), mat_a.rows(), mat_b.cols());
+		mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
 	}
 
 	std::size_t rows = mat.rows();
