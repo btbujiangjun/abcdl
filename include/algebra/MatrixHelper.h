@@ -21,15 +21,15 @@ template<class T>
 class MatrixHelper{
 public:
     //algebra
-    Matrix<T> dot(const Matrix<T>& mat_a, const Matrix<T>& mat_b);
-    Matrix<T> outer(const Matrix<T>& mat_a, const Matrix<T>& mat_b);
-    Matrix<T> pow(const Matrix<T>& mat, const T& exponent);
-    Matrix<T> log(const Matrix<T>& mat);
-    Matrix<T> exp(const Matrix<T>& mat);
-    Matrix<T> sigmoid(const Matrix<T>& mat);
-	Matrix<T> softmax(const Matrix<T>& mat);
-	Matrix<T> tanh(const Matrix<T>& mat);
-	Matrix<T> relu(const Matrix<T>& mat);
+    void dot(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b);
+    void outer(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b);
+    void pow(Matrix<T>& mat, const Matrix<T>& mat_a, const T& exponent);
+    void log(Matrix<T>& mat, const Matrix<T>& mat_a);
+    void exp(Matrix<T>& mat, const Matrix<T>& mat_a);
+    void sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a);
+	void softmax(Matrix<T>& mat, const Matrix<T>& mat_a);
+	void tanh(Matrix<T>& mat, const Matrix<T>& mat_a);
+	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 /*
     Matrix<int>* argmax(const std::size_t axis);
@@ -82,19 +82,7 @@ public:
     virtual bool inverse(Matrix<real>* result) = 0;
 */
 
-    Matrix<T> zero_like(const Matrix<T>& mat);
-
-    friend class Matrix<T>;
-private:
-    void dot(const Matrix<T>& mat_a, const Matrix<T>& mat_b, Matrix<T>& mat);
-    void outer(const Matrix<T>& mat_a, const Matrix<T>& mat_b, Matrix<T>& mat);
-    void pow(const Matrix<T>& mat_a, const T& exponent, Matrix<T>& mat);
-    void log(const Matrix<T>& mat_a, Matrix<T>& mat);
-    void exp(const Matrix<T>& mat_a, Matrix<T>& mat);
-    void sigmoid(const Matrix<T>& mat_a, Matrix<T>& mat);
-	void softmax(const Matrix<T>& mat_a, Matrix<T>& mat);
-	void tanh(const Matrix<T>& mat_a, Matrix<T>& mat);
-	void relu(const Matrix<T>& mat_a, Matrix<T>& mat);
+    void zero_like(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 private:
     abcdl::utils::ParallelOperator po;
