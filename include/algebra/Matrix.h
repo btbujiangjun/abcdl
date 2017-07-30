@@ -70,14 +70,18 @@ public:
                           const std::size_t cols);
     
     Matrix<T>* get_row(const std::size_t row_id, const std::size_t row_size = 1);
-    void get_row(Matrix<T>& mat, const std::size_t row_id, const std::size_t row_size = 1);
+    void get_row(Matrix<T>& mat,
+				 const std::size_t row_id,
+				 const std::size_t row_size = 1);
     void set_row(const Matrix<T>& mat);
     void set_row(const std::size_t row_id, const Matrix<T>& mat);
     void insert_row(const Matrix<T>& mat);
     void insert_row(const std::size_t row_id, const Matrix<T>& mat);
 
     Matrix<T>* get_col(const std::size_t col_id, const std::size_t col_size = 1);
-	void get_col(Matrix<T>& mat, const std::size_t col_id, const std::size_t col_size = 1);
+	void get_col(Matrix<T>& mat,
+				 const std::size_t col_id,
+				 const std::size_t col_size = 1);
     void set_col(const Matrix<T>& mat);
     void set_col(const std::size_t col_id, const Matrix<T>& mat);
     void insert_col(const Matrix<T>& mat);
@@ -90,6 +94,15 @@ public:
     void reset(const T& value,
                const std::size_t rows,
                const std::size_t cols);
+
+    inline bool reshape(std::size_t row, std::size_t col){
+        if(row * col == _rows * _cols){
+            _rows = row;
+            _cols = col;
+            return true;
+        }
+        return false;
+    }
 
     void display(const std::string& split="\t");
 
@@ -128,20 +141,15 @@ public:
     void log();
     void exp();
     void sigmoid();
-    //void derivative_sigmoid();
 	void softmax();
 	void tanh();
 	void relu();
 
+
+    T sum() const;
+    real mean() const;
+	void transpose();
 /*
-    void pow(const T exponent);
-    void log();
-    void exp();
-    void sigmoid();
-    void derivative_sigmoid();
-	void softmax();
-	void tanh();
-	void relu();
 
     virtual T sum() const = 0;
     void x_sum();
@@ -162,14 +170,6 @@ public:
 
     virtual Matrix<T>* transpose() = 0;
 
-    bool reshape(std::size_t row, std::size_t col){
-        if(row * col == _rows * _cols){
-            _rows = row;
-            _cols = col;
-            return true;
-        }
-        return false;
-    }
 
     void expand(std::size_t row_dim, std::size_t col_dim);
 
