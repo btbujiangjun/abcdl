@@ -11,8 +11,11 @@ using abcdl::algebra::Matrix;
 
 int main(int argc,char** argv){
     abcdl::algebra::Matrix<real> m1(1.0, 10000, 10000);
-
-	printf("sum is[%d]\n", (int)m1.sum());
+	m1.set_data(0.2, 20);
+	m1.set_data(2.3, 23);
+	m1.set_data(13.4, 27000000);
+	m1.set_data(14.4, 87000000);
+	printf("sum is[%d] mean[%f]max[%f]min[%f]\n", (int)m1.sum(),(real) m1.mean(), (real)m1.max(), (real)m1.min());
 	
 	/*
 	auto m2 = m1 + 2.0f;
