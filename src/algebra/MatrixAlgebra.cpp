@@ -6,7 +6,6 @@
  * Description   : 
  **********************************************/
 
-#include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
 
 namespace abcdl{
@@ -15,19 +14,19 @@ namespace algebra{
 template<class T>
 void Matrix<T>::dot(const Matrix<T>& mat){
     MatrixHelper<T> mh;
-    mh.dot(*this, mat, *this);    
+    mh.dot(*this, *this, mat);    
 }
 
 template<class T>
 void Matrix<T>::outer(const Matrix<T>& mat){
     MatrixHelper<T> mh;
-    mh.outer(*this, mat, *this);
+    mh.outer(*this, *this, mat);
 }
 
 template<class T>
 void Matrix<T>::pow(const T& exponent){
     MatrixHelper<T> mh;
-    mh.pow(*this, exponent, *this);
+    mh.pow(*this, *this, exponent);
 }
 
 template<class T> 
