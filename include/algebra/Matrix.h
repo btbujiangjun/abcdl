@@ -146,6 +146,8 @@ public:
 	void relu();
 
 
+	T max() const;
+	T min() const;
     T sum() const;
     real mean() const;
 	void transpose();
