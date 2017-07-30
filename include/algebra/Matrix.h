@@ -33,17 +33,37 @@ public:
     inline std::size_t get_size() const { return _rows * _cols;}
 
     inline T* data() const { return _data; }
-    inline T& get_data(const std::size_t idx) const;
-    inline T& get_data(const std::size_t row_id, const std::size_t col_id) const;
+    inline T& get_data(const std::size_t idx) const{
+		return _data[idx];
+	}
+    inline T& get_data(const std::size_t row_id, const std::size_t col_id) const{
+		return _data[row_id * _cols + col_id];
+	}
 
-    inline void set_data(const T& value, const std::size_t idx);
+    inline void set_data(const T& value, const std::size_t idx){
+		_data[idx] = value;
+	}
     inline void set_data(const T& value,
                          const std::size_t row_id,
-                         const std::size_t col_id);
+                         const std::size_t col_id){
+		_data[row_id * _cols + col_id] = value;
+	}
     inline void set_data(const T* data,
                          const std::size_t rows,
-                         const std::size_t cols);
-    inline void set_data(const Matrix<T>& mat);
+                         const std::size_t cols){
+		if(_data != nullptr && _rows * _cols != rows * cols){
+			delete[] _data;
+			_data = new T[rows * cols];
+
+		}
+		
+		_rows = rows;
+		_cols = cols;
+		memcpy(_data, data, sizeof(T) * rows * cols);
+	}
+    inline void set_data(const Matrix<T>& mat){
+		set_data(mat.data(), mat.rows(), mat.cols());
+	}
 
     void set_shallow_data(T* data,
                           const std::size_t rows,
