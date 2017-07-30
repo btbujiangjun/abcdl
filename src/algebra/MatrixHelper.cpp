@@ -15,15 +15,21 @@ namespace abcdl{
 namespace algebra{
 
 template<class T>
-void MatrixHelper<T>::dot(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b){
+void MatrixHelper<T>::dot(Matrix<T>& mat,
+						  const Matrix<T>& mat_a,
+						  const Matrix<T>& mat_b){
 }
 
 template<class T>
-void MatrixHelper<T>::outer(Matrix<T>& mat, const Matrix<T>& mat_a, const Matrix<T>& mat_b){
+void MatrixHelper<T>::outer(Matrix<T>& mat,
+							const Matrix<T>& mat_a,
+							const Matrix<T>& mat_b){
 }
 
 template<class T>
-void MatrixHelper<T>::pow(Matrix<T>& mat, const Matrix<T>& mat_a, const T& exponent){
+void MatrixHelper<T>::pow(Matrix<T>& mat,
+						  const Matrix<T>& mat_a,
+						  const T& exponent){
     auto lamda = [](T* a, const T& b, const T& c){*a = std::pow(b, c);};
     po.parallel_mul2one_copy<T>(mat_a.data(), mat_a.get_size(), exponent, mat.data(), lamda);
 }
@@ -69,6 +75,20 @@ void MatrixHelper<T>::zero_like(Matrix<T>& mat, const Matrix<T>& mat_a){
 	mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols()); 
 }
 
+template<class T>
+void transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
+	if(&mat != &mat_a){
+		mat.set_data(mat_a.data(), mat_a.rows(), mat_b.cols());
+	}
+
+	std::size_t rows = mat.rows();
+	std::size_t cols = mat.cols();
+	if(mat.rows() == 1 || mat.cols() == 1){
+		mat.reshape(cols, rows);
+	}else{
+
+	}
+}
 
 template class MatrixHelper<int>;
 template class MatrixHelper<real>;
