@@ -40,7 +40,7 @@ public:
 	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 
-	void transponse(Matrix<T>& mat, const Matrix<T>& mat_a);
+	void transpose(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 /*
     Matrix<int>* argmax(const std::size_t axis);
