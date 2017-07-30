@@ -9,6 +9,7 @@
 #ifndef _ABCDL_UTILS_TYPEDEF_H_
 #define _ABCDL_UTILS_TYPEDEF_H_
 
+#include <cmath>
 #include <cstddef>
 #include <typeinfo>
 #include <stdlib.h>
@@ -72,6 +73,16 @@ T get_min_value(){
     }else{
         return (T)std::numeric_limits<int>::min();
     }
+}
+
+template<class T>
+static inline T exp(const T& value){
+	return value > EXP_MAX ? std::exp(EXP_MAX) : std::exp(value);
+}
+
+template<class T>
+static inline T sigmoid(const T& value){
+	return static_cast<T>(1) / (1 + exp<T>(-value));
 }
 
 }//namespace utils
