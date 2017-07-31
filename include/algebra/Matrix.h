@@ -10,6 +10,7 @@
 #define _ABCDL_ALGEBRA_MATRIX_H_
 
 #include <string>
+#include <cstring>
 #include "utils/TypeDef.h"
 
 namespace abcdl{
@@ -51,12 +52,12 @@ public:
     inline void set_data(const T* data,
                          const std::size_t rows,
                          const std::size_t cols){
-		if(_data != nullptr && _rows * _cols != rows * cols){
-			delete[] _data;
-			_data = new T[rows * cols];
-
-		}
-		
+        if(_rows * _cols != rows * cols){
+            if(_data != nullptr){
+                delete[] _data;
+            }
+    		_data = new T[rows * cols];
+        }
 		_rows = rows;
 		_cols = cols;
 		memcpy(_data, data, sizeof(T) * rows * cols);
@@ -94,6 +95,8 @@ public:
     void reset(const T& value,
                const std::size_t rows,
                const std::size_t cols);
+
+    void transpose();
 
     inline bool reshape(std::size_t row, std::size_t col){
         if(row * col == _rows * _cols){
@@ -150,7 +153,6 @@ public:
 	T min() const;
     T sum() const;
     real mean() const;
-	void transpose();
 /*
 
     virtual T sum() const = 0;
