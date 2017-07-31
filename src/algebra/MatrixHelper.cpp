@@ -40,15 +40,15 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     }
 
     std::vector<std::thread> threads(num_thread);
-    for(uint i = 0; i != num_thread; i++){
+    for(std::size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
-            [&data, &data_a, &data_b, &col_a, &col_b](uint start_idx, uint end_idx){
-				for(uint ti = start_idx; ti < end_idx; ti++){
-					uint a_init_idx = ti * col_a;
-					for(uint tj = 0; tj != col_b; tj++){
+            [&data, &data_a, &data_b, &col_a, &col_b](std::size_t start_idx, std::size_t end_idx){
+				for(std::size_t ti = start_idx; ti < end_idx; ti++){
+					std::size_t a_init_idx = ti * col_a;
+					for(std::size_t tj = 0; tj != col_b; tj++){
 						T value = 0;
-						uint a_idx = a_init_idx;
-						for(uint tk = 0; tk != col_a; tk++){
+						std::size_t a_idx = a_init_idx;
+						for(std::size_t tk = 0; tk != col_a; tk++){
 							value += data_a[a_idx++] * data_b[tk * col_b + tj];
 						}
 						data[ti * col_b + tj] = value;
@@ -157,12 +157,12 @@ void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
     }
         
     std::vector<std::thread> threads(num_thread);
-    for(uint i = 0; i != num_thread; i++){
+    for(std::size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
-            [&data, &src_data, rows, cols](uint start_idx, uint end_idx){
+            [&data, &src_data, rows, cols](std::size_t start_idx, std::size_t end_idx){
                 std::size_t idx = 0;
-				for(uint ti = start_idx; ti < end_idx; ti++){
-		    		for(uint tj = start_idx; tj != rows; tj++){
+				for(std::size_t ti = start_idx; ti < end_idx; ti++){
+		    		for(std::size_t tj = start_idx; tj != rows; tj++){
                         data[idx++] = src_data[tj * cols + ti]; 
 	    			}
 		    	}
