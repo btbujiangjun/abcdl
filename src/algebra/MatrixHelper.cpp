@@ -107,8 +107,14 @@ void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
 
 template<class T>
 void MatrixHelper<T>::softmax(Matrix<T>& mat, const Matrix<T>& mat_a){
-//    auto lamda = [](T* a){ *a = std::log(*a);};
-//    po.parallel_mul2one<T>(_data, get_size(), lamda);
+    T max = mat_a.max();
+    if(&mat != &mat_a){
+        mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
+    }
+
+    auto lamda = [](T* a, const T& max){*a = std::exp(std::max((*a - max), (T)SOFTMAX_MIN));};
+    po.parallel_mul2one<T>(mat.data(), mat.get_size(), max, lamda);
+    mat /=  mat.sum();
 }
 
 template<class T>
