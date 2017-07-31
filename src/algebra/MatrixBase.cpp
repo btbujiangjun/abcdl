@@ -7,6 +7,7 @@
  **********************************************/
 
 #include "algebra/Matrix.h"
+#include "algebra/MatrixHelper.h"
 #include "utils/ParallelOperator.h"
 #include <string.h>
 #include <iostream>
@@ -74,7 +75,6 @@ void Matrix<T>::set_shallow_data(T* data,
                                  const std::size_t cols){
     if(_data != nullptr){
         delete[] _data;
-        _data = nullptr;
     }
     _data = data;
     _rows = rows;
@@ -259,6 +259,11 @@ void Matrix<T>::reset(const T& value,
     }
 }
 
+template<class T>
+void Matrix<T>::transpose(){
+    MatrixHelper<T> mh;
+    mh.transpose(*this, *this);
+}
 
 template<class T>
 void Matrix<T>::display(const std::string& split){
@@ -278,7 +283,8 @@ void Matrix<T>::display(const std::string& split){
 
 
 template class Matrix<int>;
-template class Matrix<real>;
+template class Matrix<float>;
+template class Matrix<double>;
 
 }//namespace algebra
 }//namespace abcdl
