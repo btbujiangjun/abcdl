@@ -73,7 +73,7 @@ T Matrix<T>::max() const{
 	T max = _data[0];
 	auto lamda = [](T* a, const T& b){if(b > *a){*a = b;}};
 	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(_data, get_size(), &max, lamda);
+	po.parallel_reduce_mul2one<T>(&max, _data, get_size(), lamda);
 	return max;   
 }
 
@@ -85,7 +85,7 @@ T Matrix<T>::min() const{
 	T min = _data[0];
 	auto lamda = [](T* a, const T& b){if(b < *a){*a = b;}};
 	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(_data, get_size(), &min, lamda);
+	po.parallel_reduce_mul2one<T>(&min, _data, get_size(), lamda);
 	return min;   
 }
 
@@ -94,7 +94,7 @@ T Matrix<T>::sum() const{
 	T sum = 0;
 	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
 	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(_data, get_size(), &sum, lamda);
+	po.parallel_reduce_mul2one<T>(&sum, _data, get_size(), lamda);
 	return sum;   
 }
 
@@ -103,13 +103,9 @@ real Matrix<T>::mean() const{
 	return ((real)sum())/get_size();
 }
 
-template<class T>
-void Matrix<T>::transpose(){
-
-}
-
 template class Matrix<int>;
-template class Matrix<real>;
+template class Matrix<float>;
+template class Matrix<double>;
 
 }//namespace algebra
 }//namespace abcdl
