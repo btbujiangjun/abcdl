@@ -153,6 +153,7 @@ public:
 	T min() const;
     T sum() const;
     real mean() const;
+//    bool det(T* result);
 /*
 
     virtual T sum() const = 0;
@@ -192,7 +193,6 @@ public:
 
     virtual bool det(T* result) = 0;
 
-    virtual real mean() = 0;
     virtual real mean(std::size_t col) = 0;
 
     virtual real var() = 0;
