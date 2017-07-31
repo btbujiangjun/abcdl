@@ -103,6 +103,13 @@ real Matrix<T>::mean() const{
 	return ((real)sum())/get_size();
 }
 
+/*
+template<class T>
+bool Matrix<T>::inverse(Matrix<T>& mat){
+
+}
+*/
+
 template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
