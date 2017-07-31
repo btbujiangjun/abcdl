@@ -43,6 +43,10 @@ int main(int argc,char** argv){
     m1.display("|");
     m1.transpose();
     m1.display("|");
+    m1.softmax();
+    m1.display("|");
+    m1.sigmoid();
+    m1.display("|");
 
 
 //    printf("Max of float is[%f], min is[%f]\n", FLT_MAX, FLT_MIN);
