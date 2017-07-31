@@ -26,7 +26,7 @@ Matrix<T>::Matrix(){
 }
 
 template<class T>
-Matrix<T>::Matrix(const std::size_t rows, const std::size_t cols){
+Matrix<T>::Matrix(const size_t rows, const size_t cols){
     _rows = rows;
     _cols = cols;
     _data = new T[_rows * _cols];
@@ -35,8 +35,8 @@ Matrix<T>::Matrix(const std::size_t rows, const std::size_t cols){
 
 template<class T>
 Matrix<T>::Matrix(const T& value,
-                  const std::size_t rows,
-                  const std::size_t cols){
+                  const size_t rows,
+                  const size_t cols){
     _rows = rows;
     _cols = cols;
     _data = new T[_rows * _cols];
@@ -51,8 +51,8 @@ Matrix<T>::Matrix(const T& value,
 
 template<class T>
 Matrix<T>::Matrix(const T* data,
-                  const std::size_t rows,
-                  const std::size_t cols){
+                  const size_t rows,
+                  const size_t cols){
     _rows = rows;
     _cols = cols;
     _data = new T[_rows * _cols];
@@ -71,8 +71,8 @@ Matrix<T>::~Matrix(){
 
 template<class T>
 void Matrix<T>::set_shallow_data(T* data,
-                                 const std::size_t rows,
-                                 const std::size_t cols){
+                                 const size_t rows,
+                                 const size_t cols){
     if(_data != nullptr){
         delete[] _data;
     }
@@ -82,14 +82,14 @@ void Matrix<T>::set_shallow_data(T* data,
 }
 
 template<class T>
-Matrix<T>* Matrix<T>::get_row(const std::size_t row_id, const std::size_t row_size){
+Matrix<T>* Matrix<T>::get_row(const size_t row_id, const size_t row_size){
     auto matrix = new Matrix<T>();
 	get_row(*matrix, row_id, _cols);
 	return matrix;
 }
 
 template<class T>
-void Matrix<T>::get_row(Matrix<T>& mat, const std::size_t row_id, const std::size_t row_size){
+void Matrix<T>::get_row(Matrix<T>& mat, const size_t row_id, const size_t row_size){
     if(row_id + row_size > _rows){
         //todo out_of_range
     }
@@ -105,7 +105,7 @@ void Matrix<T>::set_row(const Matrix<T>& mat){
 }
 
 template<class T>
-void Matrix<T>::set_row(const std::size_t row_id, const Matrix<T>& mat){
+void Matrix<T>::set_row(const size_t row_id, const Matrix<T>& mat){
     if(_cols != mat.cols()){
         //todo diff cols
     }
@@ -121,7 +121,7 @@ void Matrix<T>::insert_row(const Matrix<T>& mat){
     insert_row(_rows, mat);
 }
 template<class T>
-void Matrix<T>::insert_row(const std::size_t row_id, const Matrix<T>& mat){
+void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){
     
     if(get_size() == 0){
         set_data(mat.data(), mat.rows(), mat.cols());
@@ -146,20 +146,20 @@ void Matrix<T>::insert_row(const std::size_t row_id, const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T>* Matrix<T>::get_col(const std::size_t col_id, const std::size_t col_size){
+Matrix<T>* Matrix<T>::get_col(const size_t col_id, const size_t col_size){
     auto matrix = new Matrix<T>();
 	get_col(*matrix, col_id, col_size);
     return matrix;
 }
 
 template<class T>
-void Matrix<T>::get_col(Matrix<T>& mat, const std::size_t col_id, const std::size_t col_size){
+void Matrix<T>::get_col(Matrix<T>& mat, const size_t col_id, const size_t col_size){
     if(col_id + col_size > _cols){
         //todo out_of_range
     }
 
 	T* data = new T[_rows * col_size];
-	for(std::size_t i = 0; i != _rows; i++){
+	for(size_t i = 0; i != _rows; i++){
 		memcpy(&data[i * col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
 	}
 	mat.set_shallow_data(data, _rows, col_size);
@@ -171,7 +171,7 @@ void Matrix<T>::set_col(const Matrix<T>& mat){
 }
 
 template<class T>
-void Matrix<T>::set_col(const std::size_t col_id, const Matrix<T>& mat){
+void Matrix<T>::set_col(const size_t col_id, const Matrix<T>& mat){
     if(mat.rows() != _rows){
         //todo diff rows
     }
@@ -181,9 +181,9 @@ void Matrix<T>::set_col(const std::size_t col_id, const Matrix<T>& mat){
     }
 
     T* sub_data   = mat.data();
-    std::size_t sub_cols =  mat.cols();
+    size_t sub_cols =  mat.cols();
 
-    for(std::size_t i = 0; i != _rows; i++){
+    for(size_t i = 0; i != _rows; i++){
         memcpy(&_data[i * _cols + col_id], &sub_data[i * sub_cols], sizeof(T) * sub_cols);
     }
 }
@@ -194,7 +194,7 @@ void Matrix<T>::insert_col(const Matrix<T>& mat){
 }
 
 template<class T>
-void Matrix<T>::insert_col(const std::size_t col_id, const Matrix<T>& mat){
+void Matrix<T>::insert_col(const size_t col_id, const Matrix<T>& mat){
     if(_rows != mat.rows()){
         //todo diff rows
     }
@@ -203,12 +203,12 @@ void Matrix<T>::insert_col(const std::size_t col_id, const Matrix<T>& mat){
         //todo out_of_range
     }
 
-    std::size_t sub_cols = mat.cols();
-    std::size_t new_cols = _cols + sub_cols;
+    size_t sub_cols = mat.cols();
+    size_t new_cols = _cols + sub_cols;
     T* sub_data   = mat.data();
 
     T* data = new T[_rows * new_cols];
-    for(std::size_t i = 0; i != _rows; i++){
+    for(size_t i = 0; i != _rows; i++){
         if(col_id > 0){
             memcpy(&data[i * new_cols], &_data[i * _cols], sizeof(T) * sub_cols);
         }
@@ -237,8 +237,8 @@ void Matrix<T>::reset(const T& value){
 
 template<class T>
 void Matrix<T>::reset(const T& value,
-                      const std::size_t rows,
-                      const std::size_t cols){
+                      const size_t rows,
+                      const size_t cols){
     if(get_size() != rows * cols){
         if(_data != nullptr){
             delete[] _data;
@@ -249,7 +249,7 @@ void Matrix<T>::reset(const T& value,
         _cols = cols;
     }
 
-    std::size_t size = rows * cols;
+    size_t size = rows * cols;
     if(value == 0 || value == -1){
         memset(_data, value, sizeof(T) * size);
     }else{
@@ -268,9 +268,9 @@ void Matrix<T>::transpose(){
 template<class T>
 void Matrix<T>::display(const std::string& split){
     printf("[%ld*%ld][\n", _rows, _cols);
-    for(std::size_t i = 0; i != _rows; i++){
+    for(size_t i = 0; i != _rows; i++){
         printf("row[%ld][", i);
-        for(std::size_t j = 0; j != _cols; j++){
+        for(size_t j = 0; j != _cols; j++){
             printf("%s", std::to_string(_data[i * _cols + j]).c_str());
             if(j != this->_cols - 1){
                 printf("%s", split.c_str());

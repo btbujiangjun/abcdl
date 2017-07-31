@@ -17,7 +17,7 @@ namespace abcdl{
 namespace algebra{
 
 template<class T>
-T& Matrix<T>::operator [] (const std::size_t idx) const{
+T& Matrix<T>::operator [] (const size_t idx) const{
 	//todo out_of_range
 	return _data[idx];
 }

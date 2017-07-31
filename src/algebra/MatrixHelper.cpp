@@ -18,10 +18,10 @@ template<class T>
 void MatrixHelper<T>::dot(Matrix<T>& mat,
 						  const Matrix<T>& mat_a,
 						  const Matrix<T>& mat_b){
-    std::size_t row_a = mat_a.rows();
-    std::size_t col_a = mat_a.cols();
-    std::size_t row_b = mat_b.rows();
-    std::size_t col_b = mat_b.cols();
+    size_t row_a = mat_a.rows();
+    size_t col_a = mat_a.cols();
+    size_t row_b = mat_b.rows();
+    size_t col_b = mat_b.cols();
 
     if(col_a != row_b){
         //todo dim error
@@ -32,23 +32,23 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     T* data_a = mat_a.data();
     T* data_b = mat_b.data();
 
-    std::size_t size = row_a * col_b * col_a;
-    std::size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
-    std::size_t block_size = row_a / num_thread;
+    size_t size = row_a * col_b * col_a;
+    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t block_size = row_a / num_thread;
     if(row_a % num_thread != 0){
         block_size += 1;
     }
 
     std::vector<std::thread> threads(num_thread);
-    for(std::size_t i = 0; i != num_thread; i++){
+    for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
-            [&data, &data_a, &data_b, &col_a, &col_b](std::size_t start_idx, std::size_t end_idx){
-				for(std::size_t ti = start_idx; ti < end_idx; ti++){
-					std::size_t a_init_idx = ti * col_a;
-					for(std::size_t tj = 0; tj != col_b; tj++){
+            [&data, &data_a, &data_b, &col_a, &col_b](size_t start_idx, size_t end_idx){
+				for(size_t ti = start_idx; ti < end_idx; ti++){
+					size_t a_init_idx = ti * col_a;
+					for(size_t tj = 0; tj != col_b; tj++){
 						T value = 0;
-						std::size_t a_idx = a_init_idx;
-						for(std::size_t tk = 0; tk != col_a; tk++){
+						size_t a_idx = a_init_idx;
+						for(size_t tk = 0; tk != col_a; tk++){
 							value += data_a[a_idx++] * data_b[tk * col_b + tj];
 						}
 						data[ti * col_b + tj] = value;
@@ -69,8 +69,8 @@ template<class T>
 void MatrixHelper<T>::outer(Matrix<T>& mat,
 							const Matrix<T>& mat_a,
 							const Matrix<T>& mat_b){
-    std::size_t size_a = mat_a.get_size();
-    std::size_t size_b = mat_b.get_size();
+    size_t size_a = mat_a.get_size();
+    size_t size_b = mat_b.get_size();
     T* data_a = mat_a.data();
     T* data_b = mat_b.data();
     T* data   = new T[size_a * size_b];
@@ -140,8 +140,8 @@ void MatrixHelper<T>::zero_like(Matrix<T>& mat, const Matrix<T>& mat_a){
 
 template<class T>
 void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
-	std::size_t rows = mat_a.rows();
-	std::size_t cols = mat_a.cols();
+	size_t rows = mat_a.rows();
+	size_t cols = mat_a.cols();
 	if((rows == 1 || cols == 1) &&(&mat != &mat_a)){
 		mat.set_data(mat_a.data(), rows, cols);
 		mat.reshape(cols, rows);
@@ -150,19 +150,19 @@ void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 
     T* src_data      = mat_a.data();
     T* data          = new T[mat_a.get_size()];
-    std::size_t num_thread = po.get_num_thread(mat_a.get_size(), po.get_block_size(mat_a.get_size()));
-    std::size_t block_size = cols / num_thread;
+    size_t num_thread = po.get_num_thread(mat_a.get_size(), po.get_block_size(mat_a.get_size()));
+    size_t block_size = cols / num_thread;
     if(cols % num_thread != 0){
         block_size += 1;
     }
         
     std::vector<std::thread> threads(num_thread);
-    for(std::size_t i = 0; i != num_thread; i++){
+    for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
-            [&data, &src_data, rows, cols](std::size_t start_idx, std::size_t end_idx){
-                std::size_t idx = 0;
-				for(std::size_t ti = start_idx; ti < end_idx; ti++){
-		    		for(std::size_t tj = start_idx; tj != rows; tj++){
+            [&data, &src_data, rows, cols](size_t start_idx, size_t end_idx){
+                size_t idx = 0;
+				for(size_t ti = start_idx; ti < end_idx; ti++){
+		    		for(size_t tj = start_idx; tj != rows; tj++){
                         data[idx++] = src_data[tj * cols + ti]; 
 	    			}
 		    	}
