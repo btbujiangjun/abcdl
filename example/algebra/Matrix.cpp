@@ -27,6 +27,8 @@ int main(int argc,char** argv){
     abcdl::utils::logging::initialize_logging(argc, argv);
     abcdl::utils::logging::set_min_log_level(abcdl::utils::logging::INFO);
     abcdl::utils::logging::LOG(INFO) << "test INFO";
+    abcdl::utils::logging::LOG(WARNING) << "test WARNING";
+    abcdl::utils::logging::LOG(ERROR) << "test ERROR";
     abcdl::utils::logging::LOG(FATAL) << "test FATAL";
     abcdl::algebra::Mat m1;
     abcdl::algebra::Mat m2;
