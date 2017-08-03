@@ -23,16 +23,16 @@ const int FATAL = 3;
 const int NUM_SEVERITIES = 4;
 
 #define _ABCDL_LOG_INFO \
-    ::abcdl::utils::logging::LogMessage(__FILE__, __LINE__, ::abcdl::utils::logging::INFO)
+    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::INFO)
 
 #define _ABCDL_LOG_WARNING \
-    ::abcdl::utils::logging::LogMessage(__FILE__, __LINE__, ::abcdl::utils::logging::WARNING)
+    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::WARNING)
 
 #define _ABCDL_LOG_ERROR \
-    ::abcdl::utils::logging::LogMessage(__FILE__, __LINE__, ::abcdl::utils::logging::ERROR)
+    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::ERROR)
 
 #define _ABCDL_LOG_FATAL \
-    ::abcdl::utils::logging::LogMessage(__FILE__, __LINE__, ::abcdl::utils::logging::FATAL)
+    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::FATAL)
 
 #define ABCDL_LOG(severity) _ABCDL_LOG_##severity
 #define LOG(severity) ABCDL_LOG(severity)
