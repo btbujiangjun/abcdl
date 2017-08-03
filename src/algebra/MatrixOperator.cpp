@@ -18,7 +18,7 @@ namespace algebra{
 
 template<class T>
 T& Matrix<T>::operator [] (const size_t idx) const{
-    ABCDL_CHECK(idx < get_size());
+    CHECK(idx < get_size());
 	return _data[idx];
 }
 
@@ -71,7 +71,7 @@ Matrix<T> Matrix<T>::operator + (const T& value){
 
 template<class T>
 Matrix<T> Matrix<T>::operator + (const Matrix<T>& mat_a){
-    ABCDL_CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a += b;} };
     Matrix<T> mat;
    	clone(mat);
@@ -108,7 +108,7 @@ Matrix<T> Matrix<T>::operator - (const T& value){
 
 template<class T>
 Matrix<T> Matrix<T>::operator - (const Matrix<T>& mat_a){
-    ABCDL_CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     Matrix<T> mat;
    	clone(mat);
@@ -127,7 +127,7 @@ Matrix<T>& Matrix<T>::operator -= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator -= (const Matrix<T>& mat){
-    ABCDL_CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     ParallelOperator po;
     po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
@@ -146,7 +146,7 @@ Matrix<T> Matrix<T>::operator * (const T& value){
 
 template<class T>
 Matrix<T> Matrix<T>::operator * (const Matrix<T>& mat_a){
-    ABCDL_CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ *a *= b; };
     Matrix<T> mat;
    	clone(mat);
@@ -165,7 +165,7 @@ Matrix<T>& Matrix<T>::operator *= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator *= (const Matrix<T>& mat){
-    ABCDL_CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat));
     auto lamda = [](T* a, const T& b){ *a *= b; };
     ParallelOperator po;
     po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
@@ -184,7 +184,7 @@ Matrix<T> Matrix<T>::operator / (const T& value){
 
 template<class T>
 Matrix<T> Matrix<T>::operator / (const Matrix<T>& mat_a){
-    ABCDL_CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ *a /= b; };
     Matrix<T> mat;
    	clone(mat);
@@ -203,7 +203,7 @@ Matrix<T>& Matrix<T>::operator /= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator /= (const Matrix<T>& mat){
-    ABCDL_CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat));
     auto lamda = [](T* a, const T& b){ *a /= b; };
     ParallelOperator po;
     po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);

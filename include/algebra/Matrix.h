@@ -37,24 +37,24 @@ public:
 
     inline T* data() const { return _data; }
     inline T& get_data(const size_t idx) const{
-        ABCDL_CHECK(idx < get_size());
+        CHECK(idx < get_size());
 		return _data[idx];
 	}
     inline T& get_data(const size_t row_id, const size_t col_id) const{
         size_t size = row_id * _cols + col_id;
-        ABCDL_CHECK(size < get_size());
+        CHECK(size < get_size());
 		return _data[size];
 	}
 
     inline void set_data(const T& value, const size_t idx){
-        ABCDL_CHECK(idx < get_size());
+        CHECK(idx < get_size());
 		_data[idx] = value;
 	}
     inline void set_data(const T& value,
                          const size_t row_id,
                          const size_t col_id){
         size_t size = row_id * _cols + col_id;
-        ABCDL_CHECK(size < get_size());
+        CHECK(size < get_size());
 		_data[size] = value;
 	}
     inline void set_data(const T* data,

@@ -39,17 +39,17 @@ const int NUM_SEVERITIES = 4;
 #define PREDICT_TRUE(x) (__builtin_expect(!!(x), 1))
 #define PREDICT_FALSE(x) (__builtin_expect(x, 0))
 
-#define ABCDL_CHECK(condition) \
+#define CHECK(condition) \
     if(PREDICT_FALSE(!(condition))) \
         LOG(FATAL) << "Check failed:" #condition " "
 
-#define ABCDL_CHECK_EQ(v1, v2) ABCDL_CHECK((v1) == (v2))
-#define ABCDL_CHECK_NE(v1, v2) ABCDL_CHECK((v1) != (v2))
-#define ABCDL_CHECK_LE(v1, v2) ABCDL_CHECK((v1) <= (v2))
-#define ABCDL_CHECK_LT(v1, v2) ABCDL_CHECK((v1) < (v2))
-#define ABCDL_CHECK_GE(v1, v2) ABCDL_CHECK((v1) >= (v2))
-#define ABCDL_CHECK_GT(v1, v2) ABCDL_CHECK((v1) > (v2))
-#define ABCDL_CHECK_NOTNULL(v) ABCDL_CHECK((v) != NULL)
+#define CHECK_EQ(v1, v2) CHECK((v1) == (v2))
+#define CHECK_NE(v1, v2) CHECK((v1) != (v2))
+#define CHECK_LE(v1, v2) CHECK((v1) <= (v2))
+#define CHECK_LT(v1, v2) CHECK((v1) < (v2))
+#define CHECK_GE(v1, v2) CHECK((v1) >= (v2))
+#define CHECK_GT(v1, v2) CHECK((v1) > (v2))
+#define CHECK_NOTNULL(v) CHECK((v) != NULL)
 
 void initialize_log(int argc, char** argv);
 
