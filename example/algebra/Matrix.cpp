@@ -6,6 +6,7 @@
  * Description   : 
  **********************************************/
 #include "algebra/Matrix.h"
+#include "utils/Logging.h"
 #include "limits.h"
 #include "float.h"
 
@@ -23,6 +24,10 @@ int main(int argc,char** argv){
 	printf("sum is[%f]\n", (real)m1.sum());
 */
 
+    abcdl::utils::logging::initialize_logging(argc, argv);
+    abcdl::utils::logging::set_min_log_level(abcdl::utils::logging::INFO);
+    abcdl::utils::logging::LOG(INFO) << "test INFO";
+    abcdl::utils::logging::LOG(FATAL) << "test FATAL";
     abcdl::algebra::Mat m1;
     abcdl::algebra::Mat m2;
     real data1[6] = {1,2,3,4,5,6};
