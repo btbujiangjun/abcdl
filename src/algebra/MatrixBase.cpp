@@ -9,6 +9,7 @@
 #include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
 #include "utils/ParallelOperator.h"
+#include <random>
 #include <string.h>
 #include <iostream>
 #include <stdio.h>
@@ -87,11 +88,10 @@ Matrix<T>* Matrix<T>::get_row(const size_t row_id, const size_t row_size){
 }
 
 template<class T>
-void Matrix<T>::get_row(Matrix<T>& mat, const size_t row_id, const size_t row_size){
-    if(row_id + row_size > _rows){
-        //todo out_of_range
-    }
-
+void Matrix<T>::get_row(Matrix<T>& mat,
+                        const size_t row_id,
+                        const size_t row_size){
+    CHECK(row_id + row_size <= _rows);
 	T* data = new T[row_size * _cols];
 	memcpy(data, &_data[row_id * _cols], sizeof(T) * row_size * _cols);
 	mat.set_shallow_data(data, row_size, _cols);
@@ -144,7 +144,9 @@ Matrix<T>* Matrix<T>::get_col(const size_t col_id, const size_t col_size){
 }
 
 template<class T>
-void Matrix<T>::get_col(Matrix<T>& mat, const size_t col_id, const size_t col_size){
+void Matrix<T>::get_col(Matrix<T>& mat,
+                        const size_t col_id,
+                        const size_t col_size){
     CHECK(col_id + col_size <= _cols);
 	T* data = new T[_rows * col_size];
 	for(size_t i = 0; i != _rows; i++){
@@ -256,6 +258,40 @@ void Matrix<T>::display(const std::string& split){
         printf("]\n");
     }
     printf("]\n");
+}
+
+
+template<class T>
+RandomMatrix<T>::RandomMatrix(size_t rows,
+                              size_t cols,
+                              const T& mean_value,
+                              const T& stddev,
+                              const T& min,
+                              const T& max) : Matrix<T>(rows, cols){
+    T scale = max - min;
+    ParallelOperator po;
+    size_t size = rows * cols;
+    T* data = this->_data;
+    size_t block_size = po.get_block_size(size);
+    size_t num_thread = po.get_num_thread(size, block_size);
+    std::vector<std::thread> threads(num_thread);
+    std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
+    std::normal_distribution<T> distribution(mean_value, stddev);
+    for(size_t i = 0; i != num_thread; i++){
+        threads[i] = std::thread(
+            [&data, max, min, scale, &distribution, &engine](size_t start_idx, size_t end_idx){
+                for(size_t ti = start_idx; ti != end_idx; ti++){
+                    T value = static_cast<T>(distribution(engine));
+                    if(value > max){
+                        value =- (int)((value - min)/scale) * scale; 
+                    }else if(value < min){
+                        value =+ (int)((max - value))/scale * scale;
+                    }
+                    data[ti] = value;
+                }
+            }, i * block_size, std::min(size, (i + 1) * block_size)
+        );
+    }
 }
 
 
