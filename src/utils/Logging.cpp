@@ -1,7 +1,7 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
 * Created: 2017-08-02 11:25
-* Last modified: 2017-08-02 11:25
+* Last modified: 2017-08-03 15:06
 * Filename: Logging.cpp
 * Description: 
 **********************************************/
@@ -12,6 +12,7 @@
 #include "unistd.h"
 #include "fcntl.h"
 #include "string.h"
+#include <time.h>
 #include <vector>
 
 namespace abcdl{
@@ -76,7 +77,7 @@ static inline int env2index(const char* env_name,
 static bool g_log_inited = false;
 static bool g_log_to_stderr = env2bool("ABCDL_LOG_LOGTOSTDERR", true);
 static const std::vector<std::string> g_log_level_name = {"INFO", "WARNING", "ERROR", "FATAL"};
-static int g_log_min_level = env2int("ABCDL_LOG_MIN_LEVEL",env2index("ABCDL_LOG_MIN_LEVEL", g_log_level_name, 0));
+static int g_log_min_level = env2int("ABCDL_LOG_MIN_LEVEL", env2index("ABCDL_LOG_MIN_LEVEL", g_log_level_name, 0));
 
 static std::vector<std::vector<int>> g_log_fds;
 static std::vector<int> g_log_file_fds;
@@ -95,8 +96,12 @@ static void initialize_log_fds(char* argc){
         fds.push_back(STDERR_FILENO);
     }
     char* log_dir = getenv("ABCDL_LOG_LOGDIR");
+    if(log_dir == nullptr){
+        char path = '.';
+        log_dir = &path;
+    }
 
-    for(int i = g_log_min_level; i < NUM_SEVERITIES && log_dir != nullptr; i++){
+    for(int i = g_log_min_level; i != NUM_SEVERITIES && log_dir != nullptr; i++){
         std::string file_name = join(log_dir, std::string(argc) + "." + g_log_level_name[i]);
         int fd = open(file_name.c_str(), O_CREAT | O_WRONLY, 0644);
         if( fd == -1){
@@ -139,11 +144,15 @@ LogMessage::~LogMessage(){
 }
 
 void LogMessage::generate_log_message(){
+    time_t timep;
+    time(&timep);
+    char time_data[64];
+    strftime(time_data, sizeof(time_data), "%Y-%m-%d %H:%M:%S", localtime(&timep));
     if(!g_log_inited){
-        fprintf(stderr, "%c %s:%d] %s\n", "IWEF"[_severity], _name, _line, str().c_str());
+        fprintf(stderr, "[%s] [%s] [%s:%d] %s\n", g_log_level_name[_severity].c_str(), time_data,  _name, _line, str().c_str());
     }else{
         for(auto& fd : g_log_fds[this->_severity]){
-            dprintf(fd, "%c %s:%d] %s\n", "IWEF"[_severity], _name, _line, str().c_str());
+            dprintf(fd, "[%s] [%s] [%s:%d] %s\n", g_log_level_name[_severity].c_str(), time_data, _name, _line, str().c_str());
         }
     }
 }
@@ -156,35 +165,6 @@ LogMessageFatal::~LogMessageFatal(){
     generate_log_message();
     g_failure_function_ptr();
 }
-
-/*
- glog interface
-
-#ifndef CCML_USED_GLOG
-#else // glog interface
-void initialize_logging(int argc, char** argv){
-    (void)(argc);
-    if(!getenv("GLOG_logtostderr")){
-        google::LogToStderr();
-    }
-    google::InstallFailureSignalHandler();
-    google::InitGoogleLogging(argv[0]);
-}
-
-void set_min_log_level(int level){
-    FLAGS_minloglevel = level;
-}
-
-void install_failure_function(void (*callback)()){
-    google::InstallFailureFunction(callback);
-}
-
-void install_failure_writer(void(*callback)(const char*, int)){
-    google::IntallFailureWriter(callback);
-}
-#endif
-*/
-
 
 }//namespace logging
 }//namespace utils
