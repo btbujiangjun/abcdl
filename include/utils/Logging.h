@@ -1,7 +1,7 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
 * Created: 2017-08-02 11:05
-* Last modified: 2017-08-02 11:05
+* Last modified: 2017-08-03 16:00
 * Filename: Logging.h
 * Description: 
 **********************************************/
@@ -13,9 +13,8 @@
 
 namespace abcdl{
 namespace utils{
-namespace logging{
+namespace log{
 
-//Log Levels
 const int INFO = 0;
 const int WARNING = 1;
 const int ERROR = 2;
@@ -23,16 +22,16 @@ const int FATAL = 3;
 const int NUM_SEVERITIES = 4;
 
 #define _ABCDL_LOG_INFO \
-    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::INFO)
+    abcdl::utils::log::LogMessage(__FILE__, __LINE__, abcdl::utils::log::INFO)
 
 #define _ABCDL_LOG_WARNING \
-    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::WARNING)
+    abcdl::utils::log::LogMessage(__FILE__, __LINE__, abcdl::utils::log::WARNING)
 
 #define _ABCDL_LOG_ERROR \
-    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::ERROR)
+    abcdl::utils::log::LogMessage(__FILE__, __LINE__, abcdl::utils::log::ERROR)
 
 #define _ABCDL_LOG_FATAL \
-    LogMessage(__FILE__, __LINE__, abcdl::utils::logging::FATAL)
+    abcdl::utils::log::LogMessage(__FILE__, __LINE__, abcdl::utils::log::FATAL)
 
 #define ABCDL_LOG(severity) _ABCDL_LOG_##severity
 #define LOG(severity) ABCDL_LOG(severity)
@@ -42,7 +41,7 @@ const int NUM_SEVERITIES = 4;
 
 #define ABCDL_CHECK(condition) \
     if(PREDICT_FALSE(!(condition))) \
-        ABCDL_LOG(FATAL) << "Check failed:" #condition " "
+        LOG(FATAL) << "Check failed:" #condition " "
 
 #define ABCDL_CHECK_EQ(v1, v2) ABCDL_CHECK((v1) == (v2))
 #define ABCDL_CHECK_NE(v1, v2) ABCDL_CHECK((v1) != (v2))
@@ -52,7 +51,7 @@ const int NUM_SEVERITIES = 4;
 #define ABCDL_CHECK_GT(v1, v2) ABCDL_CHECK((v1) > (v2))
 #define ABCDL_CHECK_NOTNULL(v) ABCDL_CHECK((v) != NULL)
 
-void initialize_logging(int argc, char** argv);
+void initialize_log(int argc, char** argv);
 
 void set_min_log_level(int level);
 
@@ -85,7 +84,10 @@ public:
 };//class LogMessageFatal
 
 
-}//end namespace logging
+}//end namespace log
 }//end namespace utils
 }//end namespace abcdl
+
+using namespace abcdl::utils::log;
+
 #endif //ABCDL_UTILS_LOGGING_H_
