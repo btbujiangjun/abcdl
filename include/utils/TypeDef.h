@@ -85,6 +85,7 @@ static inline T sigmoid(const T& value){
 	return static_cast<T>(1) / (1 + exp<T>(-value));
 }
 
+
 }//namespace utils
 }//namespace abcdl
 

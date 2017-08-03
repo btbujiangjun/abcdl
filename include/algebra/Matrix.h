@@ -222,6 +222,29 @@ private:
 };//class Matrix
 
 
+template<class T>
+class RandomMatrix : public Matrix<T>{
+public:
+    RandomMatrix(size_t rows,
+                 size_t cols,
+                 const T& mean_value,
+                 const T& stddev,
+                 const T& min = 0,
+                 const T& max = 0);
+};//class RandomMatrix
+
+template<class T>
+class EyeMatrix : Matrix<T>{
+    explicit EyeMatrix(size_t size){
+        T* data = new T[size * size];
+        memset(data, 0, sizeof(T) * size * size);
+        for(size_t i = 0; i != size; i++){
+            data[i * size + i] = static_cast<T>(1);
+        }
+        this->set_shallow_data(data, size, size);
+    }
+};//class EyeMatrix
+
 typedef Matrix<real> Mat;
 typedef Matrix<int> IMat;
 
