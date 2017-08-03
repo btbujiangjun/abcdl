@@ -23,10 +23,7 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     size_t row_b = mat_b.rows();
     size_t col_b = mat_b.cols();
 
-    if(col_a != row_b){
-        //todo dim error
-        printf("Dot Dim Error[%ld:%ld][%ld:%ld]\n", row_a,col_a, row_b, col_b);
-    }
+    ABCDL_CHECK(col_a == row_b);
 
     T* data   = new T[row_a * col_b];
     T* data_a = mat_a.data();
@@ -142,14 +139,14 @@ template<class T>
 void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 	size_t rows = mat_a.rows();
 	size_t cols = mat_a.cols();
-	if((rows == 1 || cols == 1) &&(&mat != &mat_a)){
+	if((rows == 1 || cols == 1) && (&mat != &mat_a)){
 		mat.set_data(mat_a.data(), rows, cols);
 		mat.reshape(cols, rows);
         return ;
 	}
 
-    T* src_data      = mat_a.data();
-    T* data          = new T[mat_a.get_size()];
+    T* src_data       = mat_a.data();
+    T* data           = new T[mat_a.get_size()];
     size_t num_thread = po.get_num_thread(mat_a.get_size(), po.get_block_size(mat_a.get_size()));
     size_t block_size = cols / num_thread;
     if(cols % num_thread != 0){

@@ -62,9 +62,7 @@ Matrix<T>::Matrix(const T* data,
 template<class T>
 Matrix<T>::~Matrix(){
     if(_data != nullptr){
-        printf("~Matrix.\n");
         delete[] _data;
-        printf("~Finished Matrix.\n");
         _data = nullptr;
     }
 }
@@ -106,13 +104,8 @@ void Matrix<T>::set_row(const Matrix<T>& mat){
 
 template<class T>
 void Matrix<T>::set_row(const size_t row_id, const Matrix<T>& mat){
-    if(_cols != mat.cols()){
-        //todo diff cols
-    }
-    if(row_id + mat.rows() > _rows){
-        //todo out_of_range
-    }
-
+    ABCDL_CHECK(_cols == mat.cols());
+    ABCDL_CHECK(row_id + mat.rows() <= _rows);
     memcpy(&_data[row_id * _cols], mat.data(), sizeof(T) * mat.get_size());
 }
 
@@ -129,9 +122,7 @@ void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){
         return;
     }
 
-    if(_cols != mat.cols()){
-        //todo diff cols
-    }
+    ABCDL_CHECK(_cols == mat.cols());
 
     T* data = new T[(_rows + mat.rows()) * _cols];
 
@@ -154,10 +145,7 @@ Matrix<T>* Matrix<T>::get_col(const size_t col_id, const size_t col_size){
 
 template<class T>
 void Matrix<T>::get_col(Matrix<T>& mat, const size_t col_id, const size_t col_size){
-    if(col_id + col_size > _cols){
-        //todo out_of_range
-    }
-
+    ABCDL_CHECK(col_id + col_size <= _cols);
 	T* data = new T[_rows * col_size];
 	for(size_t i = 0; i != _rows; i++){
 		memcpy(&data[i * col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
@@ -172,14 +160,8 @@ void Matrix<T>::set_col(const Matrix<T>& mat){
 
 template<class T>
 void Matrix<T>::set_col(const size_t col_id, const Matrix<T>& mat){
-    if(mat.rows() != _rows){
-        //todo diff rows
-    }
-
-    if(col_id + mat.cols() > _cols){
-        //todo out_of_range
-    }
-
+    ABCDL_CHECK(mat.rows() == _rows);
+    ABCDL_CHECK(col_id + mat.cols() <= _cols);
     T* sub_data   = mat.data();
     size_t sub_cols =  mat.cols();
 
@@ -195,13 +177,8 @@ void Matrix<T>::insert_col(const Matrix<T>& mat){
 
 template<class T>
 void Matrix<T>::insert_col(const size_t col_id, const Matrix<T>& mat){
-    if(_rows != mat.rows()){
-        //todo diff rows
-    }
-
-    if(col_id > _cols){
-        //todo out_of_range
-    }
+    ABCDL_CHECK(mat.rows() == _rows);
+    ABCDL_CHECK(col_id <= _cols);
 
     size_t sub_cols = mat.cols();
     size_t new_cols = _cols + sub_cols;

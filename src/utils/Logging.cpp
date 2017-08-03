@@ -17,7 +17,7 @@
 
 namespace abcdl{
 namespace utils{
-namespace logging{
+namespace log{
 
 static std::string join(const std::string& part1, const std::string& part2){
     const char sep = '/';
@@ -117,7 +117,7 @@ static void initialize_log_fds(char* argc){
 }
 
 
-void initialize_logging(int argc, char** argv){
+void initialize_log(int argc, char** argv){
     initialize_log_fds(argv[0]);
 }
 
@@ -132,7 +132,6 @@ void install_failure_function(void (*callback)()){
 void install_failure_writer(void(*callback)(const char*, int)){
     (void)(callback);
 }
-
 
 LogMessage::LogMessage(const char* name,
                        int line,
@@ -166,6 +165,6 @@ LogMessageFatal::~LogMessageFatal(){
     g_failure_function_ptr();
 }
 
-}//namespace logging
+}//namespace log
 }//namespace utils
 }//namespace abcdl
