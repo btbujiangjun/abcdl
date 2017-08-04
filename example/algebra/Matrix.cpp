@@ -18,6 +18,8 @@ int main(int argc,char** argv){
     LOG(WARNING) << "test WARNING";
     LOG(ERROR) << "test ERROR";
     LOG(FATAL) << "test FATAL";
+    abcdl::algebra::RandomMatrix<real> m0(1000, 30000, 0, 1, -0.5, 0.5);
+//    m0.display();
     abcdl::algebra::Mat m1;
     abcdl::algebra::Mat m2;
     real data1[6] = {1,2,3,4,5,6};
