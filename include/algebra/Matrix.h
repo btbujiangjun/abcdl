@@ -215,7 +215,7 @@ private:
     inline bool equal_shape(const Matrix<T>& mat) const{
         return _rows == mat.rows() && _cols == mat.cols();
     }
-private:
+protected:
     size_t _rows;
     size_t _cols;
     T*   _data;
