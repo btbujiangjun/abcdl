@@ -277,20 +277,27 @@ RandomMatrix<T>::RandomMatrix(size_t rows,
     std::vector<std::thread> threads(num_thread);
     std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
     std::normal_distribution<T> distribution(mean_value, stddev);
+
     for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
             [&data, max, min, scale, &distribution, &engine](size_t start_idx, size_t end_idx){
                 for(size_t ti = start_idx; ti != end_idx; ti++){
                     T value = static_cast<T>(distribution(engine));
                     if(value > max){
-                        value =- (int)((value - min)/scale) * scale; 
+                        real step = (value - min)/scale;
+                        value = min + (step - (int)step) * scale;
                     }else if(value < min){
-                        value =+ (int)((max - value))/scale * scale;
+                        real step = (max - value)/scale;
+                        value = min + (step - (int)step) * scale;
                     }
                     data[ti] = value;
                 }
             }, i * block_size, std::min(size, (i + 1) * block_size)
         );
+    }
+
+    for(auto& thread : threads){
+        thread.join();
     }
 }
 
@@ -299,5 +306,6 @@ template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
 
+template class RandomMatrix<float>;
 }//namespace algebra
 }//namespace abcdl
