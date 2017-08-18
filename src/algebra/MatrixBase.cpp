@@ -239,6 +239,14 @@ void Matrix<T>::reset(const T& value,
 }
 
 template<class T>
+Matrix<T> Matrix<T>::Ts(){
+    MatrixHelper<T> mh;
+    Matrix<T> mat;
+    mh.transpose(mat, *this);
+    return mat;
+}
+
+template<class T>
 void Matrix<T>::transpose(){
     MatrixHelper<T> mh;
     mh.transpose(*this, *this);

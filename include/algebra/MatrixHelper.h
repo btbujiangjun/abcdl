@@ -35,6 +35,7 @@ public:
     void exp(Matrix<T>& mat,
 			 const Matrix<T>& mat_a);
     void sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a);
+    void sigmoid_derivative(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void softmax(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void tanh(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);

@@ -6,15 +6,14 @@
  * Description   : Parallel Operate by multithread 
  **********************************************/
 
-#ifndef _ABCDL_UTILS_PARALLEL_OPERATOR_H_
-#define _ABCDL_UTILS_PARALLEL_OPERATOR_H_
+#pragma once
 
 #include <cmath>
 #include <vector>
 #include <thread>
 #include <functional>
 #include "utils/TypeDef.h"
-#include "utils/Logging.h"
+#include "utils/Log.h"
 
 namespace abcdl{
 namespace utils{
@@ -293,5 +292,3 @@ private:
 
 }//namespace utils
 }//namespace abcdl
-
-#endif //_ABCDL_UTILS_PARALLEL_OPERATOR_H_

@@ -5,14 +5,12 @@
 * Filename: Matrix.h
 * Description: Base Data Structure
 **********************************************/
-
-#ifndef _ABCDL_ALGEBRA_MATRIX_H_
-#define _ABCDL_ALGEBRA_MATRIX_H_
+#pragma once
 
 #include <string>
 #include <cstring>
 #include "utils/TypeDef.h"
-#include "utils/Logging.h"
+#include "utils/Log.h"
 
 
 namespace abcdl{
@@ -105,6 +103,7 @@ public:
                const size_t cols);
 
     void transpose();
+    Matrix<T> Ts();
 
     inline bool reshape(size_t row, size_t col){
         if(row * col == _rows * _cols){
@@ -250,5 +249,3 @@ typedef Matrix<int> IMat;
 
 }//namespace algebra
 }//namespace abcdl
-
-#endif //_ABCDL_ALGEBRA_MATRIX_H_

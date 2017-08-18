@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include <vector>
+#include "algebra/Matrix.h"
+#include "dnn/Layer.h"
+
 namespace abcdl{
 namespace dnn{
 
@@ -15,10 +19,10 @@ class DNN{
 public:
     DNN();
 
-    void set_layers(std::vector<Layer*>& layers){
+    void set_layers(std::vector<abcdl::dnn::Layer*>& layers){
         _layers = layers;
     }
-    void set_epoch(const uint epoch){
+    void set_epoch(const size_t epoch){
         _epoch = epoch;
     }
     void set_alpha(const real alpha){
@@ -27,7 +31,7 @@ public:
     void set_lamda(const real lamda){
         _lamda = lamda;
     }
-    void set_batch_size(const uint batch_size){
+    void set_batch_size(const size_t batch_size){
         _batch_size = batch_size;
     }
 
@@ -38,11 +42,11 @@ public:
     bool write_model(const std::string& path);
 
 private:
-    uint _epoch = 5;
+    size_t _epoch = 5;
     real _alpha = 0.5;
     real _lamda = 0.0;
-    uint _batch_size = 1;
-    std::vector<Layer*> _layers;
+    size_t _batch_size = 1;
+    std::vector<abcdl::dnn::Layer*> _layers;
 };//class DNN
 
 }

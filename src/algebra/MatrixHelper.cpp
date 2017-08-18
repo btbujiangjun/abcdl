@@ -103,6 +103,12 @@ void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
+void MatrixHelper<T>::sigmoid_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ *a = b * (1 - b);};
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
 void MatrixHelper<T>::softmax(Matrix<T>& mat, const Matrix<T>& mat_a){
     T max = mat_a.max();
     if(&mat != &mat_a){
@@ -157,10 +163,9 @@ void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
     for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
             [&data, &src_data, rows, cols](size_t start_idx, size_t end_idx){
-                size_t idx = 0;
 				for(size_t ti = start_idx; ti < end_idx; ti++){
-		    		for(size_t tj = start_idx; tj != rows; tj++){
-                        data[idx++] = src_data[tj * cols + ti]; 
+		    		for(size_t tj = 0; tj != rows; tj++){
+                        data[ti * rows + tj] = src_data[tj * cols + ti];
 	    			}
 		    	}
             }, i * block_size , std::min(cols, (i + 1) * block_size)
