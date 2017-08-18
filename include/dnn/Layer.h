@@ -25,6 +25,14 @@ enum Layer_type{
 class Layer{
 public:
 
+    Layer(size_t input_dim,
+          size_t output_dim,
+          Layer_type layer_type){
+        _input_dim  = input_dim;
+        _output_dim = output_dim;
+        _layer_type = layer_type;
+    }
+
     size_t get_input_dim() const{
         return _input_dim;
     }
@@ -35,19 +43,23 @@ public:
         return _layer_type;
     }
    
-    abcdl::algebra::Mat get_z_data(){
-        return _z_data;
-    }
-
-    abcdl::algebra::Mat get_activate_data(){
+    abcdl::algebra::Mat& get_activate_data() const{
         return _activate_data;
     }
     
-    abcdl::algebra::Mat get_weight(){
+    abcdl::algebra::Mat& get_delta_weight() const{
+        return _delta_weight;
+    }
+
+    abcdl::algebra::Mat& get_delta_bias() const{
+        return _delta_bias;
+    }
+
+    abcdl::algebra::Mat& get_weight() const{
         return _weight;
     }
 
-    abcdl::algebra::Mat get_bias(){
+    abcdl::algebra::Mat& get_bias() const{
         return _bias;
     }
 
@@ -81,11 +93,7 @@ private:
 
 class InputLayer : Layer{
 public:
-    InputLayer(size_t feature_dim){
-        _input_dim = feature_dim;
-        _output_dim = feature_dim;
-        _type = INPUT;
-    }
+    InputLayer(size_t feature_dim) : Layer(feature_dim, feature_dim, INPUT){}
 
     void feedward(const abcdl::algebra::Mat& mat);
     void backward(Layer* next_layer);
@@ -97,37 +105,34 @@ public:
                   const size_t output_dim,
                   ActivateFunc* activate_func,
                   const real& mean_value = 0.0f,
-                  const real& stddev = 1.0f){
-        _input_dim      = input_dim;
-        _output_dim     = output_dim;
-        _type           = FULL_CONNECTION;
+                  const real& stddev = 1.0f):Layer(input_dim, output_dim, FULL_CONNECTION){
         _activate_func  = activate_func;
-
-        _weight     = new abcdl::algebra::RandomMatrix<real>(_input_dim, _output_dim, mean_value, stddev);
-        _bias       = new abcdl::algebra::Mat(1, _output_dim);
+        _weight         = new abcdl::algebra::RandomMatrix<real>(_input_dim, _output_dim, mean_value, stddev);
+        _bias           = new abcdl::algebra::Mat(1, _output_dim);
     }
 
     FullConnLayer(const size_t input_dim,
                   const size_t output_dim,
-                  ActivateFunc * activate_func,
+                  abcdl::dnn::ActivateFunc * activate_func,
+                  abcdl::dnn::Cost* cost,
                   abcdl::algebra::Mat* weight,
-                  abcdl::algebra::Mat* bias){
-        _input_dim      = input_dim;
-        _output_dim     = output_dim;
-        _type           = FULL_CONNECTION;
+                  abcdl::algebra::Mat* bias) : Layer(input_dim, output_dim, FULL_CONNECTION){
         _activate_func  = activate_func;
+        _cost           = cost;
         _weight         = weight;
         _bias           = bias;
     }
 
     ~FullConnLayer(){
         delete _activate_func;
+        delete _cost;
     }
 
     void feedward(const abcdl::algebra::Mat& mat);
     void backward(Layer* next_layer);
 private:
-    ActivateFunc* _activate_func;
+    abcdl::dnn::ActivateFunc* _activate_func;
+    abcdl::dnn::Cost* _cost;
 };//class FullConnLayer
 
 class OutputLayer : Layer{
@@ -135,17 +140,11 @@ public:
     OutputLayer(const size_t input_dim,
                 const size_t output_dim,
                 ActivateFunc* activate_func,
-                Cost* cost,
-                const real& mean_value = 0.0f,
-                const real& stddev = 1.0f){
-
-        _input_dim      = input_dim;
-        _output_dim     = output_dim;
-        _type           = FULL_CONNECTION;
+                Cost* cost) : Layer(input_dim, output_dim, FULL_CONNECTION){
         _cost           = cost;
         _activate_func  = activate_func;
-        _weight         = new abcdl::algebra::RandomMatrix<real>(_input_dim, _output_dim, mean_value, stddev);
-        _bias           = new abcdl::algebra::Mat(1, _output_dim);
+//        _weight         = new abcdl::algebra::RandomMatrix<real>(_input_dim, _output_dim, mean_value, stddev);
+//        _bias           = new abcdl::algebra::Mat(1, _output_dim);
     }
 
     ~OutputLayer(){
