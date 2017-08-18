@@ -48,8 +48,6 @@ void OutputLayer::feedward(const abcdl::algebra::Mat& mat){
     _activate_func->activate(_activate_data, mat * _weight + _bias);
 }
 void OutputLayer::backward(Layer* next_layer){
-    CHECK(_activate_data.rows() == y->rows() && _activate_data.cols() == y->cols());
-    
     /*
      * backpropagation
      * L layer(last layer) Error
