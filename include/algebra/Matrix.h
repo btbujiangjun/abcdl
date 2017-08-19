@@ -76,19 +76,19 @@ public:
                           const size_t rows,
                           const size_t cols);
     
-    Matrix<T>* get_row(const size_t row_id, const size_t row_size = 1);
-    void get_row(Matrix<T>& mat,
+    Matrix<T> get_row(const size_t row_id, const size_t row_size = 1) const;
+    void get_row(Matrix<T>* mat,
 				 const size_t row_id,
-				 const size_t row_size = 1);
+				 const size_t row_size = 1) const;
     void set_row(const Matrix<T>& mat);
     void set_row(const size_t row_id, const Matrix<T>& mat);
     void insert_row(const Matrix<T>& mat);
     void insert_row(const size_t row_id, const Matrix<T>& mat);
 
-    Matrix<T>* get_col(const size_t col_id, const size_t col_size = 1);
-	void get_col(Matrix<T>& mat,
+    Matrix<T> get_col(const size_t col_id, const size_t col_size = 1) const;
+	void get_col(Matrix<T>* mat,
 				 const size_t col_id,
-				 const size_t col_size = 1);
+				 const size_t col_size = 1) const;
     void set_col(const Matrix<T>& mat);
     void set_col(const size_t col_id, const Matrix<T>& mat);
     void insert_col(const Matrix<T>& mat);
@@ -123,24 +123,24 @@ public:
     Matrix<T>& operator = (const T& value);
     Matrix<T>& operator = (const Matrix<T>& mat);
 
-    Matrix<T> operator + (const T& value);
-    Matrix<T> operator + (const Matrix<T>& mat);
+    Matrix<T> operator + (const T& value) const;
+    Matrix<T> operator + (const Matrix<T>& mat) const;
 
     Matrix<T>& operator += (const T& value);
     Matrix<T>& operator += (const Matrix<T>& mat);
 
-    Matrix<T> operator - (const T& value);
-    Matrix<T> operator - (const Matrix<T>& mat);
+    Matrix<T> operator - (const T& value) const;
+    Matrix<T> operator - (const Matrix<T>& mat) const;
     Matrix<T>& operator -= (const T& value);
     Matrix<T>& operator -= (const Matrix<T>& mat);
 
-    Matrix<T> operator * (const T& value);
-    Matrix<T> operator * (const Matrix<T>& mat);
+    Matrix<T> operator * (const T& value) const;
+    Matrix<T> operator * (const Matrix<T>& mat) const;
     Matrix<T>& operator *= (const T& value);
     Matrix<T>& operator *= (const Matrix<T>& mat);
 
-    Matrix<T> operator / (const T& value);
-    Matrix<T> operator / (const Matrix<T>& mat);
+    Matrix<T> operator / (const T& value) const;
+    Matrix<T> operator / (const Matrix<T>& mat) const;
     Matrix<T>& operator /= (const T& value);
     Matrix<T>& operator /= (const Matrix<T>& mat);
 
@@ -224,12 +224,25 @@ protected:
 template<class T>
 class RandomMatrix : public Matrix<T>{
 public:
+    RandomMatrix(){}
     RandomMatrix(size_t rows,
                  size_t cols,
                  const T& mean_value,
                  const T& stddev,
                  const T& min = 0,
                  const T& max = 0);
+    void reset();
+    void reset(size_t rows,
+               size_t cols,
+               const T& mean_value,
+               const T& stddev,
+               const T& min = 0,
+               const T& max = 0);
+private:
+    T _mean_value;
+    T _stddev;
+    T _min;
+    T _max;
 };//class RandomMatrix
 
 template<class T>

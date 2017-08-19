@@ -13,29 +13,33 @@
 
 namespace abcdl{
 namespace dnn{
+
 class ActivateFunc{
 public:
-    virtual void activate(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* z_mat);
-    virtual void derivative(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* activate_mat);
+    virtual ~ActivateFunc(){}
+    virtual void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat);
+    virtual void derivative(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& activate_mat);
 protected:
-    abcdl::algebra::MatrixHelper helper;
+    abcdl::algebra::MatrixHelper<real> helper;
 };//class ActivateFunc
 
-class SigmoidActivateFunc : ActivateFunc{
+class SigmoidActivateFunc : public ActivateFunc{
 public:
-    void activate(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* z_mat){
-        helper.sigmoid(*mat, *z_mat);
+    ~SigmoidActivateFunc(){}
+    void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat){
+        helper.sigmoid(mat, z_mat);
     }
-    void derivative(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* activate_mat){
+    void derivative(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& activate_mat){
         helper.sigmoid_derivative(mat, activate_mat);
     }
 };//class SigmoidActivateFunc
 
-class ReluActivateFunc : ActivateFunc{
-    void activate(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* z_mat){
-        helper.relu(*mat, *z_mat);
+class ReluActivateFunc : public ActivateFunc{
+    ~ReluActivateFunc(){}
+    void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat){
+        helper.relu(mat, z_mat);
     }
-    void derivative(abcdl::algebra::Mat* mat, const abcdl::algebra::Mat* activate_mat){
+    void derivative(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& activate_mat){
     }
 };//class ReluActivateFunc
 

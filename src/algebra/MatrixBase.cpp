@@ -81,20 +81,20 @@ void Matrix<T>::set_shallow_data(T* data,
 }
 
 template<class T>
-Matrix<T>* Matrix<T>::get_row(const size_t row_id, const size_t row_size){
-    auto matrix = new Matrix<T>();
-	get_row(*matrix, row_id, _cols);
-	return matrix;
+Matrix<T> Matrix<T>::get_row(const size_t row_id, const size_t row_size) const{
+    Matrix<T> mat;
+	get_row(&mat, row_id, _cols);
+	return mat;
 }
 
 template<class T>
-void Matrix<T>::get_row(Matrix<T>& mat,
+void Matrix<T>::get_row(Matrix<T>* mat,
                         const size_t row_id,
-                        const size_t row_size){
+                        const size_t row_size) const{
     CHECK(row_id + row_size <= _rows);
 	T* data = new T[row_size * _cols];
 	memcpy(data, &_data[row_id * _cols], sizeof(T) * row_size * _cols);
-	mat.set_shallow_data(data, row_size, _cols);
+	mat->set_shallow_data(data, row_size, _cols);
 }
 
 template<class T>
@@ -137,22 +137,22 @@ void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T>* Matrix<T>::get_col(const size_t col_id, const size_t col_size){
-    auto matrix = new Matrix<T>();
-	get_col(*matrix, col_id, col_size);
-    return matrix;
+Matrix<T> Matrix<T>::get_col(const size_t col_id, const size_t col_size) const{
+    Matrix<T> mat;
+	get_col(&mat, col_id, col_size);
+    return mat;
 }
 
 template<class T>
-void Matrix<T>::get_col(Matrix<T>& mat,
+void Matrix<T>::get_col(Matrix<T>* mat,
                         const size_t col_id,
-                        const size_t col_size){
+                        const size_t col_size) const{
     CHECK(col_id + col_size <= _cols);
 	T* data = new T[_rows * col_size];
 	for(size_t i = 0; i != _rows; i++){
 		memcpy(&data[i * col_size], &_data[i * col_size + col_id], sizeof(T) * col_size);
 	}
-	mat.set_shallow_data(data, _rows, col_size);
+	mat->set_shallow_data(data, _rows, col_size);
 }
 
 template<class T>
@@ -276,15 +276,28 @@ RandomMatrix<T>::RandomMatrix(size_t rows,
                               const T& stddev,
                               const T& min,
                               const T& max) : Matrix<T>(rows, cols){
-    T scale = max - min;
+    _mean_value = mean_value;
+    _stddev     = stddev;
+    _min        = min;
+    _max        = max;
+
+    reset();
+}
+
+template<class T>
+void RandomMatrix<T>::reset(){
+    T scale = _max - _min;
+    T min   = _min;
+    T max   = _max;
+
     ParallelOperator po;
-    size_t size = rows * cols;
+    size_t size = this->_rows * this->_cols;
     T* data = this->_data;
     size_t block_size = po.get_block_size(size);
     size_t num_thread = po.get_num_thread(size, block_size);
     std::vector<std::thread> threads(num_thread);
     std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
-    std::normal_distribution<T> distribution(mean_value, stddev);
+    std::normal_distribution<T> distribution(_mean_value, _stddev);
 
     for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
@@ -307,6 +320,30 @@ RandomMatrix<T>::RandomMatrix(size_t rows,
     for(auto& thread : threads){
         thread.join();
     }
+}
+
+template<class T>
+void RandomMatrix<T>::reset(size_t rows,
+                            size_t cols,
+                            const T& mean_value,
+                            const T& stddev,
+                            const T& min,
+                            const T& max){
+    if(rows * cols != this->_rows * this->_cols){
+        if(this->_data != nullptr){
+            delete this->_data;
+        }
+        this->_data = new T[rows * cols];
+    }
+
+    this->_rows = rows;
+    this->_cols = cols;
+    _mean_value = mean_value;
+    _stddev     = stddev;
+    _min        = min;
+    _max        = max;
+
+    reset();
 }
 
 

@@ -11,6 +11,7 @@
 #include <vector>
 #include "algebra/Matrix.h"
 #include "dnn/Layer.h"
+#include "utils/Log.h"
 
 namespace abcdl{
 namespace dnn{
@@ -20,6 +21,15 @@ public:
     DNN();
 
     void set_layers(std::vector<abcdl::dnn::Layer*>& layers){
+        size_t layer_size = layers.size();
+        CHECK(layer_size > 1);
+        CHECK(layers[0]->get_layer_type() == INPUT);
+        size_t output_dim = layers[0]->get_output_dim();
+        for(size_t i = 1; i != layer_size; i++){
+            CHECK(layers[i]->get_layer_type() == (i == layer_size - 1) ? OUTPUT : FULL_CONN);
+            CHECK(output_dim == layers[i]->get_input_dim());
+            output_dim = layers[i]->get_output_dim();
+        }
         _layers = layers;
     }
     void set_epoch(const size_t epoch){
@@ -35,8 +45,8 @@ public:
         _batch_size = batch_size;
     }
 
-    void train();
-    void predict();
+    void train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
+    void predict(const abcdl::algebra::Mat& predict_data);
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
@@ -49,5 +59,5 @@ private:
     std::vector<abcdl::dnn::Layer*> _layers;
 };//class DNN
 
-}
+}//namespace dnn
 }//namespace abcdl

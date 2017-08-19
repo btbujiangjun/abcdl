@@ -11,49 +11,54 @@
 namespace abcdl{
 namespace dnn{
 
-void InputLayer::feedward(const abcdl::algebra::Mat& mat){
-    CHECK(mat.get_rows() != _input_dim);
-    _activate_data  = mat;
+void InputLayer::forward(const abcdl::algebra::Mat& mat){
+    CHECK(mat.rows() != _input_dim);
+    this->_activate_data  = mat;
 }
-void InputLayer::backward(Layer* next_layer){
+void InputLayer::backward(Layer* pre_layer, Layer* next_layer){
 }
 
-void FullConnLayer::feedward(const abcdl::algebra::Mat& mat){
+void FullConnLayer::forward(const abcdl::algebra::Mat& mat){
     //activate_func(x * w + b)
-    _activate_func->activate(_activate_data, mat * _weight + _bias);
+    _activate_func->activate(this->_activate_data, mat * this->_weight + this->_bias);
 }
-void FullConnLayer::backward(Layer* next_layer){
-    if(next_layer->get_layer_type() == abcdl::dnn::Output){
-        _delta_bias = next_layer->get_bias();
-    }else{
-        //δ_l = ( (w_l+1).T * δ_l+1 ) * Derivative(z_l)
-        abcdl::algebra::Mat activate_derivative;
-        _activate_func->derivative(&activate_derivative, &_activate_data);
-        _delta_bias   = next_layer->get_weight().Ts() * next_layer->get_bias() * activate_derivative;
-    }
+void FullConnLayer::backward(Layer* pre_layer, Layer* next_layer){
+    //δ_l = ( (w_l+1).T * δ_l+1 ) * Derivative(a_l)
+    abcdl::algebra::Mat activate_derivative;
+    _activate_func->derivative(activate_derivative, this->_activate_data);
+    _delta_bias   = next_layer->get_weight().Ts() * next_layer->get_bias() * activate_derivative;
+    
     //_weight = activate_mat * bias
     /*
      * Derivative(Cw) = a_in * δ_out
      * a_in = a_l-1, δ_out = mat
      * activations include input layer, so l-1 is i.
      */
-    _delta_weight   += _activate_data * _bias;
+    this->_delta_weight   = this->_activate_data * this->_delta_bias;
 
-    _batch_bias     += _delta_bias;
-    _batch_weight   += _delta_weight;
+    this->_batch_bias     += this->_delta_bias;
+    this->_batch_weight   += this->_delta_weight;
 }
 
-void OutputLayer::feedward(const abcdl::algebra::Mat& mat){
+void OutputLayer::forward(const abcdl::algebra::Mat& mat){
     //activate_func(x * w + b)
-    _activate_func->activate(_activate_data, mat * _weight + _bias);
+    _activate_func->activate(this->_activate_data, mat * this->_weight + this->_bias);
 }
-void OutputLayer::backward(Layer* next_layer){
+void OutputLayer::backward(Layer* pre_layer, Layer* next_layer){
     /*
-     * backpropagation
      * L layer(last layer) Error
      * Error δL = cost->delta
      */
-    _cost->delta(_bias, _activate_data, _y);
+    _cost->delta(this->_delta_bias, this->_activate_data, this->_y);
+    /*
+     * Derivative(Cw) = a_in * δ_out
+     * a_in = a_L-1, δ_out = delta
+     */
+    this->_delta_weight   = pre_layer->get_activate_data() * this->_delta_bias;
+
+    this->_batch_weight   += this->_delta_weight;
+    this->_batch_bias     += this->_delta_bias;
+
 }
 
 }//namespace dnn

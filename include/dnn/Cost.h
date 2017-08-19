@@ -6,7 +6,7 @@
  * Description   : Cost function 
  **********************************************/
 
-#pragma one
+#pragma once
 
 #include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
@@ -16,11 +16,12 @@ namespace dnn{
 
 class Cost{
 public:
+    virtual ~Cost(){}
     virtual void delta(abcdl::algebra::Mat mat,
                        const abcdl::algebra::Mat& activate,
                        const abcdl::algebra::Mat& y);
 protected:
-    abcdl::algebra::MatrixHelper helper;
+    abcdl::algebra::MatrixHelper<real> helper;
 };//class Cost
 
 /*
@@ -28,6 +29,7 @@ protected:
  */
 class QuadraticCost : public Cost{
 public:
+    ~QuadraticCost(){}
     void delta(abcdl::algebra::Mat mat,
                const abcdl::algebra::Mat& activate,
                const abcdl::algebra::Mat& y){
@@ -41,10 +43,11 @@ public:
  * derivative C_w = 1/n * ∑(x_j(σ(z) - y))
  */
 class CrossEntropyCost : public Cost{
-    void delta(const abcdl::algebra::Mat mat,
+    ~CrossEntropyCost(){}
+    void delta(abcdl::algebra::Mat mat,
                const abcdl::algebra::Mat& activate,
                const abcdl::algebra::Mat& y){
-        mat = a - y;
+        mat = activate - y;
     }
 };//class CrossEntropyCost
 

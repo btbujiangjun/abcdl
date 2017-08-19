@@ -47,8 +47,10 @@ Matrix<T>& Matrix<T>::operator = (const T& value){
 template<class T>
 Matrix<T>& Matrix<T>::operator = (const Matrix<T>& mat){
     if(this != &mat){
-        if(_data != nullptr && get_size() != mat.get_size()){
-            delete[] _data;
+        if(get_size() != mat.get_size()){
+            if(_data != nullptr){
+                delete[] _data;
+            }
         	_data = new T[mat.get_size()];
         }
 
@@ -60,7 +62,7 @@ Matrix<T>& Matrix<T>::operator = (const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator + (const T& value){
+Matrix<T> Matrix<T>::operator + (const T& value) const{
     auto lamda = [](T* a, const T& b){ if(b != 0){*a += b;} };
     Matrix<T> mat;
    	clone(mat);
@@ -70,7 +72,7 @@ Matrix<T> Matrix<T>::operator + (const T& value){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator + (const Matrix<T>& mat_a){
+Matrix<T> Matrix<T>::operator + (const Matrix<T>& mat_a) const{
     CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a += b;} };
     Matrix<T> mat;
@@ -97,7 +99,7 @@ Matrix<T>& Matrix<T>::operator += (const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator - (const T& value){
+Matrix<T> Matrix<T>::operator - (const T& value) const{
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     Matrix<T> mat;
    	clone(mat);
@@ -107,7 +109,7 @@ Matrix<T> Matrix<T>::operator - (const T& value){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator - (const Matrix<T>& mat_a){
+Matrix<T> Matrix<T>::operator - (const Matrix<T>& mat_a) const{
     CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     Matrix<T> mat;
@@ -135,7 +137,7 @@ Matrix<T>& Matrix<T>::operator -= (const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator * (const T& value){
+Matrix<T> Matrix<T>::operator * (const T& value) const{
     auto lamda = [](T* a, const T& b){ if(b != 0){*a *= b;} };
     Matrix<T> mat;
    	clone(mat);
@@ -145,7 +147,7 @@ Matrix<T> Matrix<T>::operator * (const T& value){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator * (const Matrix<T>& mat_a){
+Matrix<T> Matrix<T>::operator * (const Matrix<T>& mat_a) const{
     CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ *a *= b; };
     Matrix<T> mat;
@@ -173,7 +175,7 @@ Matrix<T>& Matrix<T>::operator *= (const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator / (const T& value){
+Matrix<T> Matrix<T>::operator / (const T& value) const{
     auto lamda = [](T* a, const T& b){ *a /= b; };
     Matrix<T> mat;
    	clone(mat);
@@ -183,7 +185,7 @@ Matrix<T> Matrix<T>::operator / (const T& value){
 }
 
 template<class T>
-Matrix<T> Matrix<T>::operator / (const Matrix<T>& mat_a){
+Matrix<T> Matrix<T>::operator / (const Matrix<T>& mat_a) const{
     CHECK(equal_shape(mat_a));
     auto lamda = [](T* a, const T& b){ *a /= b; };
     Matrix<T> mat;
