@@ -312,14 +312,15 @@ void RandomMatrix<T>::reset(){
             [&data, max, min, scale, &distribution, &engine](size_t start_idx, size_t end_idx){
                 for(size_t ti = start_idx; ti != end_idx; ti++){
                     T value = static_cast<T>(distribution(engine));
-                    if(value > max){
+                    if(max == min || value == max || value == min){
+                        data[ti] = value;
+                    }else if(value > max){
                         real step = (value - min)/scale;
                         value = min + (step - (int)step) * scale;
-                    }else if(value < min){
+                    }else{
                         real step = (max - value)/scale;
                         value = min + (step - (int)step) * scale;
                     }
-                    data[ti] = value;
                 }
             }, i * block_size, std::min(size, (i + 1) * block_size)
         );
@@ -339,7 +340,7 @@ void RandomMatrix<T>::reset(size_t rows,
                             const T& max){
     if(rows * cols != this->_rows * this->_cols){
         if(this->_data != nullptr){
-            delete this->_data;
+            delete[] this->_data;
         }
         this->_data = new T[rows * cols];
     }
