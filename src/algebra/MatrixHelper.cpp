@@ -14,6 +14,15 @@
 namespace abcdl{
 namespace algebra{
 
+
+template<class T>
+Matrix<T> MatrixHelper<T>::dot(const Matrix<T>& mat_a,
+						       const Matrix<T>& mat_b){
+    Matrix<T> mat;
+    dot(mat, mat_a, mat_b);
+    return mat;
+}
+
 template<class T>
 void MatrixHelper<T>::dot(Matrix<T>& mat,
 						  const Matrix<T>& mat_a,

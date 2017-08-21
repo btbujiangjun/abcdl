@@ -23,7 +23,7 @@ void DNN::train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat
     CHECK(train_data.cols() == _layers[0]->get_input_dim());
     CHECK(train_label.cols() == _layers[_layers.size() -1]->get_output_dim());
 
-    abcdl::utils::Shuffler shuffler(train_data.rows());
+    abcdl::utils::Shuffler shuffler(num_train_data);
     abcdl::algebra::Mat data;
     abcdl::algebra::Mat label;
 
