@@ -8,8 +8,9 @@
 
 #pragma once
 
-#include "dnn/ActivateFunc.h"
 #include "dnn/Cost.h"
+#include "dnn/ActivateFunc.h"
+#include "algebra/MatrixHelper.h"
 
 namespace abcdl{
 namespace dnn{
@@ -25,13 +26,13 @@ class Layer{
 public:
     Layer(size_t input_dim,
           size_t output_dim,
-          int layer_type){
-          _input_dim  = input_dim;
-          _output_dim = output_dim;
-          _layer_type = layer_type;
+          abcdl::dnn::Layer_type layer_type){
+        _input_dim  = input_dim;
+        _output_dim = output_dim;
+        _layer_type = layer_type;
     }
 
-    virtual ~Layer() = 0;
+    virtual ~Layer() = default;
 
     size_t get_input_dim() const{
         return _input_dim;
@@ -39,7 +40,7 @@ public:
     size_t get_output_dim() const{
         return _output_dim;
     }
-    int get_layer_type() const{
+    abcdl::dnn::Layer_type get_layer_type() const{
         return _layer_type;
     }
    
@@ -63,8 +64,8 @@ public:
         return _bias;
     }
 
-    virtual void forward(const abcdl::algebra::Mat& mat);
-    virtual void backward(Layer* pre_layer, Layer* next_layer);
+    virtual void forward(const abcdl::algebra::Mat& mat) = 0;
+    virtual void backward(Layer* pre_layer, Layer* next_layer) = 0;
     void update_gradient(size_t batch_size, real learning_rate){
         _weight -= _batch_weight * learning_rate / batch_size;
         _bias   -= _batch_bias * learning_rate / batch_size;
@@ -76,8 +77,8 @@ public:
 protected:
     size_t _input_dim;
     size_t _output_dim;
-    int _layer_type;
-
+    abcdl::dnn::Layer_type _layer_type;
+    
     abcdl::algebra::Mat _activate_data;
 
     abcdl::algebra::Mat _delta_weight;
@@ -87,14 +88,14 @@ protected:
 
     abcdl::algebra::RandomMatrix<real> _weight;
     abcdl::algebra::Mat _bias;
-    
+
+    abcdl::algebra::MatrixHelper<real> helper;
 };//class Layer
 
 
 class InputLayer : public Layer{
 public:
     InputLayer(size_t feature_dim) : Layer(feature_dim, feature_dim, INPUT){}
-    ~InputLayer(){}
     void forward(const abcdl::algebra::Mat& mat);
     void backward(Layer* pre_layer, Layer* next_layer);
 };//class InputLayer

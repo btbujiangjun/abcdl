@@ -20,6 +20,7 @@ template<class T>
 class Matrix{
 public:
     Matrix();
+    Matrix(const Matrix<T>& mat);
     Matrix(const size_t rows, const size_t cols);
     Matrix(const T& value,
            const size_t rows,

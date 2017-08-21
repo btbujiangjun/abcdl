@@ -16,16 +16,15 @@ namespace dnn{
 
 class ActivateFunc{
 public:
-    virtual ~ActivateFunc(){}
-    virtual void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat);
-    virtual void derivative(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& activate_mat);
+    virtual ~ActivateFunc() = default;
+    virtual void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat) = 0;
+    virtual void derivative(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& activate_mat) = 0;
 protected:
     abcdl::algebra::MatrixHelper<real> helper;
 };//class ActivateFunc
 
 class SigmoidActivateFunc : public ActivateFunc{
 public:
-    ~SigmoidActivateFunc(){}
     void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat){
         helper.sigmoid(mat, z_mat);
     }
@@ -35,7 +34,6 @@ public:
 };//class SigmoidActivateFunc
 
 class ReluActivateFunc : public ActivateFunc{
-    ~ReluActivateFunc(){}
     void activate(abcdl::algebra::Mat mat, const abcdl::algebra::Mat& z_mat){
         helper.relu(mat, z_mat);
     }

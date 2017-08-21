@@ -21,6 +21,8 @@ template<class T>
 class MatrixHelper{
 public:
     //algebra
+    Matrix<T> dot(const Matrix<T>& mat_a,
+                  const Matrix<T>& mat_b);
     void dot(Matrix<T>& mat,
 			 const Matrix<T>& mat_a,
 			 const Matrix<T>& mat_b);

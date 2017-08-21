@@ -1,11 +1,10 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
-* Created: 2017-08-19 17:41
-* Last modified: 2017-08-19 17:49
+* Created: 2017-04-18 17:41
+* Last modified: 2017-08-21 15:38
 * Filename: MnistHelper.h
 * Description: read mnist file
 **********************************************/
-#pragma once
 
 #include <fstream>
 #include <iostream>
@@ -22,7 +21,7 @@ public:
     bool read_image(const std::string& image_file,
                     abcdl::algebra::Matrix<T>* out_mat,
                     const int limit = -1,
-                    const size_t threshold = 30);
+                    const uint threshold = 30);
 
     bool read_label(const std::string& label_file,
                     abcdl::algebra::Matrix<T>* out_mat,
@@ -31,14 +30,14 @@ public:
     bool read_vec_label(const std::string& label_file,
                         abcdl::algebra::Matrix<T>* out_mat,
                         const int limit = -1,
-                        const size_t vec_size = 10);
+                        const uint vec_size = 10);
 
 private:
     inline std::unique_ptr<char[]> read_mnist_file(const std::string& path,
-                                                   size_t key,
-                                                   size_t* out_rows);
-    inline unsigned int read_header(const std::unique_ptr<char[]>& buffer, size_t position);
-    inline T* vectorize_label(const size_t data, const size_t sizes);
+                                                   uint key,
+                                                   uint* out_rows);
+    inline uint read_header(const std::unique_ptr<char[]>& buffer, size_t position);
+    inline T* vectorize_label(const uint data, const uint sizes);
 
 };//class MnistHelper
 
@@ -47,9 +46,9 @@ template<class T>
 bool MnistHelper<T>::read_image(const std::string& image_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit,
-                                const size_t threshold){
+                                const uint threshold){
 
-    size_t count = 0;
+    uint count = 0;
     auto image_buffer = read_mnist_file(image_file, 0x803, &count);
 
     if(!image_buffer || count == 0){
@@ -66,7 +65,7 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
 
     auto image_data_buffer = reinterpret_cast<unsigned char*>(image_buffer.get() + 16);
 
-    size_t size = count * rows * cols;
+    uint size = count * rows * cols;
     T* data = new T[size];
     for(size_t i = 0; i < size; i++){
         data[i] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
@@ -81,7 +80,7 @@ template<class T>
 bool MnistHelper<T>::read_label(const std::string& label_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit){
-    size_t count = 0;
+    uint count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -109,8 +108,8 @@ template<class T>
 bool MnistHelper<T>::read_vec_label(const std::string& label_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit,
-                                const size_t vec_size){
-    size_t count = 0;
+                                const uint vec_size){
+    uint count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -127,7 +126,7 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
     memset(labels, 0, sizeof(T) * count * vec_size);
 
     for(size_t i = 0; i < count; i++){
-        auto label = static_cast<size_t>(*label_data_buffer++);
+        auto label = static_cast<uint>(*label_data_buffer++);
         labels[i * vec_size + label] = 1;
     }
 
@@ -137,8 +136,8 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
 }
 template<class T>
 inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string& path,
-                                                               size_t key,
-                                                               size_t* out_rows){
+                                                               uint key,
+                                                               uint* out_rows){
 
     *out_rows = 0;
 
@@ -188,15 +187,15 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
 }
 
 template<class T>
-inline unsigned int MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
-    auto header = reinterpret_cast<size_t*>(buffer.get());
+inline uint MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
+    auto header = reinterpret_cast<uint*>(buffer.get());
 
     auto value = *(header + position);
     return (value << 24) | ((value << 8) & 0x00FF0000) | ((value >> 8) & 0X0000FF00) | (value >> 24);
 }
 
 template<class T>
-inline T* MnistHelper<T>::vectorize_label(const size_t data, const size_t sizes){
+inline T* MnistHelper<T>::vectorize_label(const uint data, const uint sizes){
     T* vec = new T[sizes];
     memset(vec, static_cast<T>(0), sizeof(T) * sizes);
 

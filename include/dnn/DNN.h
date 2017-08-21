@@ -18,7 +18,7 @@ namespace dnn{
 
 class DNN{
 public:
-    DNN();
+    DNN(){}
 
     void set_layers(std::vector<abcdl::dnn::Layer*>& layers){
         size_t layer_size = layers.size();
