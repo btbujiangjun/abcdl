@@ -157,7 +157,9 @@ public:
 
 
 	T max() const;
+	size_t argmax() const;
 	T min() const;
+	size_t argmin() const;
     T sum() const;
     real mean() const;
     bool inverse(Matrix<real>& mat);
@@ -165,7 +167,6 @@ public:
 //    bool det(T* result);
 /*
 
-    virtual T sum() const = 0;
     void x_sum();
     void y_sum();
 
