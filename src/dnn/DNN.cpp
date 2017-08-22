@@ -37,7 +37,7 @@ void DNN::train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat
                 if(k == 0){
                     _layers[k]->forward(data);
                 }else{
-                    _layers[k]->forward(_layers[k -1]->get_activate_data());
+                    _layers[k]->forward(_layers[k - 1]->get_activate_data());
                 }
             }
 
