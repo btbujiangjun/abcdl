@@ -38,5 +38,5 @@ int main(int argc, char** argv){
     abcdl::algebra::Mat test_label;
     helper.read_label("data/mnist/t10k-labels-idx1-ubyte", &test_label, -1);
 
-    dnn.train(train_data, train_label);
+    dnn.train(train_data, train_label, test_data, test_label);
 }
