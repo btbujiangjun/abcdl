@@ -78,6 +78,19 @@ T Matrix<T>::max() const{
 }
 
 template<class T>
+size_t Matrix<T>::argmax() const{
+	if(get_size() == 0){
+		return 0;
+	}
+	T max = _data[0];
+    size_t max_idx = 0;
+	auto lamda = [](T* a, const T& b, size_t* max_idx, const size_t idx){if(b > *a){*a = b; *max_idx = idx;}};
+	utils::ParallelOperator po;
+	po.parallel_reduce_mul2one<T>(&max, &max_idx, _data, get_size(), lamda);
+	return max_idx;   
+}
+
+template<class T>
 T Matrix<T>::min() const{
 	if(get_size() == 0){
 		return 0;
@@ -87,6 +100,19 @@ T Matrix<T>::min() const{
 	utils::ParallelOperator po;
 	po.parallel_reduce_mul2one<T>(&min, _data, get_size(), lamda);
 	return min;   
+}
+
+template<class T>
+size_t Matrix<T>::argmin() const{
+	if(get_size() == 0){
+		return 0;
+	}
+	T min = _data[0];
+    size_t min_idx = 0;
+	auto lamda = [](T* a, const T& b, size_t* min_idx, const size_t idx){if(b < *a){*a = b; *min_idx = idx;}};
+	utils::ParallelOperator po;
+	po.parallel_reduce_mul2one<T>(&min, &min_idx, _data, get_size(), lamda);
+	return min_idx;   
 }
 
 template<class T>
