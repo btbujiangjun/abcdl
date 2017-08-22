@@ -287,7 +287,7 @@ public:
 
 private:
     size_t _num_thread;
-    size_t _min_block_size = 1000;
+    size_t _min_block_size = 100;
 };//class ParallelOperator
 
 }//namespace utils
