@@ -13,7 +13,10 @@
 namespace abcdl{
 namespace dnn{
 
-void DNN::train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label){
+void DNN::train(const abcdl::algebra::Mat& train_data,
+                const abcdl::algebra::Mat& train_label,
+                const abcdl::algebra::Mat& test_data,
+                const abcdl::algebra::Mat& test_label){
     LOG(INFO) << "dnn start training...";
 
     size_t layer_size = _layers.size();
@@ -56,14 +59,45 @@ void DNN::train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat
             }
 
             if(j % 100 == 0){
-                printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i, _epoch, j, num_train_data);
+                printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i + 1, _epoch, j, num_train_data);
             }
+        }
+
+        if(test_data.rows() > 0){
+            size_t num = evaluate(test_data, test_label);
+            printf("Epoch[%ld], [%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
         }
     }
 }
 
-void DNN::predict(const abcdl::algebra::Mat& predict_data){
-    
+size_t DNN::evaluate(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label){
+    CHECK(train_data.cols() == _layers[0]->get_input_dim());
+    CHECK(train_label.cols() == _layers[_layers.size() - 1]->get_output_dim());
+    CHECK(train_data.rows() == train_label.rows());
+
+    size_t rows = train_data.rows();
+    size_t predict_num = 0;
+    abcdl::algebra::Mat mat;
+    for(size_t i = 0; i != rows; i++){
+        predict(mat, train_data.get_row(i));
+        if(mat.argmax() == train_label.get_row(i).argmax()){
+            ++predict_num;
+        }
+    }
+    return predict_num;
+}
+
+void DNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data){
+    CHECK(predict_data.cols() == _layers[0]->get_input_dim());
+    size_t layer_size = _layers.size();
+    for(size_t k = 0; k != layer_size; k++){
+        if(k == 0){
+            _layers[k]->forward(predict_data);
+        }else{
+            _layers[k]->forward(_layers[k - 1]->get_activate_data());
+        }
+    }
+    result = _layers[layer_size - 1]->get_activate_data();
 }
 
 bool DNN::load_model(const std::string& path){
