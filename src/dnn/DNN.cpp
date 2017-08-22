@@ -54,6 +54,10 @@ void DNN::train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat
                     _layers[k]->update_gradient(j % _batch_size, _alpha);
                 }
             }
+
+            if(j % 100 == 0){
+                printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i, _epoch, j, num_train_data);
+            }
         }
     }
 }
