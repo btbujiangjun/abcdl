@@ -54,7 +54,7 @@ void OutputLayer::backward(Layer* pre_layer, Layer* next_layer){
      * Derivative(Cw) = a_in * δ_out
      * a_in = a_L-1, δ_out = delta
      */
-    this->_delta_weight   = helper.dot(pre_layer->get_activate_data(), this->_delta_bias);
+    this->_delta_weight   = helper.dot(pre_layer->get_activate_data().Ts(), this->_delta_bias);
 
     this->_batch_weight   += this->_delta_weight;
     this->_batch_bias     += this->_delta_bias;
