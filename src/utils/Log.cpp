@@ -97,15 +97,15 @@ static void initialize_log_fds(char* argc){
     }
     char* log_dir = getenv("ABCDL_LOG_LOGDIR");
     if(log_dir == nullptr){
-        char path = '.';
-        log_dir = &path;
+        log_dir = new char[1];
+        *log_dir = '.';
     }
-
     for(int i = g_log_min_level; i != NUM_SEVERITIES && log_dir != nullptr; i++){
         std::string file_name = join(log_dir, std::string(argc) + "." + g_log_level_name[i]);
         int fd = open(file_name.c_str(), O_CREAT | O_WRONLY, 0644);
-        if( fd == -1){
-            fprintf(stderr, "Open log file error!");
+        if(fd == -1){
+            printf("[%s][%s][%s]\n",log_dir, argc, file_name.c_str());
+            fprintf(stderr, "Open log file[%s] error!", file_name.c_str());
             exit(-1);
         }
         g_log_file_fds.push_back(fd);
