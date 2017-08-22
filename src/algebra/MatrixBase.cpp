@@ -27,14 +27,6 @@ Matrix<T>::Matrix(){
 }
 
 template<class T>
-Matrix<T>::Matrix(const Matrix<T>& mat){
-    _rows = mat.rows();
-    _cols = mat.cols();
-    _data = new T[_rows * _cols];
-    memcpy(_data, mat.data(), sizeof(T) * _rows * _cols);
-}
-
-template<class T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols){
     _rows = rows;
     _cols = cols;
