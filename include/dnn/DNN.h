@@ -45,8 +45,12 @@ public:
         _batch_size = batch_size;
     }
 
-    void train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
-    void predict(const abcdl::algebra::Mat& predict_data);
+    void train(const abcdl::algebra::Mat& train_data,
+               const abcdl::algebra::Mat& train_label,
+               const abcdl::algebra::Mat& test_data,
+               const abcdl::algebra::Mat& test_label);
+    size_t evaluate(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
+    void predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data);
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
@@ -55,7 +59,7 @@ private:
     size_t _epoch = 5;
     real _alpha = 0.5;
     real _lamda = 0.0;
-    size_t _batch_size = 1;
+    size_t _batch_size = 10;
     std::vector<abcdl::dnn::Layer*> _layers;
 };//class DNN
 
