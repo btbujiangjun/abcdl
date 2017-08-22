@@ -151,6 +151,39 @@ public:
     }
 
     template<class T>
+    void parallel_mul2mul_repeat(T* op1,
+                                 const size_t num_op1,
+                                 const T* op2,
+                                 const size_t num_op2,
+                                 const std::function<void(T*, const T&)> &f){
+        CHECK(num_op1 % num_op2 == 0);
+        size_t repeat_size = num_op1 / num_op2;
+        size_t block_size = get_block_size(num_op1);
+        size_t num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+        block_size = repeat_size / num_thread;
+        if( (num_op1/num_op2) % num_thread != 0){
+            block_size += 1;
+        }
+
+        for(size_t i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&op1, &op2, &num_op2, &f](size_t start_idx, size_t end_idx){
+                    for(size_t ti = start_idx; ti != end_idx; ti++){
+                        for(size_t tj = 0; tj != num_op2; tj++){
+                            f(&op1[ti * num_op2 + tj], op2[tj]);
+                        }
+                    }
+                }, i * block_size, std::min(repeat_size, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
+    template<class T>
     void parallel_mul2mul_cross(T* result_data,
                                 const T* op1,
                                 const size_t num_op1,
@@ -213,6 +246,40 @@ public:
             thread.join();
         }
 		delete[] data;
+    }
+    template<class T>
+    void parallel_reduce_mul2one(T* result_value,
+                                 size_t* result_idx,
+                                 const T* op1,
+                         		 const size_t num_op1,
+                         		 const std::function<void(T*, const T&, size_t*, const size_t)> &f){
+        size_t block_size = get_block_size(num_op1);
+        size_t num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+		T* data = new T[num_thread];
+		size_t* indices = new size_t[num_thread];
+
+        for(size_t i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&op1, &result_value, &result_idx, &data, &indices, i, &f](size_t start_idx, size_t end_idx){
+					for(size_t ti = start_idx; ti != end_idx; ti++){
+            			if(ti == start_idx){
+							data[i] = op1[ti];
+                            indices[i] = ti;
+						}else{
+    						f(&data[i], op1[ti], &indices[i], ti);
+                        }
+                    }
+					f(result_value, data[i], result_idx, indices[i]);
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+		delete[] data;
+        delete[] indices;
     }
 
     template<class T>
@@ -287,7 +354,7 @@ public:
 
 private:
     size_t _num_thread;
-    size_t _min_block_size = 100;
+    size_t _min_block_size = 1000;
 };//class ParallelOperator
 
 }//namespace utils
