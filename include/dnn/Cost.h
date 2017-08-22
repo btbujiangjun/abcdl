@@ -17,7 +17,7 @@ namespace dnn{
 class Cost{
 public:
     virtual ~Cost() = default;
-    virtual void delta(abcdl::algebra::Mat mat,
+    virtual void delta(abcdl::algebra::Mat& mat,
                        const abcdl::algebra::Mat& activate,
                        const abcdl::algebra::Mat& y) = 0;
 protected:
@@ -29,7 +29,7 @@ protected:
  */
 class QuadraticCost : public Cost{
 public:
-    void delta(abcdl::algebra::Mat mat,
+    void delta(abcdl::algebra::Mat& mat,
                const abcdl::algebra::Mat& activate,
                const abcdl::algebra::Mat& y){
         abcdl::algebra::Mat derivative_mat;
@@ -42,7 +42,7 @@ public:
  * derivative C_w = 1/n * ∑(x_j(σ(z) - y))
  */
 class CrossEntropyCost : public Cost{
-    void delta(abcdl::algebra::Mat mat,
+    void delta(abcdl::algebra::Mat& mat,
                const abcdl::algebra::Mat& activate,
                const abcdl::algebra::Mat& y){
         mat = activate - y;
