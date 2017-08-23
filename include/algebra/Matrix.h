@@ -114,7 +114,7 @@ public:
         return false;
     }
 
-    void display(const std::string& split="\t");
+    void display(const std::string& split="\t") const;
 
     //operator
 	T& operator [] (const size_t idx) const;
