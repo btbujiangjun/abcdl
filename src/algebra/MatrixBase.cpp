@@ -83,7 +83,7 @@ void Matrix<T>::set_shallow_data(T* data,
 template<class T>
 Matrix<T> Matrix<T>::get_row(const size_t row_id, const size_t row_size) const{
     Matrix<T> mat;
-	get_row(&mat, row_id, _cols);
+	get_row(&mat, row_id, row_size);
 	return mat;
 }
 
@@ -253,7 +253,7 @@ void Matrix<T>::transpose(){
 }
 
 template<class T>
-void Matrix<T>::display(const std::string& split){
+void Matrix<T>::display(const std::string& split) const{
     printf("[%ld*%ld][\n", _rows, _cols);
     for(size_t i = 0; i != _rows; i++){
         printf("row[%ld][", i);

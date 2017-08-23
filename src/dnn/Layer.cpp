@@ -11,19 +11,18 @@
 namespace abcdl{
 namespace dnn{
 
-void InputLayer::forward(const abcdl::algebra::Mat& mat){
+void InputLayer::set_x(const abcdl::algebra::Mat& mat){
     CHECK(mat.cols() == _input_dim);
     this->_activate_data  = mat;
 }
-void InputLayer::backward(Layer* pre_layer, Layer* next_layer){
-}
 
-void FullConnLayer::forward(const abcdl::algebra::Mat& mat){
+void FullConnLayer::forward(Layer* pre_layer){
     //activate_func(x * w + b)
-    _activate_func->activate(this->_activate_data, helper.dot(mat, this->_weight) + this->_bias);
+    _activate_func->activate(this->_activate_data, helper.dot(pre_layer->get_activate_data(), this->_weight) + this->_bias);
+    this->_activate_data.display("^");
 }
 void FullConnLayer::backward(Layer* pre_layer, Layer* next_layer){
-    //δ_l = ( (w_l+1).T * δ_l+1 ) * Derivative(a_l)
+    //δ_l = ( (w_l+1).T .* δ_l+1 ) * Derivative(a_l)
     abcdl::algebra::Mat activate_derivative;
     _activate_func->derivative(activate_derivative, this->_activate_data);
     _delta_bias   = helper.dot(next_layer->get_delta_bias(), next_layer->get_weight().Ts()) * activate_derivative;
@@ -36,13 +35,15 @@ void FullConnLayer::backward(Layer* pre_layer, Layer* next_layer){
      */
     this->_delta_weight   = helper.dot(pre_layer->get_activate_data().Ts(), this->_delta_bias);
 
+
     this->_batch_bias     += this->_delta_bias;
     this->_batch_weight   += this->_delta_weight;
 }
 
-void OutputLayer::forward(const abcdl::algebra::Mat& mat){
+void OutputLayer::forward(Layer* pre_layer){
     //activate_func(x * w + b)
-    _activate_func->activate(this->_activate_data, helper.dot(mat, this->_weight) + this->_bias);
+    _activate_func->activate(this->_activate_data, helper.dot(pre_layer->get_activate_data(), this->_weight) + this->_bias);
+    this->_activate_data.display("^");
 }
 void OutputLayer::backward(Layer* pre_layer, Layer* next_layer){
     /*
@@ -58,7 +59,6 @@ void OutputLayer::backward(Layer* pre_layer, Layer* next_layer){
 
     this->_batch_weight   += this->_delta_weight;
     this->_batch_bias     += this->_delta_bias;
-
 }
 
 }//namespace dnn
