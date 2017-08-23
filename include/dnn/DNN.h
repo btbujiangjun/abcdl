@@ -19,6 +19,12 @@ namespace dnn{
 class DNN{
 public:
     DNN(){}
+    ~DNN(){
+        for(auto& layer : _layers){
+            delete layer;
+        }
+        _layers.clear();
+    }
 
     void set_layers(std::vector<abcdl::dnn::Layer*>& layers){
         size_t layer_size = layers.size();
@@ -56,10 +62,10 @@ public:
     bool write_model(const std::string& path);
 
 private:
-    size_t _epoch = 5;
+    size_t _epoch = 30;
     real _alpha = 0.5;
-    real _lamda = 0.0;
-    size_t _batch_size = 10;
+    real _lamda = 0.1;
+    size_t _batch_size = 2;
     std::vector<abcdl::dnn::Layer*> _layers;
 };//class DNN
 

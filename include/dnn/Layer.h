@@ -64,9 +64,13 @@ public:
         return _bias;
     }
 
-    virtual void forward(const abcdl::algebra::Mat& mat) = 0;
+    virtual void forward(Layer* pre_layer) = 0;
     virtual void backward(Layer* pre_layer, Layer* next_layer) = 0;
-    void update_gradient(size_t batch_size, real learning_rate){
+    void update_gradient(size_t batch_size,
+                         real learning_rate,
+                         real lamda){
+        real weight_decay = 1.0 - learning_rate * (lamda / batch_size);
+        _weight *= weight_decay;
         _weight -= _batch_weight * learning_rate / batch_size;
         _bias   -= _batch_bias * learning_rate / batch_size;
 
@@ -87,7 +91,7 @@ protected:
     abcdl::algebra::Mat _batch_bias;
 
     abcdl::algebra::RandomMatrix<real> _weight;
-    abcdl::algebra::Mat _bias;
+    abcdl::algebra::RandomMatrix<real> _bias;
 
     abcdl::algebra::MatrixHelper<real> helper;
 };//class Layer
@@ -96,8 +100,9 @@ protected:
 class InputLayer : public Layer{
 public:
     InputLayer(size_t feature_dim) : Layer(feature_dim, feature_dim, INPUT){}
-    void forward(const abcdl::algebra::Mat& mat);
-    void backward(Layer* pre_layer, Layer* next_layer);
+    void set_x(const abcdl::algebra::Mat& mat);
+    void forward(Layer* pre_layer){}
+    void backward(Layer* pre_layer, Layer* next_layer){}
 };//class InputLayer
 
 class FullConnLayer : public Layer{
@@ -109,14 +114,14 @@ public:
                   const real& stddev = 1.0f) : Layer(input_dim, output_dim, FULL_CONN){
         _activate_func  = activate_func;
         this->_weight.reset(_input_dim, _output_dim, mean_value, stddev);
-        this->_bias.reset(0, 1, _output_dim);
+        this->_bias.reset(1, _output_dim, mean_value, stddev);
     }
 
     FullConnLayer(const size_t input_dim,
                   const size_t output_dim,
                   abcdl::dnn::ActivateFunc * activate_func,
                   abcdl::algebra::RandomMatrix<real> weight,
-                  abcdl::algebra::Mat bias) : Layer(input_dim, output_dim, FULL_CONN){
+                  abcdl::algebra::RandomMatrix<real> bias) : Layer(input_dim, output_dim, FULL_CONN){
         _activate_func  = activate_func;
         this->_weight   = weight;
         this->_bias     = bias;
@@ -126,7 +131,7 @@ public:
         delete _activate_func;
     }
 
-    void forward(const abcdl::algebra::Mat& mat);
+    void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* next_layer);
 private:
     abcdl::dnn::ActivateFunc* _activate_func;
@@ -143,7 +148,7 @@ public:
         _cost           = cost;
         _activate_func  = activate_func;
         this->_weight.reset(_input_dim, _output_dim, mean_value, stddev);
-        this->_bias.reset(0, 1, _output_dim);
+        this->_bias.reset(1, _output_dim, mean_value, stddev);
     }
 
     ~OutputLayer(){
@@ -151,7 +156,7 @@ public:
         delete _cost;
     }
 
-    void forward(const abcdl::algebra::Mat& mat);
+    void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* next_layer);
 
     void set_y(const abcdl::algebra::Mat& y){
