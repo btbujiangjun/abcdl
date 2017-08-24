@@ -44,7 +44,6 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
                 }
                 _layers[k]->forward(_layers[k-1]);
             }
-            //printf("[%ld][%ld]\n", j, num_train_data);
 
             for(size_t k = layer_size - 1; k > 0; k--){
                 if(k == layer_size - 1){
@@ -83,12 +82,8 @@ size_t DNN::evaluate(const abcdl::algebra::Mat& test_data, const abcdl::algebra:
 
     for(size_t i = 0; i != rows; i++){
         predict(mat, test_data.get_row(i));
-        size_t p_label = mat.argmax();
-        size_t t_label = test_label.get_row(i).argmax();
-        if(p_label == t_label){
+        if(mat.argmax() == test_label.get_row(i).argmax()){
             ++predict_num;
-        }else{
-            printf("[%ld][%f][%ld]\n", p_label, mat.max(), t_label);
         }
     }
     return predict_num;
