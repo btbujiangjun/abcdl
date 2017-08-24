@@ -65,7 +65,7 @@ private:
     size_t _epoch = 30;
     real _alpha = 0.5;
     real _lamda = 0.1;
-    size_t _batch_size = 2;
+    size_t _batch_size = 50;
     std::vector<abcdl::dnn::Layer*> _layers;
 };//class DNN
 
