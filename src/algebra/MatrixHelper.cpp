@@ -155,9 +155,9 @@ void MatrixHelper<T>::tanh(Matrix<T>& mat, const Matrix<T>& mat_a){
 
 template<class T>
 void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b < 0) {*a = 0;} else { *a = b;}};
+    auto lamda = [](T* a, const T& b){ if(b < 0) {*a = 0;} };
     if(&mat != &mat_a){
-        mat.reset(0, mat_a.rows(), mat_a.cols());
+        mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
     po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
@@ -172,8 +172,10 @@ template<class T>
 void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 	size_t rows = mat_a.rows();
 	size_t cols = mat_a.cols();
-	if((rows == 1 || cols == 1) && (&mat != &mat_a)){
-		mat.set_data(mat_a.data(), rows, cols);
+	if(rows == 1 || cols == 1){
+        if(&mat != &mat_a){
+    		mat.set_data(mat_a.data(), rows, cols);
+        }
 		mat.reshape(cols, rows);
         return ;
 	}

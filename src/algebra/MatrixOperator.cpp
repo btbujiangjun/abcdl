@@ -79,7 +79,7 @@ Matrix<T> Matrix<T>::operator + (const Matrix<T>& mat_a) const{
         return mat;
     }
 
-    CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a) || (_cols == mat_a.cols() && mat_a.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a += b;} };
     clone(mat);
     ParallelOperator po;
@@ -100,10 +100,11 @@ Matrix<T>& Matrix<T>::operator += (const Matrix<T>& mat){
         set_data(mat);
         return *this;
     }
-    CHECK(equal_shape(mat));
+
+    CHECK(equal_shape(mat) || (_cols == mat.cols() && mat.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a += b;} };
     ParallelOperator po;
-    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
     return *this;
 }
 
@@ -119,12 +120,12 @@ Matrix<T> Matrix<T>::operator - (const T& value) const{
 
 template<class T>
 Matrix<T> Matrix<T>::operator - (const Matrix<T>& mat_a) const{
-    CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a) || (_cols == mat_a.cols() && mat_a.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     Matrix<T> mat;
     clone(mat);
     ParallelOperator po;
-    po.parallel_mul2mul<T>(mat.data(), get_size(), mat_a.data(), mat_a.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(mat.data(), get_size(), mat_a.data(), mat_a.get_size(), lamda);
     return mat;
 }
 
@@ -138,10 +139,10 @@ Matrix<T>& Matrix<T>::operator -= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator -= (const Matrix<T>& mat){
-    CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat) || (_cols == mat.cols() && mat.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 0){*a -= b;} };
     ParallelOperator po;
-    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
 	return *this;
 }
 
@@ -157,12 +158,12 @@ Matrix<T> Matrix<T>::operator * (const T& value) const{
 
 template<class T>
 Matrix<T> Matrix<T>::operator * (const Matrix<T>& mat_a) const{
-    CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a) || (_cols == mat_a.cols() && mat_a.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 1){*a *= b;} };
     Matrix<T> mat;
     clone(mat);
     ParallelOperator po;
-    po.parallel_mul2mul_repeat<T>(mat.data(), get_size(), mat.data(), mat.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(mat.data(), get_size(), mat_a.data(), mat_a.get_size(), lamda);
     return mat;
 }
 
@@ -176,10 +177,10 @@ Matrix<T>& Matrix<T>::operator *= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator *= (const Matrix<T>& mat){
-    CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat) || (_cols == mat.cols() && mat.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 1){*a *= b;} };
     ParallelOperator po;
-    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
 	return *this;
 }
 
@@ -195,12 +196,12 @@ Matrix<T> Matrix<T>::operator / (const T& value) const{
 
 template<class T>
 Matrix<T> Matrix<T>::operator / (const Matrix<T>& mat_a) const{
-    CHECK(equal_shape(mat_a));
+    CHECK(equal_shape(mat_a) || (_cols == mat_a.cols() && mat_a.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 1){ *a /= b;} };
     Matrix<T> mat;
     clone(mat);
     ParallelOperator po;
-    po.parallel_mul2mul<T>(mat.data(), mat.get_size(), mat_a.data(), mat_a.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(mat.data(), mat.get_size(), mat_a.data(), mat_a.get_size(), lamda);
     return mat;
 }
 
@@ -214,10 +215,10 @@ Matrix<T>& Matrix<T>::operator /= (const T& value){
 
 template<class T>
 Matrix<T>& Matrix<T>::operator /= (const Matrix<T>& mat){
-    CHECK(equal_shape(mat));
+    CHECK(equal_shape(mat) || (_cols == mat.cols() && mat.rows() == 1));
     auto lamda = [](T* a, const T& b){ if(b != 1){*a /= b;} };
     ParallelOperator po;
-    po.parallel_mul2mul<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
+    po.parallel_mul2mul_repeat<T>(_data, get_size(), mat.data(), mat.get_size(), lamda);
 	return *this;
 }
 
