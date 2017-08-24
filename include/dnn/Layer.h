@@ -73,8 +73,6 @@ public:
         _weight *= weight_decay;
         _weight -= _batch_weight * learning_rate / batch_size;
         _bias   -= _batch_bias * learning_rate / batch_size;
-//        _batch_bias.display("^");
-//        (_batch_bias * learning_rate / batch_size).display("^");
         _batch_weight.reset(0);
         _batch_bias.reset(0);
     }
@@ -121,8 +119,8 @@ public:
     FullConnLayer(const size_t input_dim,
                   const size_t output_dim,
                   abcdl::dnn::ActivateFunc * activate_func,
-                  abcdl::algebra::RandomMatrix<real> weight,
-                  abcdl::algebra::RandomMatrix<real> bias) : Layer(input_dim, output_dim, FULL_CONN){
+                  const abcdl::algebra::Mat& weight,
+                  const abcdl::algebra::Mat& bias) : Layer(input_dim, output_dim, FULL_CONN){
         _activate_func  = activate_func;
         this->_weight   = weight;
         this->_bias     = bias;
@@ -150,6 +148,20 @@ public:
         _activate_func  = activate_func;
         this->_weight.reset(_input_dim, _output_dim, mean_value, stddev);
         this->_bias.reset(1, _output_dim, mean_value, stddev);
+    }
+
+    OutputLayer(const size_t input_dim,
+                const size_t output_dim,
+                ActivateFunc* activate_func,
+                Cost* cost,
+                const abcdl::algebra::Mat& weight,
+                const abcdl::algebra::Mat& bias,
+                const real& mean_value = 0.0f,
+                const real& stddev = 0.5f) : Layer(input_dim, output_dim, OUTPUT){
+        _cost           = cost;
+        _activate_func  = activate_func;
+        this->_weight   = weight;
+        this->_bias     = bias;;
     }
 
     ~OutputLayer(){
