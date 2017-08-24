@@ -69,6 +69,7 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
             size_t num = evaluate(test_data, test_label);
             printf("Epoch[%ld][%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
         }
+        write_model(path);
     }
 }
 
