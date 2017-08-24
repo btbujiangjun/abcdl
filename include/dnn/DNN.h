@@ -12,6 +12,7 @@
 #include "algebra/Matrix.h"
 #include "dnn/Layer.h"
 #include "utils/Log.h"
+#include "utils/ModelLoader.h"
 
 namespace abcdl{
 namespace dnn{
@@ -67,6 +68,8 @@ private:
     real _lamda = 0.1;
     size_t _batch_size = 50;
     std::vector<abcdl::dnn::Layer*> _layers;
+
+    abcdl::utils::ModelLoader model_loader;
 };//class DNN
 
 }//namespace dnn
