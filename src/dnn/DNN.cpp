@@ -9,6 +9,8 @@
 #include "dnn/Layer.h"
 #include "utils/Log.h"
 #include "utils/Shuffler.h"
+#include <vector>
+
 
 namespace abcdl{
 namespace dnn{
@@ -105,10 +107,44 @@ void DNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predic
 }
 
 bool DNN::load_model(const std::string& path){
+    std::vector<abcdl::algebra::Mat*> models;
+    if(!model_loader.read<real>(path, &models, "DNNMODEL") || models.size() % 2 != 0){
+        for(auto& model : models){
+            delete model;
+        }
+        models.clear();
+        return false;
+    }
+
+    for(auto& layer : _layers){
+        delete layer;
+    }
+    _layers.clear();
+
+    for(size_t i = 0; i != models.size() / 2; i++){
+        if(i == 0){
+            _layers.push_back(new InputLayer(models[0]->rows()));
+        }
+        if(i == models.size() / 2 - 1){
+            _layers.push_back(new OutputLayer(models[i * 2]->rows(), models[i * 2]->cols(), new SigmoidActivateFunc(), new CrossEntropyCost(), *models[i * 2], *models[i * 2 + 1]));
+        }else{
+            _layers.push_back(new FullConnLayer(models[i * 2]->rows(), models[i * 2]->cols(), new SigmoidActivateFunc(), *models[i * 2], *models[i * 2 + 1]));
+        }
+    }
+
+    for(auto& model : models){
+        delete model;
+    }
+    models.clear();
     return true;
 }
 bool DNN::write_model(const std::string& path){
-    return true;
+    std::vector<abcdl::algebra::Mat*> models;
+    for(size_t i = 1; i != _layers.size(); i++){
+        models.push_back(&_layers[i]->get_weight());
+        models.push_back(&_layers[i]->get_bias());
+    }
+    return model_loader.write<real>(models, path, "DNNMODEL", false);
 }
 
 }//namespace dnn
