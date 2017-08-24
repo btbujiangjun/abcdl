@@ -183,9 +183,6 @@ public:
     virtual bool swap_row(const size_t a, const size_t b) = 0;
     virtual bool swap_col(const size_t a, const size_t b) = 0;
 
-    virtual Matrix<T>* transpose() = 0;
-
-
     void expand(size_t row_dim, size_t col_dim);
 
     //shape is full or valid, default full.
@@ -200,10 +197,6 @@ public:
 
     virtual void add_x0() = 0;
     virtual void add_x0(Matrix<T>* result) = 0;
-
-    virtual bool det(T* result) = 0;
-
-    virtual real mean(size_t col) = 0;
 
     virtual real var() = 0;
     virtual real var(size_t col) = 0;
@@ -226,10 +219,16 @@ template<class T>
 class RandomMatrix : public Matrix<T>{
 public:
     RandomMatrix(){}
+    RandomMatrix(const Matrix<T>& mat){
+        this->_rows = mat.rows();
+        this->_cols = mat.cols();
+        this->_data = new T[mat.get_size()];
+        memcpy(this->_data, mat.data(), sizeof(T) * mat.get_size());
+    }
     RandomMatrix(size_t rows,
                  size_t cols,
-                 const T& mean_value,
-                 const T& stddev,
+                 const T& mean_value = 0,
+                 const T& stddev = 1,
                  const T& min = 0,
                  const T& max = 0);
     void reset();
@@ -239,11 +238,26 @@ public:
                const T& stddev,
                const T& min = 0,
                const T& max = 0);
+
+    RandomMatrix<T>& operator = (const Matrix<T>& mat){
+        if(this->get_size() != mat.get_size()){
+            if(this->_data != nullptr){
+                delete[] this->_data;
+            }
+            this->_data = new T[mat.get_size()];
+        }
+        this->_rows = mat.rows();
+        this->_cols = mat.cols();
+        memcpy(this->_data, mat.data(), sizeof(T) * mat.get_size());
+
+        return *this;
+    }
+
 private:
-    T _mean_value;
-    T _stddev;
-    T _min;
-    T _max;
+    T _mean_value   = 0;
+    T _stddev       = 1;
+    T _min          = 0;
+    T _max          = 0;
 };//class RandomMatrix
 
 template<class T>
