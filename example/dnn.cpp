@@ -16,13 +16,16 @@ int main(int argc, char** argv){
     abcdl::utils::log::set_min_log_level(abcdl::utils::log::INFO);
     abcdl::utils::log::initialize_log(argc, argv);
 
-    std::vector<abcdl::dnn::Layer*> layers;
-    layers.push_back(new abcdl::dnn::InputLayer(784));
-    layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::dnn::SigmoidActivateFunc()));
-    layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::dnn::SigmoidActivateFunc(), new abcdl::dnn::CrossEntropyCost()));
+    const std::string path = "./data/dnn.model";
 
     abcdl::dnn::DNN dnn;
-    dnn.set_layers(layers);
+    if(!dnn.load_model(path)){
+        std::vector<abcdl::dnn::Layer*> layers;
+        layers.push_back(new abcdl::dnn::InputLayer(784));
+        layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::dnn::SigmoidActivateFunc()));
+        layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::dnn::SigmoidActivateFunc(), new abcdl::dnn::CrossEntropyCost()));
+        dnn.set_layers(layers);
+    }
 
     abcdl::utils::MnistHelper<real> helper;
     
@@ -39,4 +42,6 @@ int main(int argc, char** argv){
     helper.read_vec_label("data/mnist/t10k-labels-idx1-ubyte", &test_label, 100);
 
     dnn.train(train_data, train_label, test_data, test_label);
+
+    dnn.write_model(path);
 }
