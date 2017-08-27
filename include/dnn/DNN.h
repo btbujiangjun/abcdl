@@ -26,6 +26,11 @@ public:
         }
         _layers.clear();
     }
+    
+	void set_epoch(const size_t epoch){ _epoch = epoch; }
+    void set_alpha(const real alpha){ _alpha = alpha; }
+    void set_lamda(const real lamda){ _lamda = lamda; }
+    void set_batch_size(const size_t batch_size){ _batch_size = batch_size; }
 
     void set_layers(std::vector<abcdl::dnn::Layer*>& layers){
         size_t layer_size = layers.size();
@@ -39,28 +44,18 @@ public:
         }
         _layers = layers;
     }
-    void set_epoch(const size_t epoch){
-        _epoch = epoch;
-    }
-    void set_alpha(const real alpha){
-        _alpha = alpha;
-    }
-    void set_lamda(const real lamda){
-        _lamda = lamda;
-    }
-    void set_batch_size(const size_t batch_size){
-        _batch_size = batch_size;
-    }
 
     void train(const abcdl::algebra::Mat& train_data,
                const abcdl::algebra::Mat& train_label,
                const abcdl::algebra::Mat& test_data,
                const abcdl::algebra::Mat& test_label);
-    size_t evaluate(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
     void predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data);
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
+
+private:
+    size_t evaluate(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
 
 private:
     size_t _epoch = 30;
@@ -69,7 +64,7 @@ private:
     size_t _batch_size = 50;
     std::vector<abcdl::dnn::Layer*> _layers;
 
-    abcdl::utils::ModelLoader model_loader;
+    abcdl::utils::ModelLoader _model_loader;
 };//class DNN
 
 }//namespace dnn
