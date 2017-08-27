@@ -5,16 +5,12 @@
 * Filename: CNN.cpp
 * Description: convolutional network 
 **********************************************/
-#include <typeinfo>
 #include <math.h>
-#include "algorithm/cnn/Layer.h"
+#include "cnn/Layer.h"
 
 namespace abcdl{
 namespace cnn{
 
-bool DataLayer::initialize(Layer* pre_layer){
-    return true;
-}
 void DataLayer::feed_forward(Layer* pre_layer, bool debug){
     auto activation = new ccma::algebra::DenseMatrixT<real>();
     _x->clone(activation);
