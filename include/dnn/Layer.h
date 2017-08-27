@@ -3,7 +3,7 @@
  * Create: 2017-08-16 12:01
  * Last modified : 2017-08-16 12:01
  * Filename      : Layer.h
- * Description   : 
+ * Description   : Layer of DNN 
  **********************************************/
 
 #pragma once
