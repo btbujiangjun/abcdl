@@ -11,59 +11,30 @@
 namespace abcdl{
 namespace cnn{
 
-void DataLayer::feed_forward(Layer* pre_layer, bool debug){
-    auto activation = new ccma::algebra::DenseMatrixT<real>();
-    _x->clone(activation);
-    this->set_activation(0, activation);
-    if(debug){
-    	printf("DataLayer activation");
-        auto a = new ccma::algebra::DenseMatrixT<int>();
-        int* d = new int[_x->get_rows() * _x->get_cols()];
-		uint size = _x->get_size();
+void SubSamplingLayer::initialize(Layer* pre_layer){
+    uint pre_rows = pre_layer.rows();
+    uint pre_cols = pre_layer.cols();
+    CHECK(pre_rows % _scale == 0 && pre_cols % _scale == 0);
 
-        for(uint i = 0; i != size; i++){
-            d[i] = static_cast<int>(_x->get_data(i));
-        }
-
-        a->set_shallow_data(d, _x->get_rows(), _x->get_cols());
-        a->display("|");
-        delete a;
-    }
-}
-void DataLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
-}
-
-bool SubSamplingLayer::initialize(Layer* pre_layer){
-    uint pre_rows = pre_layer->get_rows();
-    uint pre_cols = pre_layer->get_cols();
-
-    if(pre_rows % _scale != 0 || pre_cols % _scale != 0){
-        printf("SubSampling Layer scale error:pre_rows[%d]pre_cols[%d]scale[%d].\n", pre_rows, pre_cols, _scale);
-        return false;
-    }
+	
     this->_rows = pre_rows / _scale;
     this->_cols = pre_cols / _scale;
-    //can't change out channel size.
+
+    //can't change out_channel_size.
     this->_in_channel_size = this->_out_channel_size = pre_layer->get_out_channel_size();
+
     /*
-     * pre_layer, each channel share a bias and initialize value is zero.
+     * pre_layer, all channels share the same bias and initial value is zero.
      * no pooling weight.
      */
-    set_bias(new ccma::algebra::DenseColMatrixT<real>(this->_out_channel_size, 0.0));
-    return true;
+    this->_bias.reset(0.0, this->_out_channel_size, 1);
 }
-void SubSamplingLayer::feed_forward(Layer* pre_layer, bool debug){
+void SubSamplingLayer::forward(Layer* pre_layer){
     // in_channel size equal out_channel size to subsampling layer.
-    for(uint i = 0; i != this->_in_channel_size; i++){
-        auto a = pre_layer->get_activation(i);
-        auto activation = new ccma::algebra::DenseMatrixT<real>();
-        _pooling->pool(a, this->_rows, this->_cols, this->_scale, activation);
+	abcdl::algebra::Mat activation;
+    for(size_t i = 0; i != this->_in_channel_size; i++){
+        _pooling->pool(activation, pre_layer->get_activation(i), this->_rows, this->_cols, this->_scale);
         this->set_activation(i, activation);
-
-	    if(debug){
-	        printf("sub feed[%d]", i);
-	        activation->display("|");
-	    }
     }
 }
 void SubSamplingLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
@@ -106,45 +77,38 @@ void SubSamplingLayer::back_propagation(Layer* pre_layer, Layer* back_layer, boo
     }
 }
 
-bool ConvolutionLayer::initialize(Layer* pre_layer){
+void ConvolutionLayer::initialize(Layer* pre_layer){
     uint pre_rows = pre_layer->get_rows();
     uint pre_cols = pre_layer->get_cols();
 
-    if(pre_rows < _kernal_size || pre_cols < _kernal_size){
-        printf("ConvolutionLayer Size Erorr: pre_rows[%d] pre_cols[%d] less than kernal_size[%d].\n", pre_rows, pre_cols, _kernal_size);
-        return false;
-    }
+    CHECK(pre_rows > _kernal_size && pre_cols < _kernal_size);
 
     this->_rows = (pre_rows - _kernal_size) % _stride == 0 ? (pre_rows - _kernal_size) / _stride + 1 : (pre_rows - _kernal_size) / _stride + 2;
     this->_cols = (pre_cols - _kernal_size) % _stride == 0 ? (pre_cols - _kernal_size) / _stride + 1 : (pre_cols - _kernal_size) / _stride + 2;
 
     this->_in_channel_size = pre_layer->get_out_channel_size();
+	
+	this->_weights.reserve(this->_in_channel_size * this->_out_channel_size);
+	for(auto& weight : _weights){
+		weight.reset(_kernal_size, _kernal_size, 0.0, 0.5);
+	}
 
-    for(uint i = 0; i != this->_in_channel_size; i++){
-        for(uint j = 0; j != this->_out_channel_size; j++){
-            auto weight = new ccma::algebra::DenseRandomMatrixT<real>(_kernal_size, _kernal_size, 0.0, 0.5);
-            this->set_weight(i, j, weight);
-        }
-    }
-    for(uint i = 0; i != this->_in_channel_size; i++){
-        for(uint j = 0; j != this->_out_channel_size; j++){
-            this->get_weight(i, j)->display("|");
-        }
-    }
+	for(auto& weight : _weight){
+		weight.display("|");
+	}
+
     /*
-     * channel shared the same bias of current layer.
+     * all channels shared the same bias of current layer.
      */
-    this->set_bias(new ccma::algebra::DenseColMatrixT<real>(this->_out_channel_size, 0.0));
-
-    return true;
+	this->_bias.reset(0.0, this->_out_channel_size, 1);
 }
 
-void ConvolutionLayer::feed_forward(Layer* pre_layer, bool debug){
+void ConvolutionLayer::forward(Layer* pre_layer, bool debug){
     auto a = new ccma::algebra::DenseMatrixT<real>();
     //foreach output channel
-    for(uint i = 0; i != this->_out_channel_size; i++){
+    for(size_t i = 0; i != this->_out_channel_size; i++){
         auto activation = new ccma::algebra::DenseMatrixT<real>();
-        for(uint j = 0; j != pre_layer->get_out_channel_size(); j++){
+        for(size_t j = 0; j != pre_layer->get_out_channel_size(); j++){
             pre_layer->get_activation(j)->clone(a);
             a->convn(this->get_weight(j, i), _stride, "valid");
             //sum all channels of pre_layer.
@@ -304,16 +268,16 @@ void ConvolutionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, boo
     delete derivate_bias;
 }
 
-bool FullConnectionLayer::initialize(Layer* pre_layer){
-    _cols = pre_layer->get_rows() * pre_layer->get_cols() * pre_layer->get_out_channel_size();
+void OutputLayer::initialize(Layer* pre_layer){
+	//concat all vector to a array 
+    _cols = pre_layer.rows() * pre_layer.cols() * pre_layer.get_out_channel_size();
     this->_in_channel_size = pre_layer->get_out_channel_size();
 
-    this->set_bias(new ccma::algebra::DenseColMatrixT<real>(_rows, 0.0));
-    auto weight = new ccma::algebra::DenseRandomMatrixT<real>(this->_rows, this->_cols, 0.0, 0.5);
+    this->_bias.reset(0.0, _rows, 1);
+	ccma::algebra::RandomMatrix<real> weight(this->_rows, this->_cols, 0.0, 0.5);
     this->set_weight(0, 0, weight);
-    return true;
 }
-void FullConnectionLayer::feed_forward(Layer* pre_layer, bool debug){
+void OutputLayer::feed_forward(Layer* pre_layer, bool debug){
     /*
      * concatenate pre_layer's all channel mat into vector
      */
@@ -340,13 +304,13 @@ void FullConnectionLayer::feed_forward(Layer* pre_layer, bool debug){
     this->set_activation(0, activation);
     
     if(debug){
-        printf("FullConnectionLayer feed_forward activation");
+        printf("OutputLayer feed_forward activation");
 	    activation->display("|");
     }
 
 }
 
-void FullConnectionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
+void OutputLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
     if(_error == nullptr){
         _error = new ccma::algebra::DenseMatrixT<real>();
     }
@@ -354,9 +318,9 @@ void FullConnectionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, 
     _error->subtract(_y);
 
 	if(debug){
-		printf("FullConnectionLayer back activation");
+		printf("OutputLayer back activation");
 		this->get_activation(0)->display("|");
-		printf("FullConnectionLayer back error");
+		printf("OutputLayer back error");
 		_error->display("|");
 	}
 
@@ -463,9 +427,9 @@ void FullConnectionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, 
     this->get_bias()->subtract(derivate_bias);
 
     if(debug){
-        printf("FullConnectionLayer back_propagation derivate_weight");
+        printf("OutputLayer back_propagation derivate_weight");
         derivate_weight->display("|");
-        printf("FullConnectionLayer back_propagation derivate_bias");
+        printf("OutputLayer back_propagation derivate_bias");
         derivate_bias->display("|");
     }
 
