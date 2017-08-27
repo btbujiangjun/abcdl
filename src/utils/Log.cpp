@@ -126,7 +126,7 @@ void set_min_log_level(int level){
 }
 
 void install_failure_function(void (*callback)()){
-    g_failure_function_ptr = callback;
+    //g_failure_function_ptr = callback;
 }
 
 void install_failure_writer(void(*callback)(const char*, int)){
