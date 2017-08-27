@@ -103,7 +103,7 @@ void DNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predic
 
 bool DNN::load_model(const std::string& path){
     std::vector<abcdl::algebra::Mat*> models;
-    if(!model_loader.read<real>(path, &models, "DNNMODEL") || models.size() % 2 != 0){
+    if(!_model_loader.read<real>(path, &models, "DNNMODEL") || models.size() % 2 != 0){
         for(auto& model : models){
             delete model;
         }
@@ -139,7 +139,7 @@ bool DNN::write_model(const std::string& path){
         models.push_back(&_layers[i]->get_weight());
         models.push_back(&_layers[i]->get_bias());
     }
-    return model_loader.write<real>(models, path, "DNNMODEL", false);
+    return _model_loader.write<real>(models, path, "DNNMODEL", false);
 }
 
 }//namespace dnn
