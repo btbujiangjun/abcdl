@@ -23,6 +23,7 @@ public:
     ~DNN(){
         for(auto& layer : _layers){
             delete layer;
+			layer = nullptr;
         }
         _layers.clear();
     }
