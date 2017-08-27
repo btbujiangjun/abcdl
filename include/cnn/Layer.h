@@ -15,6 +15,8 @@ namespace cnn{
 
 enum Layer_type{
 	INPUT = 0,
+	SUBSAMPLING,
+	CONVOLUTION,
 	OUTPUT
 };
 
@@ -32,8 +34,14 @@ public:
 
     virtual ~Layer() = default;
 
+	size_t get_rows() const { return _rows; }
+	size_t get_cols() const { return _cols; }
+
+	inline size_t get_out_channel_size() { return _out_channel_size; }
+
 	inline void set_alpha(const real alpha){ _alpha = alpha; }
 
+	virtual void initialize(Layer* pre_layer) = 0;
     virtual void forward(Layer* pre_layer) = 0;
     virtual void backward(Layer* pre_layer, Layer* back_layer) = 0;
 
@@ -45,11 +53,38 @@ protected:
 
     real _alpha = 0.1;
 
-    std::vector<abcdl::algebra::Mat&> _weights;
-    abcdl::algebra::Mat _bias;
+    std::vector<abcdl::algebra::RandomMatrix<real>> _weights;
+    abcdl::algebra::RandomMatrix<real> _bias;
+protected:
+	inline void set_weight(const size_t in_channel_id,
+						   const size_t out_channel_id,
+						   const ccma::algebra::RandomMatrix<real>& weight){
+		CHECK(in_channel_id < _in_channel_size && out_channel_id < _out_channel_size);
+		if(_weights.size() != this->_out_channel_size * this->_in_channel_size){
+			_weights.reserve(this->_out_channel_size * this->_in_channel_size);
+		}
+		
+		_weights[in_channel_id * this->_out_channel_size + out_channel_id] = weight;
+	}
+	inline ccma::algebra::RandomMatrix<real>& get_weight(const size_t in_channel_id, const size_t out_channel_id){ 
+		return _weights[in_channel_id * this->_out_channel_size + out_channel_id];
+	}
+
+	void set_activations(const abcdl::algebra::Mat& activation, const size_t id){
+		CHECK(id < _in_channel_size);
+		CHECK(activation.rows() == this->_rows && activation.cols() == this->_cols);
+		if(_activations.size() != this->_in_channel_size){
+			_activations.reserve(this->_in_channel_size);
+		}
+		_activations[id] = activation;
+	}
+	abcdl::algebra::Mat get_activation(size_t id){
+		CHECK(id < this->_in_channel_size);
+		return _activations[id];
+	}
+
 private:
     std::vector<abcdl::algebra::Mat&> _activations;
-    std::vector<abcdl::algebra::Mat&> _deltas;
 
 	abcdl::cnn::Layer_type;
 };//class Layer
@@ -57,20 +92,20 @@ private:
 class InputLayer : public Layer{
 public:
     InputLayer(const size_t rows, const size_t cols) : Layer(rows, cols, 1, 1, abcdl::cnn::INPUT){}
-    void forward(Layer* pre_layer);
+   
+    void initialized(Layer* pre_layer){}	
+	void forward(Layer* pre_layer){}
     void backward(Layer* pre_layer, Layer* back_layer){}
 
     void set_x(const abcdl::algebra::Mat& x){
         CHECK(x->get_rows() == this->_rows && x->get_cols() == this->_cols){
-        _x = x;
+        this->set_activations(x, 0);
     }
-private:
-    abcdl::algebra::Mat _x;
 };//class InputLayer
 
 class SubSamplingLayer : public Layer{
 public:
-    SubSamplingLayer(size_t scale, abcdl::cnn::Pooling* pooling):Layer(0, 0, 0, 0){
+    SubSamplingLayer(const size_t scale, abcdl::cnn::Pooling* pooling) : Layer(0, 0, 0, 0, abcdl::cnn::SUBSAMPLING){
         _scale = scale;
         _pooling = pooling;
     }
@@ -78,6 +113,7 @@ public:
         delete _pooling;
     }
 
+    void initialized(Layer* pre_layer);	
     void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* back_layer);
 
@@ -93,13 +129,14 @@ class ConvolutionLayer : public Layer{
 public:
      ConvolutionLayer(const size_t kernal_size,
 					  const size_t stride,
-					  const size_t out_channel_size):Layer(0, 0, 1, out_channel_size){
+					  const size_t out_channel_size):Layer(0, 0, 1, out_channel_size, abcdl::cnn::CONVOLUTION){
         _kernal_size = kernal_size;
         _stride = stride;
     }
 	
     inline size_t get_stride() const { return _stride; }
 
+    void initialized(Layer* pre_layer);	
     void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* back_layer);
 
@@ -108,10 +145,11 @@ private:
     size_t _kernal_size;
 };//class ConvolutionLayer
 
-class FullConnectionLayer : public Layer{
+class OutputLayer : public Layer{
 public:
-    FullConnectionLayer(const size_t rows) : Layer(rows, 0, 0, 1){}
+    OutputLayer(const size_t rows) : Layer(rows, 0, 0, 1, abcdl::cnn::OUTPUT){}
     
+    void initialized(Layer* pre_layer);	
 	void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* back_layer);
 
