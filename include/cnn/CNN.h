@@ -7,8 +7,11 @@
 **********************************************/
 #pragma once
 
+#include <vector>
 #include "algebra/Matrix.h"
-#include "include/cnn/Layer.h"
+#include "cnn/Layer.h"
+#include "utils/Log.h"
+#include "utils/ModelLoader.h"
 
 namespace abcdl{
 namespace cnn{
@@ -22,23 +25,26 @@ public:
         _layers.clear();
     }
 
-    bool add_layer(Layer* layer);
-    void train(const abcdl::algebra::Mat& train_data,
+	void set_epoch(const size_t epoch){ _epoch = epoch;}
+
+    void set_layers(std::vector<abcdl::cnn::Layer*>& layers);
+    
+	void train(const abcdl::algebra::Mat& train_data,
                const abcdl::algebra::Mat& train_label,
-               const size_t epoch = 1,
                const abcdl::algebra::Mat& test_data,
                const abcdl::algebra::Mat& test_label);
-    //void predict(const abcdl::algebra::Mat& predict_data);
-protected:
-    void feed_forward(abcdl::algebra::Mat& mat);
-    void back_propagation(abcdl::algebra::Mat& mat);
+    void predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data);
 
+	bool load_model(const std::string& path);
+	bool write_model(const std::string& path);
 private:
-    bool check(uint size);
     bool evaluate(abcdl::algebra::Mat& data, abcdl::algebra::Mat& label);
 
 private:
-    std::vector<Layer*> _layers;
+	size_t _epoch = 5;
+	std::vector<abcdl::cnn::Layer*> _layers;
+
+	abcdl::utils::ModelLoader _model_loader;
 };//class CNN
 
 }//namespace cnn
