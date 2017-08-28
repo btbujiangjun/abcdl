@@ -74,7 +74,7 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
         if(test_data.rows() > 0){
             size_t num = evaluate(test_data, test_label);
             printf("Epoch[%ld][%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
-    	    printf("Epoch[%ld] predict run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
+    	    printf("Epoch[%ld] predict run time:[%ld]ms\n", i + 1, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
         }
     }
 }
