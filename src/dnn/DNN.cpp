@@ -28,12 +28,16 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
     CHECK(train_data.cols() == _layers[0]->get_input_dim());
     CHECK(train_label.cols() == _layers[_layers.size() -1]->get_output_dim());
 
-    abcdl::utils::Shuffler shuffler(num_train_data);
     abcdl::algebra::Mat data;
     abcdl::algebra::Mat label;
+    abcdl::utils::Shuffler shuffler(num_train_data);
+    auto now = []{return std::chrono::system_clock::now();};
 
     for(size_t i = 0; i != _epoch; i++){
+        
         shuffler.shuffle();
+        auto start_time = now();
+
         for(size_t j = 0; j != num_train_data; j++){
             train_data.get_row(&data, shuffler.get_row(j));
             train_label.get_row(&label, shuffler.get_row(j));
@@ -64,9 +68,13 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
             }
         }
 
+        auto train_time = now();
+        printf("Epoch [%ld] training run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
+
         if(test_data.rows() > 0){
             size_t num = evaluate(test_data, test_label);
             printf("Epoch[%ld][%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
+    	    printf("Epoch[%ld] predict run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
         }
     }
 }
