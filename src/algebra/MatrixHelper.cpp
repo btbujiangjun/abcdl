@@ -167,9 +167,79 @@ bool MatrixHelper::convn(Matrix<T>& result,
                          const Matrix<T>& mat,
                          const Matrix<T>& kernal,
                          const size_t stride,
-                         const abcdl::algebra::Convn_type = abcdl::algebra::VALID){
+                         const Convn_type type){
+    size_t rows       = mat.rows();
+    size_t cols       = mat.cols();
+    size_t kernal_row = kernal.rows();
+    size_t kernal_col = kernal.cols();
 
-    return false;
+    size_t data_row;
+    size_t data_col;
+
+    T* data;
+    T* new_data;
+    T* src_data = result.data();
+
+    if(type == FULL && kernal_row * kernal_col != 1){
+        data_row = mat.rows() + 2 * (kernal_row - 1);
+        data_col = mat.cols() + 2 * (kernal_col - 1);
+
+        data = new T[data_row * data_col];
+        memset(data, 0, sizeof(T) * data_row * data_col);
+
+        //padding 0, (kernal_row - 1)*(kernal_col - 1)
+        for(size_t i = 0; i != rows; i++){
+            memcpy(&data[(i + kernal_row - 1) * data_col + kernal_col - 1], &src_data[i * cols], sizeof(T)* cols);
+        }
+    }else if(type == VALID){
+        data_row = rows;
+        data_col = cols;
+        data     = src_data;
+        
+        if(data_row < kernal_row || data_col < kernal_col){
+            LOG(FATAL) << "Convn error: kernal size large than mat.";
+            return false;
+        }
+    }else{
+        //todo
+        LOG(FATAL) << "todo:not support SAME type";
+        return false;
+    }
+
+
+    size_t conv_row = (data_row - kernal_row) % stride == 0 ? (data_row - kernal_row) / stride + 1 : (data_row - kernal_row) / stride + 2;
+    size_t conv_col = (data_col - kernal_col) % stride == 0 ? (data_col - kernal_col) / stride + 1 : (data_col - kernal_col) / stride + 2;
+
+    new_data = new T[conv_row * conv_col];
+    T* kernal_data = kernal.data();
+
+    for(size_t i = 0; i != conv_row; i++){
+        for(size_t j = 0; j != conv_col; j++){
+            T sum = 0;
+            for(size_t k_i = 0; k_i != kernal_row; k_i++){
+                size_t row = i * stride + k_i;
+                for(size_t k_j = 0; k_j != kernal_col; k_j++){
+                    size_t col = j * stride + k_j;
+                    //skip out of range, in other word, fill 0
+                    if(row < data_row && col < data_col){
+                        T a = data[row * data_col + col];
+                        T b = kernal_data[k_i * kernal_col + k_j];
+                        if(a != 0 && b != 0){
+                            sum += a * b;
+                        }
+                    }
+                }
+            }
+            new_data[i * conv_col + j] = sum;
+        }
+    }
+    result.set_shallow_data(new_data, conv_row, conv_col);
+
+    if(type == FULL){
+    	delete[] data;
+    }
+
+    return true;
 }
 
 template<class T>
