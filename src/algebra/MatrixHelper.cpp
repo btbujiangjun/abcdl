@@ -163,6 +163,16 @@ void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
+bool MatrixHelper::convn(Matrix<T>& result,
+                         const Matrix<T>& mat,
+                         const Matrix<T>& kernal,
+                         const size_t stride,
+                         const abcdl::algebra::Convn_type = abcdl::algebra::VALID){
+
+    return false;
+}
+
+template<class T>
 void MatrixHelper<T>::zero_like(Matrix<T>& mat, const Matrix<T>& mat_a){
 	mat.reset(0, mat_a.rows(), mat_a.cols()); 
 }
