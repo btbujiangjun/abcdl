@@ -42,6 +42,11 @@ public:
 	void tanh(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);
 
+    bool convn(Matrix<T>& result,
+               const Matrix<T>& mat,
+               const Matrix<T>& kernal,
+               const size_t stride,
+               const Convn_type type = VALID);
 
 	void transpose(Matrix<T>& mat, const Matrix<T>& mat_a);
 
