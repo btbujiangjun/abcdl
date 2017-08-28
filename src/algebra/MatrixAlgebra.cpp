@@ -68,7 +68,7 @@ void Matrix<T>::relu(){
 template<class T>
 bool convn(const Matrix<T>& kernal,
            const size_t stride,
-           const abcdl::algebra::Convn_type type){
+           const Convn_type type){
     MatrixHelper<T> mh;
     return mh.convn(*this, *this, kernal, stride, type); 
 }
