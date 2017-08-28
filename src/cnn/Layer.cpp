@@ -34,7 +34,7 @@ void SubSamplingLayer::forward(Layer* pre_layer){
 	abcdl::algebra::Mat activation;
     for(size_t i = 0; i != this->_in_channel_size; i++){
         _pooling->pool(activation, pre_layer->get_activation(i), this->_rows, this->_cols, this->_scale);
-        this->set_activation(i, activation);
+        this->set_activation(activation, i);
     }
 }
 void SubSamplingLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
@@ -103,44 +103,21 @@ void ConvolutionLayer::initialize(Layer* pre_layer){
 	this->_bias.reset(0.0, this->_out_channel_size, 1);
 }
 
-void ConvolutionLayer::forward(Layer* pre_layer, bool debug){
-    auto a = new ccma::algebra::DenseMatrixT<real>();
-    //foreach output channel
+void ConvolutionLayer::forward(Layer* pre_layer){
     for(size_t i = 0; i != this->_out_channel_size; i++){
-        auto activation = new ccma::algebra::DenseMatrixT<real>();
+        abcdl::algebra::Mat activation;
         for(size_t j = 0; j != pre_layer->get_out_channel_size(); j++){
-            pre_layer->get_activation(j)->clone(a);
-            a->convn(this->get_weight(j, i), _stride, "valid");
-            //sum all channels of pre_layer.
-            activation->add(a);
-
-            if(debug){
-                printf("ConvolutionLayer convn[%d][%d]", i, j);
-                pre_layer->get_activation(j)->display("|");
-                this->get_weight(j, i)->display("|");
-                a->display("|");
-                activation->display("|");
-            }
+            auto pre_activation = pre_layer->get_activation(j);
+            pre_activation.convn(this->get_weight(j, i), _stride, abcdl::algebra::VALID);
+            activation += pre_activation;//sum all channels of pre_layer
         }
         //add shared bias of channel in current layer.
-        activation->add(this->get_bias()->get_data(i, 0));
-
-        if(debug){
-            printf("ConvolutionLayer bias [%d][%f]", i, this->get_bias()->get_data(i, 0));
-            activation->display("|");
-        }
+        activation += this->_bias().get_data(i, 0);
 
         //if sigmoid activative function.
-        activation->sigmoid();
-        this->set_activation(i, activation);
-	
-	    if(debug){
-	        printf("conv feed activation[%d]", i);
-	        activation->display("|");
-    	}
-
+        activation.sigmoid();
+        this->set_activation(activation, i);
     }
-    delete a;
 }
 
 void ConvolutionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
@@ -270,44 +247,34 @@ void ConvolutionLayer::back_propagation(Layer* pre_layer, Layer* back_layer, boo
 
 void OutputLayer::initialize(Layer* pre_layer){
 	//concat all vector to a array 
-    _cols = pre_layer.rows() * pre_layer.cols() * pre_layer.get_out_channel_size();
+    this->_cols = pre_layer.rows() * pre_layer.cols() * pre_layer.get_out_channel_size();
     this->_in_channel_size = pre_layer->get_out_channel_size();
 
     this->_bias.reset(0.0, _rows, 1);
 	ccma::algebra::RandomMatrix<real> weight(this->_rows, this->_cols, 0.0, 0.5);
     this->set_weight(0, 0, weight);
 }
-void OutputLayer::feed_forward(Layer* pre_layer, bool debug){
+void OutputLayer::forward(Layer* pre_layer){
     /*
      * concatenate pre_layer's all channel mat into vector
      */
-    auto a = new ccma::algebra::DenseMatrixT<real>();
-    auto av = new ccma::algebra::DenseMatrixT<real>();
-	uint size = pre_layer->get_rows() * pre_layer->get_cols();;
-    for(uint i = 0; i != this->_in_channel_size; i++){
-        pre_layer->get_activation(i)->clone(a);
-        a->reshape(size, 1);
-        av->extend(a, false);
+	size_t size = pre_layer->get_rows() * pre_layer->get_cols();
+    T* data = new T[size];
+    size_t idx = 0;
+    for(size_t i = 0; i != this->_in_channel_size; i++){
+        memcpy(data, pre_layer.get_activation(i).data(), sizeof(T) * pre_layer.get_activation(i).get_size());
+        idx += pre_layer.get_activation(i).get_size();
     }
-    delete a;
-    if(_av != nullptr){
-        delete _av;
-    }
-    _av = av;
 
-    auto activation = new ccma::algebra::DenseMatrixT<real>();
-    this->get_weight(0, 0)->clone(activation);
-    activation->dot(_av);
-    activation->add(this->get_bias());
+    abcdl::algebra::Mat mat;
+    mat.set_shallow_data(data, size, 1);
+
+    MatrixHelper<T> mh;
+    auto activation = mh.dot(this->get_weight(0, 0), mat) + this->_bias;
+
     //if sigmoid activative function
     activation->sigmoid();
-    this->set_activation(0, activation);
-    
-    if(debug){
-        printf("OutputLayer feed_forward activation");
-	    activation->display("|");
-    }
-
+    this->set_activation(activation, 0);
 }
 
 void OutputLayer::back_propagation(Layer* pre_layer, Layer* back_layer, bool debug){
