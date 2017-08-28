@@ -78,7 +78,7 @@ protected:
 		}
 		_activations[id] = activation;
 	}
-	abcdl::algebra::Mat get_activation(size_t id){
+	abcdl::algebra::Mat& get_activation(size_t id){
 		CHECK(id < this->_in_channel_size);
 		return _activations[id];
 	}
