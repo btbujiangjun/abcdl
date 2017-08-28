@@ -16,6 +16,17 @@
 namespace abcdl{
 namespace algebra{
 
+enum Axis_type{
+    ROW = 0,
+    COL
+};
+
+enum Convn_type{
+    FULL = 0,
+    VALID,
+    SAME
+};
+
 template<class T>
 class Matrix{
 public:
@@ -154,7 +165,9 @@ public:
 	void softmax();
 	void tanh();
 	void relu();
-
+    bool convn(const Matrix<T>& kernal,
+               const size_t stride,
+               const Convn_type type = VALID);
 
 	T max() const;
 	size_t argmax() const;
