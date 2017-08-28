@@ -13,10 +13,10 @@ namespace abcdl{
 namespace cnn{
 
 void MeanPooling::pool(abcdl::algebra::Mat& pool,
+                       const abcdl::algebra::Mat& mat,
                        const size_t rows,
                        const size_t cols,
-                       const size_t scale,
-                       const abcdl::algebra::Mat& mat){
+                       const size_t scale){
     real* data = new real[rows * cols];
     size_t pooling_size = scale * scale;
     for(size_t j = 0; j != rows; j++){
@@ -33,10 +33,10 @@ void MeanPooling::pool(abcdl::algebra::Mat& pool,
     pool.set_shallow_data(data, rows, cols);
 }
 void MaxPooling::pool(abcdl::algebra::Mat& pool,
+                      const abcdl::algebra::Mat& mat,
                       const size_t rows,
                       const size_t cols,
-                      const size_t scale,
-                      const abcdl::algebra::Mat& mat){
+                      const size_t scale){
     real* data = new real[rows * cols];
     for(size_t j = 0; j != rows; j++){
         for(size_t k = 0; k != cols; k++){
@@ -55,10 +55,10 @@ void MaxPooling::pool(abcdl::algebra::Mat& pool,
     pool.set_shallow_data(data, rows, cols);
 }
 void L2Pooling::pool(abcdl::algebra::Mat& pool,
+                     const abcdl::algebra::Mat& mat,
                      const size_t rows,
                      const size_t cols,
-                     const size_t scale,
-                     const abcdl::algebra::Mat& mat){
+                     const size_t scale){
     real* data = new real[rows * cols];
     for(size_t j = 0; j != rows; j++){
         for(size_t k = 0; k != cols; k++){
