@@ -66,6 +66,14 @@ void Matrix<T>::relu(){
 }
 
 template<class T>
+bool convn(const Matrix<T>& kernal,
+           const size_t stride,
+           const abcdl::algebra::Convn_type type){
+    MatrixHelper<T> mh;
+    return mh.convn(*this, *this, kernal, stride, type); 
+}
+
+template<class T>
 T Matrix<T>::max() const{
 	if(get_size() == 0){
 		return 0;
