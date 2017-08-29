@@ -168,6 +168,7 @@ public:
     bool convn(const Matrix<T>& kernal,
                const size_t stride,
                const Convn_type type = VALID);
+    void expand(size_t row_dim, size_t col_dim);
 
 	T max() const;
 	size_t argmax() const;
