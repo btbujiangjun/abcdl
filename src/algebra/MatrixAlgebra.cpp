@@ -66,9 +66,15 @@ void Matrix<T>::relu(){
 }
 
 template<class T>
-bool convn(const Matrix<T>& kernal,
-           const size_t stride,
-           const Convn_type type){
+void Matrix<T>::expand(const size_t row_dim, const size_t col_dim){
+    MatrixHelper<T> mh;
+    mh.expand(*this, *this, row_dim, col_dim);
+}
+
+template<class T>
+bool Matrix<T>::convn(const Matrix<T>& kernal,
+                      const size_t stride,
+                      const Convn_type type){
     MatrixHelper<T> mh;
     return mh.convn(*this, *this, kernal, stride, type); 
 }
