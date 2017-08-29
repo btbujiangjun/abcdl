@@ -9,8 +9,9 @@
 
 #include <vector>
 #include "algebra/Matrix.h"
+#include "algebra/MatrixHelper.h"
 
-namespace ccma{
+namespace abcdl{
 namespace cnn{
 
 enum Layer_type{
@@ -45,47 +46,108 @@ public:
     virtual void forward(Layer* pre_layer) = 0;
     virtual void backward(Layer* pre_layer, Layer* back_layer) = 0;
 
-protected:
-    size_t _rows;
-    size_t _cols;
-    size_t _in_channel_size;
-    size_t _out_channel_size;
+    void update_gradient(const size_t batch_size, const real alpha){
+        for(size_t i = 0; i != _weights.size(); i++){
+            _weights[i] -= _batch_weights[i] * (alpha / batch_size);
+        }
+        _bias -= _batch_bias *(algebra / batch_size);
 
-    real _alpha = 0.1;
+        for(auto& weight : _batch_weights){
+            weight.reset();
+        }
+        _bias.reset();
+    }
 
-    std::vector<abcdl::algebra::RandomMatrix<real>> _weights;
-    abcdl::algebra::RandomMatrix<real> _bias;
 protected:
+    /*
 	inline void set_weight(const size_t in_channel_id,
 						   const size_t out_channel_id,
-						   const ccma::algebra::RandomMatrix<real>& weight){
+						   const abcdl::algebra::RandomMatrix<real>& weight){
 		CHECK(in_channel_id < _in_channel_size && out_channel_id < _out_channel_size);
+
 		if(_weights.size() != this->_out_channel_size * this->_in_channel_size){
 			_weights.reserve(this->_out_channel_size * this->_in_channel_size);
 		}
 		
 		_weights[in_channel_id * this->_out_channel_size + out_channel_id] = weight;
 	}
-	inline ccma::algebra::RandomMatrix<real>& get_weight(const size_t in_channel_id, const size_t out_channel_id){ 
+    */
+	inline abcdl::algebra::RandomMatrix<real>& get_weight(const size_t in_channel_id, const size_t out_channel_id){ 
 		return _weights[in_channel_id * this->_out_channel_size + out_channel_id];
 	}
 
-	void set_activations(const abcdl::algebra::Mat& activation, const size_t id){
+	inline void set_delta_weight(const size_t in_channel_id,
+						         const size_t out_channel_id,
+                                 const abcdl::algebra::RandomMatrix<real>& weight){
+		CHECK(in_channel_id < _in_channel_size && out_channel_id < _out_channel_size);
+
+		if(_delta_weights.size() != this->_out_channel_size * this->_in_channel_size){
+			_delta_weights.reserve(this->_out_channel_size * this->_in_channel_size);
+		}
+		
+		_delta_weights[in_channel_id * this->_out_channel_size + out_channel_id] = weight;
+	}
+
+	abcdl::algebra::RandomMatrix<real>& get_delta_weight(const size_t in_channel_id, const size_t out_channel_id){ 
+		return _delta_weights[in_channel_id * this->_out_channel_size + out_channel_id];
+	}
+/*
+	inline void set_batch_weight(const size_t in_channel_id,
+						         const size_t out_channel_id,
+       						     const abcdl::algebra::RandomMatrix<real>& weight){
+		CHECK(in_channel_id < _in_channel_size && out_channel_id < _out_channel_size);
+
+		if(_batch_weights.size() != this->_out_channel_size * this->_in_channel_size){
+			_batch_weights.reserve(this->_out_channel_size * this->_in_channel_size);
+		}
+		
+		_batch_weights[in_channel_id * this->_out_channel_size + out_channel_id] = weight;
+	}
+*/
+
+    void set_delta(size_t id, const abcdl::algebra::Mat& delta){
+        CHECK(id < _deltas.size());
+        _deltas[id] = delta;
+    }
+    abcdl::algebra::Mat& get_delta(const size_t id) const {
+        CHECK(id < _deltas.size());
+        return _deltas[id];
+    }
+
+	void set_activations(const size_t id, const abcdl::algebra::Mat& activation){
 		CHECK(id < _in_channel_size);
 		CHECK(activation.rows() == this->_rows && activation.cols() == this->_cols);
+
 		if(_activations.size() != this->_in_channel_size){
 			_activations.reserve(this->_in_channel_size);
 		}
 		_activations[id] = activation;
 	}
 	abcdl::algebra::Mat& get_activation(size_t id){
-		CHECK(id < this->_in_channel_size);
+		CHECK(id < _activations.size());
 		return _activations[id];
 	}
+protected:
+    size_t _rows;
+    size_t _cols;
+    size_t _in_channel_size;
+    size_t _out_channel_size;
+    real _alpha = 0.1;
+
+    std::vector<abcdl::algebra::RandomMatrix<real>> _batch_weights;
+    abcdl::algebra::RandomMatrix<real> _batch_bias;
+
+    std::vector<abcdl::algebra::RandomMatrix<real>> _delta_weights;
+    abcdl::algebra::RandomMatrix<real> _delta_bias;
+
+    std::vector<abcdl::algebra::RandomMatrix<real>> _weights;
+    abcdl::algebra::RandomMatrix<real> _bias;
+
+    abcdl::algebra::MatrixHelper<real> mh;
 
 private:
     std::vector<abcdl::algebra::Mat&> _activations;
-
+    std::vector<abcdl::algebra::Mat&> _deltas;
 	abcdl::cnn::Layer_type;
 };//class Layer
 
@@ -113,11 +175,11 @@ public:
         delete _pooling;
     }
 
+    inline size_t get_scale() const{ return _scale; }
+
     void initialized(Layer* pre_layer);	
     void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* back_layer);
-
-    inline size_t get_scale() const{ return _scale; }
 
 private:
     size_t _scale;
@@ -129,7 +191,7 @@ class ConvolutionLayer : public Layer{
 public:
      ConvolutionLayer(const size_t kernal_size,
 					  const size_t stride,
-					  const size_t out_channel_size):Layer(0, 0, 1, out_channel_size, abcdl::cnn::CONVOLUTION){
+					  const size_t out_channel_size) : Layer(0, 0, 1, out_channel_size, abcdl::cnn::CONVOLUTION){
         _kernal_size = kernal_size;
         _stride = stride;
     }
@@ -160,6 +222,8 @@ public:
 
 private:
     abcdl::algebra::Mat _y;
+    abcdl::algebra::Mat _pre_activation_array;
+    real _loss;
 };//class FullConnectionLayer
 
 }//namespace cnn
