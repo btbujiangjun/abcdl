@@ -1,46 +1,33 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
 * Created: 2017-05-31 17:22
-* Last modified: 2017-05-31 17:22
+* Last modified: 2017-08-29 18:00
 * Filename: CNN.cpp
 * Description: Convolution Neural Network 
 **********************************************/
 
-#include "algorithm/cnn/CNN.h"
+#include "cnn/CNN.h"
 
-namespace ccma{
-namespace algorithm{
+namespace abcdl{
 namespace cnn{
-bool CNN::add_layer(Layer* layer){
-    /*
-     * the first layer must be DataLayer
-     */
-    if(_layers.size() == 0){
-        if(typeid(*layer) != typeid(DataLayer)){
-            printf("The first layer must be DataLayer.\n");
-            return false;
-        }else{
-            layer->initialize(nullptr);
-            _layers.push_back(layer);
-            return true;
-        }
-    }
 
-    auto pre_layer = _layers[_layers.size() - 1];
-    if(layer->initialize(pre_layer)){
-	pre_layer->set_is_last_layer();
-        _layers.push_back(layer);
-        return true;
-    }else{
-        return false;
+void CNN::set_layers(std::vector<abcdl::cnn::Layer*> layers){
+    CHECK(layers.size() > 0);
+    CHECK(layers[0]->get_layer_type() == abcdl::algebra::INPUT);
+    CHECK(layers[layers.size() - 1]->get_layer_type() == abcdl::algebra::OUTPUT);
+
+    abcdl::cnn::Layer* pre_layer = nullptr;
+    for(auto& layer : layers){
+        layer->initialize(pre_layer);
+        pre_layer = layer;
     }
 }
 
-void CNN::train(ccma::algebra::BaseMatrixT<real>* train_data,
-                ccma::algebra::BaseMatrixT<real>* train_label,
+void CNN::train(abcdl::algebra::BaseMatrixT<real>* train_data,
+                abcdl::algebra::BaseMatrixT<real>* train_label,
                 uint epoch,
-                ccma::algebra::BaseMatrixT<real>* test_data,
-                ccma::algebra::BaseMatrixT<real>* test_label){
+                abcdl::algebra::BaseMatrixT<real>* test_data,
+                abcdl::algebra::BaseMatrixT<real>* test_label){
     uint num_train_data = train_data->get_rows();
     uint num_test_data = 0;
     if(test_data != nullptr){
@@ -52,8 +39,8 @@ void CNN::train(ccma::algebra::BaseMatrixT<real>* train_data,
         return;
     }
 
-    auto mini_batch_data = new ccma::algebra::DenseMatrixT<real>();
-    auto mini_batch_label = new ccma::algebra::DenseMatrixT<real>();
+    auto mini_batch_data = new abcdl::algebra::DenseMatrixT<real>();
+    auto mini_batch_label = new abcdl::algebra::DenseMatrixT<real>();
     auto now = []{return std::chrono::system_clock::now();};
 
     for(uint i = 0; i != epoch; i++){
@@ -95,7 +82,7 @@ void CNN::train(ccma::algebra::BaseMatrixT<real>* train_data,
     delete mini_batch_label;
 }
 
-void CNN::feed_forward(ccma::algebra::BaseMatrixT<real>* mat, bool debug){
+void CNN::feed_forward(abcdl::algebra::BaseMatrixT<real>* mat, bool debug){
     uint layer_size = _layers.size();
     for(uint k = 0; k < layer_size; k++){
         auto layer = _layers[k];
@@ -110,7 +97,7 @@ void CNN::feed_forward(ccma::algebra::BaseMatrixT<real>* mat, bool debug){
     }//end feed_forward
 }
 
-void CNN::back_propagation(ccma::algebra::BaseMatrixT<real>* mat, bool debug){
+void CNN::back_propagation(abcdl::algebra::BaseMatrixT<real>* mat, bool debug){
     int layer_size = _layers.size();
     for(int k = layer_size - 1; k >= 0; k--){
         auto layer = _layers[k];
@@ -130,7 +117,7 @@ void CNN::back_propagation(ccma::algebra::BaseMatrixT<real>* mat, bool debug){
     }//end back_propagation
 }
 
-bool CNN::evaluate(ccma::algebra::BaseMatrixT<real>* data, ccma::algebra::BaseMatrixT<real>* label, bool debug){
+bool CNN::evaluate(abcdl::algebra::BaseMatrixT<real>* data, abcdl::algebra::BaseMatrixT<real>* label, bool debug){
     feed_forward(data, debug);
     auto layer = _layers[_layers.size() - 1];
     auto predict_mat = layer->get_activation(0);
@@ -176,5 +163,4 @@ bool CNN::check(uint size){
 }
 
 }//namespace cnn
-}//namespace algorithm
-}//namespace ccma
+}//namespace abcdl
