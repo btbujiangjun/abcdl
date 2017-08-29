@@ -163,11 +163,54 @@ void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
-bool MatrixHelper::convn(Matrix<T>& result,
-                         const Matrix<T>& mat,
-                         const Matrix<T>& kernal,
-                         const size_t stride,
-                         const Convn_type type){
+void MatrixHelper<T>::expand(Matrix<T>& result,
+                             const Matrix<T>& mat,
+                             const size_t row_dim,
+                             const size_t col_dim){
+
+    CHECK(row_dim * col_dim > 1);
+   
+    size_t col_a = mat.cols();
+    size_t row   = mat.rows() * row_dim;
+    size_t col   = col_a * col_dim;
+    size_t size  = row * col;
+
+    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t block_size = row / num_thread;
+    if(row % num_thread != 0){
+        block_size += 1;
+    }
+
+    std::vector<std::thread> threads(num_thread);
+    T* data = mat.data();
+    T* new_data = new T[size];
+    memset(new_data, 0, sizeof(T) * size);
+
+    for(size_t i = 0; i != num_thread; i++){
+        threads[i] = std::thread(
+            [&data, &new_data, &row, &col, &col_a, &row_dim, &col_dim](size_t start_idx, size_t end_idx){
+				for(size_t ti = start_idx; ti < end_idx; ti++){
+					for(size_t tj = 0; tj != col; tj++){
+                        new_data[ti * col + tj] = data[ti / row_dim * col_a + tj / col_dim];
+					}
+				}
+            }, i * block_size , std::min(row, (i + 1) * block_size)
+        );
+    }
+
+    for(auto& thread : threads){
+        thread.join();
+    }
+
+    result.set_shallow_data(new_data, row, col);
+}
+
+template<class T>
+bool MatrixHelper<T>::convn(Matrix<T>& result,
+                            const Matrix<T>& mat,
+                            const Matrix<T>& kernal,
+                            const size_t stride,
+                            const Convn_type type){
     size_t rows       = mat.rows();
     size_t cols       = mat.cols();
     size_t kernal_row = kernal.rows();
@@ -212,30 +255,49 @@ bool MatrixHelper::convn(Matrix<T>& result,
 
     new_data = new T[conv_row * conv_col];
     T* kernal_data = kernal.data();
-
-    for(size_t i = 0; i != conv_row; i++){
-        for(size_t j = 0; j != conv_col; j++){
-            T sum = 0;
-            for(size_t k_i = 0; k_i != kernal_row; k_i++){
-                size_t row = i * stride + k_i;
-                for(size_t k_j = 0; k_j != kernal_col; k_j++){
-                    size_t col = j * stride + k_j;
-                    //skip out of range, in other word, fill 0
-                    if(row < data_row && col < data_col){
-                        T a = data[row * data_col + col];
-                        T b = kernal_data[k_i * kernal_col + k_j];
-                        if(a != 0 && b != 0){
-                            sum += a * b;
-                        }
-                    }
-                }
-            }
-            new_data[i * conv_col + j] = sum;
-        }
+    
+    size_t size = conv_row * conv_col * kernal_row * kernal_col;
+    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t block_size = conv_row / num_thread;
+    if(conv_row % num_thread != 0){
+        block_size += 1;
     }
+
+    std::vector<std::thread> threads(num_thread);
+    for(size_t i = 0; i != num_thread; i++){
+        threads[i] = std::thread(
+            [&data, &new_data, &kernal_data, &data_row, &data_col, &kernal_row, &kernal_col, &conv_col, &stride](size_t start_idx, size_t end_idx){
+				for(size_t ti = start_idx; ti < end_idx; ti++){
+                    for(size_t tj = 0; tj != conv_col; tj++){
+                        T sum = 0;
+                        for(size_t k_i = 0; k_i != kernal_row; k_i++){
+                           size_t row = ti * stride + k_i;
+                            for(size_t k_j = 0; k_j != kernal_col; k_j++){
+                                size_t col = tj * stride + k_j;
+                                //skip out of range, in other word, fill 0
+                                if(row < data_row && col < data_col){
+                                    T a = data[row * data_col + col];
+                                    T b = kernal_data[k_i * kernal_col + k_j];
+                                    if(a != 0 && b != 0){
+                                        sum += a * b;
+                                    }
+                                }
+                            }
+                        }
+                        new_data[ti * conv_col + tj] = sum;
+                    }
+				}
+            }, i * block_size , std::min(conv_row, (i + 1) * block_size)
+        );
+    }
+
+    for(auto& thread : threads){
+        thread.join();
+    }
+
     result.set_shallow_data(new_data, conv_row, conv_col);
 
-    if(type == FULL){
+    if(type == abcdl::algebra::FULL){
     	delete[] data;
     }
 
