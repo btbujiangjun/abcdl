@@ -42,6 +42,11 @@ public:
 	void tanh(Matrix<T>& mat, const Matrix<T>& mat_a);
 	void relu(Matrix<T>& mat, const Matrix<T>& mat_a);
 
+    void expand(Matrix<T>& result,
+                const Matrix<T>& mat,
+                const size_t row_dim,
+                const size_t col_dim);
+
     bool convn(Matrix<T>& result,
                const Matrix<T>& mat,
                const Matrix<T>& kernal,
