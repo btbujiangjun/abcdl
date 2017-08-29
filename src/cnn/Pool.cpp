@@ -5,9 +5,7 @@
 * Filename: Pool.cpp
 * Description: convolutional network pooling 
 **********************************************/
-#include <typeinfo>
-#include <math.h>
-#include "algorithm/cnn/Layer.h"
+#include "cnn/Pool.h"
 
 namespace abcdl{
 namespace cnn{
