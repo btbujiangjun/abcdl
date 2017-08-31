@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "dnn/Cost.h"
-#include "dnn/ActivateFunc.h"
+#include "framework/Cost.h"
+#include "framework/ActivateFunc.h"
 #include "algebra/MatrixHelper.h"
 
 namespace abcdl{
@@ -96,7 +96,7 @@ class FullConnLayer : public Layer{
 public:
     FullConnLayer(const size_t input_dim,
                   const size_t output_dim,
-                  abcdl::dnn::ActivateFunc* activate_func,
+                  abcdl::framework::ActivateFunc* activate_func,
                   const real& mean_value = 0.0f,
                   const real& stddev = 0.5f) : Layer(input_dim, output_dim, abcdl::dnn::FULL_CONN){
         _activate_func  = activate_func;
@@ -107,7 +107,7 @@ public:
 
     FullConnLayer(const size_t input_dim,
                   const size_t output_dim,
-                  abcdl::dnn::ActivateFunc * activate_func,
+                  abcdl::framework::ActivateFunc * activate_func,
                   const abcdl::algebra::Mat& weight,
                   const abcdl::algebra::Mat& bias) : Layer(input_dim, output_dim, abcdl::dnn::FULL_CONN){
         _activate_func  = activate_func;
@@ -122,15 +122,15 @@ public:
     void forward(Layer* pre_layer);
     void backward(Layer* pre_layer, Layer* next_layer);
 private:
-    abcdl::dnn::ActivateFunc* _activate_func;
+    abcdl::framework::ActivateFunc* _activate_func;
 };//class FullConnLayer
 
 class OutputLayer : public Layer{
 public:
     OutputLayer(const size_t input_dim,
                 const size_t output_dim,
-                ActivateFunc* activate_func,
-                Cost* cost,
+                abcdl::framework::ActivateFunc* activate_func,
+                abcdl::framework::Cost* cost,
                 const real& mean_value = 0.0f,
                 const real& stddev = 0.5f) : Layer(input_dim, output_dim, abcdl::dnn::OUTPUT){
         _cost           = cost;
@@ -142,8 +142,8 @@ public:
 
     OutputLayer(const size_t input_dim,
                 const size_t output_dim,
-                ActivateFunc* activate_func,
-                Cost* cost,
+                abcdl::framework::ActivateFunc* activate_func,
+                abcdl::framework::Cost* cost,
                 const abcdl::algebra::Mat& weight,
                 const abcdl::algebra::Mat& bias,
                 const real& mean_value = 0.0f,
@@ -167,8 +167,8 @@ public:
     }
 
 private:
-    abcdl::dnn::ActivateFunc* _activate_func;
-    abcdl::dnn::Cost* _cost;
+    abcdl::framework::ActivateFunc* _activate_func;
+    abcdl::framework::Cost* _cost;
     abcdl::algebra::Mat _y;
 };//class OutputLayer
 

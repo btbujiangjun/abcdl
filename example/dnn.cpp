@@ -7,8 +7,6 @@
  **********************************************/
 #include <vector>
 #include "dnn/DNN.h"
-#include "dnn/Cost.h"
-#include "dnn/ActivateFunc.h"
 #include "utils/Log.h"
 #include "utils/MnistHelper.h"
 
@@ -22,8 +20,8 @@ int main(int argc, char** argv){
     if(!dnn.load_model(path)){
         std::vector<abcdl::dnn::Layer*> layers;
         layers.push_back(new abcdl::dnn::InputLayer(784));
-        layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::dnn::SigmoidActivateFunc()));
-        layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::dnn::SigmoidActivateFunc(), new abcdl::dnn::CrossEntropyCost()));
+        layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc()));
+        layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
         dnn.set_layers(layers);
     }
 

@@ -201,8 +201,8 @@ void Matrix<T>::insert_col(const size_t col_id, const Matrix<T>& mat){
 }
 
 template<class T>
-Matrix<T>* Matrix<T>::clone() const{
-    return new Matrix<T>(_data, _rows, _cols);
+Matrix<T> Matrix<T>::clone() const{
+    return Matrix<T>(_data, _rows, _cols);
 }
 template<class T>
 void Matrix<T>::clone(Matrix<T>& mat) const{
@@ -218,17 +218,16 @@ template<class T>
 void Matrix<T>::reset(const T& value,
                       const size_t rows,
                       const size_t cols){
-    if(get_size() != rows * cols){
+    size_t size = rows * cols;
+    if(get_size() != size){
         if(_data != nullptr){
             delete[] _data;
-            _data = nullptr;
         }
-        _data = new T[rows * cols];
+        _data = new T[size];
         _rows = rows;
         _cols = cols;
     }
 
-    size_t size = rows * cols;
     if(value == 0 || value == -1){
         memset(_data, value, sizeof(T) * size);
     }else{

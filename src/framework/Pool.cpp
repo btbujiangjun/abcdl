@@ -5,10 +5,10 @@
 * Filename: Pool.cpp
 * Description: convolutional network pooling 
 **********************************************/
-#include "cnn/Pool.h"
+#include "framework/Pool.h"
 
 namespace abcdl{
-namespace cnn{
+namespace framework{
 
 void MeanPooling::pool(abcdl::algebra::Mat& pool,
                        const abcdl::algebra::Mat& mat,
@@ -75,5 +75,5 @@ void L2Pooling::pool(abcdl::algebra::Mat& pool,
     pool.set_shallow_data(data, rows, cols);
 }
 
-}//namespace cnn
+}//namespace framework
 }//namespace abcdl

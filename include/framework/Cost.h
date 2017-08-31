@@ -12,7 +12,7 @@
 #include "algebra/MatrixHelper.h"
 
 namespace abcdl{
-namespace dnn{
+namespace framework{
 
 class Cost{
 public:
@@ -49,5 +49,5 @@ class CrossEntropyCost : public Cost{
     }
 };//class CrossEntropyCost
 
-}//namespace dnn
+}//namespace framework
 }//namespace abcdl

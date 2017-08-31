@@ -105,7 +105,7 @@ public:
     void insert_col(const Matrix<T>& mat);
     void insert_col(const size_t col_id, const Matrix<T>& mat);
 
-    Matrix<T>* clone() const;
+    Matrix<T> clone() const;
     void clone(Matrix<T>& mat) const;
 
     void reset(const T& value = 0);
@@ -116,13 +116,11 @@ public:
     void transpose();
     Matrix<T> Ts();
 
-    inline bool reshape(size_t row, size_t col){
-        if(row * col == _rows * _cols){
-            _rows = row;
-            _cols = col;
-            return true;
-        }
-        return false;
+    inline Matrix& reshape(const size_t row, const size_t col){
+        CHECK(row * col == _rows * _cols);
+        _rows = row;
+        _cols = col;
+        return *this;
     }
 
     void display(const std::string& split="\t") const;
@@ -248,8 +246,8 @@ public:
     void reset();
     void reset(size_t rows,
                size_t cols,
-               const T& mean_value,
-               const T& stddev,
+               const T& mean_value = 0,
+               const T& stddev = 1,
                const T& min = 0,
                const T& max = 0);
 

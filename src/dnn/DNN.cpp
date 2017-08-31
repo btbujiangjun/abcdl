@@ -129,9 +129,9 @@ bool DNN::load_model(const std::string& path){
             _layers.push_back(new InputLayer(models[0]->rows()));
         }
         if(i == models.size() / 2 - 1){
-            _layers.push_back(new OutputLayer(models[i * 2]->rows(), models[i * 2]->cols(), new SigmoidActivateFunc(), new CrossEntropyCost(), *models[i * 2], *models[i * 2 + 1]));
+            _layers.push_back(new OutputLayer(models[i * 2]->rows(), models[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost(), *models[i * 2], *models[i * 2 + 1]));
         }else{
-            _layers.push_back(new FullConnLayer(models[i * 2]->rows(), models[i * 2]->cols(), new SigmoidActivateFunc(), *models[i * 2], *models[i * 2 + 1]));
+            _layers.push_back(new FullConnLayer(models[i * 2]->rows(), models[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), *models[i * 2], *models[i * 2 + 1]));
         }
     }
 

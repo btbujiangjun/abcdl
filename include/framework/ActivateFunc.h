@@ -1,7 +1,7 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-08-17 19:30
- * Last modified : 2017-08-17 19:30
+ * Last modified : 2017-08-31 19:59
  * Filename      : ActivateFunc.h
  * Description   : 
  **********************************************/
@@ -12,7 +12,7 @@
 #include "algebra/MatrixHelper.h"
 
 namespace abcdl{
-namespace dnn{
+namespace framework{
 
 class ActivateFunc{
 public:
@@ -41,5 +41,5 @@ class ReluActivateFunc : public ActivateFunc{
     }
 };//class ReluActivateFunc
 
-}//namespace dnn
+}//namespace framework
 }//namespace abcdl

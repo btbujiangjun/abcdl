@@ -221,7 +221,7 @@ bool MatrixHelper<T>::convn(Matrix<T>& result,
 
     T* data;
     T* new_data;
-    T* src_data = result.data();
+    T* src_data = mat.data();
 
     if(type == FULL && kernal_row * kernal_col != 1){
         data_row = mat.rows() + 2 * (kernal_row - 1);
