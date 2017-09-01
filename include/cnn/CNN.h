@@ -46,7 +46,7 @@ private:
     bool check(const size_t size) const;
 private:
 	size_t _epoch = 5;
-    size_t _batch_size = 30;
+    size_t _batch_size = 1;
     real _alpha = 0.1f;
 	std::vector<abcdl::cnn::Layer*> _layers;
 
