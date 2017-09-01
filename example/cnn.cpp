@@ -17,16 +17,13 @@ int main(int argc, char** argv){
 
     const std::string path = "./data/cnn.model";
 
-    auto activate_func = new abcdl::framework::SigmoidActivateFunc();
-    auto cost = new abcdl::framework::CrossEntropyCost();
-    auto pool = new abcdl::framework::MeanPooling();
     std::vector<abcdl::cnn::Layer*> layers;
     layers.push_back(new abcdl::cnn::InputLayer(28, 28));
-    layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, activate_func));
-    layers.push_back(new abcdl::cnn::SubSamplingLayer(2, pool));
-    layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, activate_func));
+    layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, new abcdl::framework::SigmoidActivateFunc()));
+    layers.push_back(new abcdl::cnn::SubSamplingLayer(2, new abcdl::framework::MeanPooling()));
+    layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, new abcdl::framework::SigmoidActivateFunc()));
 //    layers.push_back(new abcdl::cnn::SubSamplingLayer(2, new abcdl::cnn::MeanPooling()));
-    layers.push_back(new abcdl::cnn::OutputLayer(10, activate_func, cost));
+    layers.push_back(new abcdl::cnn::OutputLayer(10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
 
     abcdl::cnn::CNN cnn;
     cnn.set_layers(layers);
