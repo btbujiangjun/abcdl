@@ -178,7 +178,7 @@ void OutputLayer::forward(Layer* pre_layer){
     _pre_activation_array.set_shallow_data(data, size, 1);
 
     auto activation = _helper.dot(this->get_weight(0, 0), _pre_activation_array) + (*this->_bias);
-    _activate_func->derivative(activation, activation);
+    _activate_func->activate(activation, activation);
     this->set_activation(0, activation);
 }
 
@@ -190,7 +190,7 @@ void OutputLayer::backward(Layer* pre_layer, Layer* back_layer){
 
     //error * derivate_of_output
     abcdl::algebra::Mat derivative_output;
-    _helper.sigmoid_derivative(derivative_output, this->get_activation(0));
+    _activate_func->derivative(derivative_output, this->get_activation(0));
     derivative_output *= error;
 
     //calc delta: weight.T * derivate_output
