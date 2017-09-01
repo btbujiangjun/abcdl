@@ -32,18 +32,20 @@ int main(int argc, char** argv){
     cnn.set_layers(layers);
 
     abcdl::utils::MnistHelper<real> helper;
-    
+    const size_t train_size = 1000;
+    const size_t test_size  = 100;
+
     abcdl::algebra::Mat train_data;
-    helper.read_image("data/mnist/train-images-idx3-ubyte", &train_data, -1);
+    helper.read_image("data/mnist/train-images-idx3-ubyte", &train_data, train_size);
 
     abcdl::algebra::Mat train_label;
-    helper.read_vec_label("data/mnist/train-labels-idx1-ubyte", &train_label, -1);
+    helper.read_vec_label("data/mnist/train-labels-idx1-ubyte", &train_label, train_size);
 
     abcdl::algebra::Mat test_data;
-    helper.read_image("data/mnist/t10k-images-idx3-ubyte", &test_data, -1);
+    helper.read_image("data/mnist/t10k-images-idx3-ubyte", &test_data, test_size);
 
     abcdl::algebra::Mat test_label;
-    helper.read_vec_label("data/mnist/t10k-labels-idx1-ubyte", &test_label, -1);
+    helper.read_vec_label("data/mnist/t10k-labels-idx1-ubyte", &test_label, test_size);
 
     cnn.train(train_data, train_label, test_data, test_label);
 }
