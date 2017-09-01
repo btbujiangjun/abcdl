@@ -5,9 +5,7 @@
 * Filename: TypeDef.h
 * Description:
 **********************************************/
-
-#ifndef _ABCDL_UTILS_TYPEDEF_H_
-#define _ABCDL_UTILS_TYPEDEF_H_
+#pragma once
 
 #include <cmath>
 #include <cstddef>
@@ -90,6 +88,3 @@ static inline T sigmoid(const T& value){
 }//namespace abcdl
 
 using abcdl::utils::real;
-//using ccma::utils::uint;
-
-#endif //_ABCDL_UTILS_TYPEDEF_H_

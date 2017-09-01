@@ -1,11 +1,10 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-08-17 19:30
- * Last modified : 2017-08-31 19:59
+ * Last modified : 2017-09-01 10:15
  * Filename      : ActivateFunc.h
- * Description   : 
+ * Description   : Activate Function 
  **********************************************/
-
 #pragma once
 
 #include "algebra/Matrix.h"

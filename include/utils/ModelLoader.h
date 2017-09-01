@@ -1,7 +1,7 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-08-24 11:10
- * Last modified : 2017-08-24 15:56
+ * Last modified : 2017-09-01 10:51
  * Filename      : ModelLoader.h
  * Description   : 
  **********************************************/
@@ -29,11 +29,13 @@ public:
                const std::string& path,
                const std::string& signature = "",
                bool is_append = false);
+
     template<class T>
     bool write(abcdl::algebra::Matrix<T>* model,
                const std::string& path,
                const std::string& signature = "",
                bool is_append = false);
+
     template<class T>
     bool read(const std::string& path,
               std::vector<abcdl::algebra::Matrix<T>*>* models,

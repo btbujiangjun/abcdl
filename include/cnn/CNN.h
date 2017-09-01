@@ -20,9 +20,7 @@ class CNN{
 public:
     CNN(){}
     ~CNN(){
-        for(auto layer : _layers){
-            delete layer;
-        }
+        for(auto layer : _layers){delete layer;}
         _layers.clear();
     }
 
@@ -45,7 +43,7 @@ private:
     void backward(const abcdl::algebra::Mat& mat);
     void update_gradient(const size_t batch_size, const real alpha);
 
-    bool check(size_t size);
+    bool check(const size_t size) const;
 private:
 	size_t _epoch = 5;
     size_t _batch_size = 30;

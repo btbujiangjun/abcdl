@@ -5,7 +5,6 @@
 * Filename: Shuffler.h
 * Description: matrix shuffle
 **********************************************/
-
 #pragma once
 
 #include <random>
@@ -59,4 +58,3 @@ size_t Shuffler::get_row(const size_t row_id) const{
 
 }//namespace utils
 }//namespace abcdl
-

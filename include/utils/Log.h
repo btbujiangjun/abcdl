@@ -1,13 +1,11 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
 * Created: 2017-08-02 11:05
-* Last modified: 2017-08-03 16:00
-* Filename: Logging.h
+* Last modified: 2017-09-01 10:50
+* Filename: Log.h
 * Description: 
 **********************************************/
-
-#ifndef ABCDL_UTILS_LOGGING_H_
-#define ABCDL_UTILS_LOGGING_H_
+#pragma once
 
 #include <sstream>
 
@@ -89,5 +87,3 @@ public:
 }//end namespace abcdl
 
 using namespace abcdl::utils::log;
-
-#endif //ABCDL_UTILS_LOGGING_H_

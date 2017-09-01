@@ -1,11 +1,10 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-08-18 13:25
- * Last modified : 2017-08-18 13:25
+ * Last modified : 2017-09-01 10:16
  * Filename      : Cost.h
  * Description   : Cost function 
  **********************************************/
-
 #pragma once
 
 #include "algebra/Matrix.h"

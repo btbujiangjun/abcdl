@@ -1,11 +1,10 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-07-26 13:56
- * Last modified : 2017-07-26 13:56
+ * Last modified : 2017-09-01 10:55
  * Filename      : ParallelOperator.h
  * Description   : Parallel Operate by multithread 
  **********************************************/
-
 #pragma once
 
 #include <cmath>
