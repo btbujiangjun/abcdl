@@ -29,8 +29,8 @@ int main(int argc, char** argv){
     cnn.set_layers(layers);
 
     abcdl::utils::MnistHelper<real> helper;
-    const size_t train_size = 1000;
-    const size_t test_size  = 100;
+    const size_t train_size = 60000;
+    const size_t test_size  = 10000;
 
     abcdl::algebra::Mat train_data;
     helper.read_image("data/mnist/train-images-idx3-ubyte", &train_data, train_size);
