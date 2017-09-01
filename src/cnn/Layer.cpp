@@ -28,30 +28,29 @@ void SubSamplingLayer::initialize(Layer* pre_layer){
 }
 void SubSamplingLayer::forward(Layer* pre_layer){
 	abcdl::algebra::Mat activation;
-    // in_channel size equal out_channel size to subsampling layer.
     for(size_t i = 0; i != this->_out_channel_size; i++){
         _pooling->pool(activation, pre_layer->get_activation(i), this->_rows, this->_cols, this->_scale);
         this->set_activation(i, activation);
     }
 }
 void SubSamplingLayer::backward(Layer* pre_layer, Layer* back_layer){
-    if(back_layer->get_layer_type() == abcdl::cnn::OUTPUT){
+    if(back_layer->get_layer_type() == abcdl::framework::OUTPUT){
         size_t size = this->_rows * this->_cols;
         real*  data = back_layer->get_delta(0).data();
         abcdl::algebra::Mat delta(this->_rows, this->_cols);
         
-        //recover to multiply mat
+        //recover multiply mat
         for(size_t i = 0; i != this->_out_channel_size; i++){
             memcpy(delta.data(), &data[i * size], sizeof(real) * size);
             this->set_delta(i, delta);
         }
-    }else if(back_layer->get_layer_type() == abcdl::cnn::CONVOLUTION){
+    }else if(back_layer->get_layer_type() == abcdl::framework::CONVOLUTION){
         size_t stride = ((ConvolutionLayer*)back_layer)->get_stride();
         for(size_t i = 0 ; i != this->_out_channel_size; i++){
             abcdl::algebra::Mat delta;
             abcdl::algebra::Mat sub_delta;
             for(size_t j = 0; j != back_layer->get_out_channel_size(); j++){
-                mh.convn(sub_delta, back_layer->get_delta(j), back_layer->get_weight(i, j), stride, abcdl::algebra::FULL);
+                _helper.convn(sub_delta, back_layer->get_delta(j), back_layer->get_weight(i, j), stride, abcdl::algebra::FULL);
                 delta += sub_delta;
             }
             this->set_delta(i, delta);
@@ -109,17 +108,17 @@ void ConvolutionLayer::forward(Layer* pre_layer){
 }
 
 void ConvolutionLayer::backward(Layer* pre_layer, Layer* back_layer){
-    if(back_layer->get_layer_type() == abcdl::cnn::OUTPUT){
+    if(back_layer->get_layer_type() == abcdl::framework::OUTPUT){
         size_t size = this->_rows * this->_cols;
         real*  data = back_layer->get_delta(0).data();
         abcdl::algebra::Mat delta(this->_rows, this->_cols);
         
-        //recover to multiply mat
+        //recover multiply mat
         for(size_t i = 0; i != this->_out_channel_size; i++){
             memcpy(delta.data(), &data[i * size], sizeof(real) * size);
             this->set_delta(i, delta);
         }
-    }else if(back_layer->get_layer_type() == abcdl::cnn::SUBSAMPLING){
+    }else if(back_layer->get_layer_type() == abcdl::framework::SUBSAMPLING){
         SubSamplingLayer* sub_layer = (SubSamplingLayer*)back_layer;
         size_t scale = sub_layer->get_scale();
         abcdl::algebra::Mat delta;
@@ -141,18 +140,17 @@ void ConvolutionLayer::backward(Layer* pre_layer, Layer* back_layer){
     for(size_t i = 0; i != this->_out_channel_size; i++){
         abcdl::algebra::Mat weight;
         for(size_t j = 0; j != pre_layer->get_out_channel_size(); j++){
-            mh.convn(weight, pre_layer->get_activation(j), this->get_delta(i), _stride, abcdl::algebra::VALID);
+            _helper.convn(weight, pre_layer->get_activation(j), this->get_delta(i), _stride, abcdl::algebra::VALID);
             this->set_delta_weight(j, i, weight);
             this->set_batch_weight(j, i, weight);
         }
 
         this->_delta_bias->set_data(this->get_delta(i).sum(), i, 0);
     }
-    (*this->_batch_bias) += (*this->_delta_bias);
+    this->_batch_bias->operator+=(*this->_delta_bias);
 }
 
 void OutputLayer::initialize(Layer* pre_layer){
-	//concat all vector to a array 
     this->_cols = pre_layer->get_rows() * pre_layer->get_cols() * pre_layer->get_out_channel_size();
     this->_in_channel_size = pre_layer->get_out_channel_size();
 
@@ -179,7 +177,7 @@ void OutputLayer::forward(Layer* pre_layer){
 
     _pre_activation_array.set_shallow_data(data, size, 1);
 
-    auto activation = mh.dot(this->get_weight(0, 0), _pre_activation_array) + (*this->_bias);
+    auto activation = _helper.dot(this->get_weight(0, 0), _pre_activation_array) + (*this->_bias);
     _activate_func->derivative(activation, activation);
     this->set_activation(0, activation);
 }
@@ -192,14 +190,14 @@ void OutputLayer::backward(Layer* pre_layer, Layer* back_layer){
 
     //error * derivate_of_output
     abcdl::algebra::Mat derivative_output;
-    mh.sigmoid_derivative(derivative_output, this->get_activation(0));
+    _helper.sigmoid_derivative(derivative_output, this->get_activation(0));
     derivative_output *= error;
 
     //calc delta: weight.T * derivate_output
-    this->set_delta(0, mh.dot(this->get_weight(0, 0).Ts(), derivative_output));
+    this->set_delta(0, _helper.dot(this->get_weight(0, 0).Ts(), derivative_output));
 
     //if pre_layer is ConvolutionLayer, has sigmoid function
-    if(pre_layer->get_layer_type() == abcdl::cnn::CONVOLUTION){
+    if(pre_layer->get_layer_type() == abcdl::framework::CONVOLUTION){
         abcdl::algebra::Mat mat;
         _activate_func->derivative(mat, _pre_activation_array);
         this->get_delta(0) *= mat;
@@ -207,7 +205,7 @@ void OutputLayer::backward(Layer* pre_layer, Layer* back_layer){
 
     //derivate_weight = derivate_output * _pre_activation_array.T
     //derivate_bias = derivate_output
-    auto delta_weight = mh.dot(derivative_output, _pre_activation_array.Ts());
+    auto delta_weight = _helper.dot(derivative_output, _pre_activation_array.Ts());
     this->set_delta_weight(0, 0, delta_weight);
     (*this->_delta_bias) = derivative_output;
 

@@ -1,13 +1,13 @@
 /*********************************************
 * Author: Jun Jiang - jiangjun4@sina.com
 * Created: 2017-05-31 17:22
-* Last modified: 2017-08-29 18:00
+* Last modified: 2017-09-01 10:45
 * Filename: CNN.cpp
 * Description: Convolution Neural Network 
 **********************************************/
 
 #include "cnn/CNN.h"
-#include "cnn/Layer.h"
+#include "framework/Layer.h"
 #include "utils/Log.h"
 #include "utils/Shuffler.h"
 #include <chrono>
@@ -16,9 +16,8 @@ namespace abcdl{
 namespace cnn{
 
 void CNN::set_layers(std::vector<abcdl::cnn::Layer*> layers){
-    CHECK(layers.size() > 0);
-    CHECK(layers[0]->get_layer_type() == abcdl::cnn::INPUT);
-    CHECK(layers[layers.size() - 1]->get_layer_type() == abcdl::cnn::OUTPUT);
+    CHECK(layers.size() > 0 && layers[0]->get_layer_type() == abcdl::framework::INPUT);
+    CHECK(layers[layers.size() - 1]->get_layer_type() == abcdl::framework::OUTPUT);
 
     abcdl::cnn::Layer* pre_layer = nullptr;
     for(auto& layer : layers){
@@ -32,10 +31,7 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
                 const abcdl::algebra::Mat& train_label,
                 const abcdl::algebra::Mat& test_data,
                 const abcdl::algebra::Mat& test_label){
-    CHECK(train_data.rows() == train_label.rows());
-    CHECK(test_data.rows() == test_label.rows());
-
-    //check cnn structure and data dim
+    CHECK(train_data.rows() == train_label.rows() && test_data.rows() == test_label.rows());
     if(!check(train_data.cols())){
         return;
     }
@@ -68,7 +64,7 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
         }//end per epoch
 
         auto training_time = now();
-        printf("Epoch %ld training run time: %ld ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
+        printf("Epoch %ld train run time: %ld ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
 
 	    if(num_test_data > 0){
 	        printf("Epoch %ld %ld/%ld\n", i, evaluate(test_data, test_label), num_test_data);
@@ -88,7 +84,7 @@ void CNN::forward(const abcdl::algebra::Mat& mat){
 
     for(size_t k = 0; k != layer_size; k++){
         auto layer = _layers[k];
-        if(layer->get_layer_type() == abcdl::cnn::INPUT){
+        if(layer->get_layer_type() == abcdl::framework::INPUT){
             ((InputLayer*)layer)->set_x(mat.clone().reshape(layer->get_rows(), layer->get_cols()));
         }
 
@@ -104,8 +100,8 @@ void CNN::backward(const abcdl::algebra::Mat& mat){
 
     for(int k = layer_size - 1; k >= 0; k--){
         auto layer = _layers[k];
-        if(layer->get_layer_type() == abcdl::cnn::OUTPUT){
-            ((OutputLayer*)_layers[k])->set_y(mat.clone().reshape(mat.cols(), mat.rows()));
+        if(layer->get_layer_type() == abcdl::framework::OUTPUT){
+            ((OutputLayer*)layer)->set_y(mat.clone().reshape(mat.cols(), mat.rows()));
         }
 
         pre_layer = (k > 0) ? _layers[k - 1] : nullptr;
@@ -140,13 +136,13 @@ size_t CNN::evaluate(const abcdl::algebra::Mat& data_mat, const abcdl::algebra::
 }
 
 
-bool CNN::check(size_t size){
+bool CNN::check(const size_t size) const{
     if(_layers.size() <= 2){
         printf("layer size[%ld]\n", _layers.size());
         LOG(FATAL) << "convolution neural network layer must be more than 2";
         return false;
     }
-    if(_layers[_layers.size() - 1]->get_layer_type() != abcdl::cnn::OUTPUT){
+    if(_layers[_layers.size() - 1]->get_layer_type() != abcdl::framework::OUTPUT){
         LOG(FATAL) << "Convolution neural network last layer must be OutputLayer";
         return false;
     }
