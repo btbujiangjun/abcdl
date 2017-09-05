@@ -8,8 +8,7 @@
 #pragma once
 
 #include <vector>
-#include <thread>
-#include "algorithm/rnn/Layer.h"
+#include "rnn/Layer.h"
 #include "utils/ModelLoader.h"
 
 namespace abcdl{
@@ -17,10 +16,10 @@ namespace rnn{
 
 class RNN{
 public:
-    RNN(size_t feature_dim,
-        size_t hidden_dim,
+    RNN(const size_t feature_dim,
+        const size_t hidden_dim,
         const std::string path = "",
-        size_t bptt_truncate = 4){
+        const size_t bptt_truncate = 4){
 
         _feature_dim    = feature_dim;
         _hidden_dim     = hidden_dim;
@@ -46,11 +45,8 @@ public:
     }
     ~RNN(){delete _layer;}
 
-    void sgd(std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_data,
-             std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_label, 
-             const size_t epoch = 5,
-             const size_t mini_batch_size = 1,
-             const real alpha = 0.1);
+    void train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
+               const std::vector<abcdl::algebra::Mat*>& train_seq_label) 
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
@@ -60,20 +56,17 @@ public:
     void set_alpha(const real alpha) const {_alpha = alpha;}
 
 private:
-    void mini_batch_update(std::vector<abcdl::algebra::BaseMatrixT<real>*> train_seq_data,
-                           std::vector<abcdl::algebra::BaseMatrixT<real>*> train_seq_label, 
-			  	           const real alpha,
-                           const bool debug,
-				           const int j);
+    void mini_batch_update(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
+                           const std::vector<abcdl::algebra::Mat*>& train_seq_label);
 
-    real loss(std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_data,
-              std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_label);
+    real loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
+              const std::vector<abcdl::algebra::Mat*>& train_seq_label);
 
-    real total_loss(std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_data,
-                    std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_label);
+    real total_loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
+                    const std::vector<abcdl::algebra::Mat*>& train_seq_label);
     
-	bool check_data(std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_data,
-             		std::vector<abcdl::algebra::BaseMatrixT<real>*>* train_seq_label); 
+	bool check_data(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
+             		const std::vector<abcdl::algebra::Mat*>& train_seq_label); 
 private:
     size_t _feature_dim;
     size_t _hidden_dim;
