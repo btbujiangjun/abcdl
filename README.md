@@ -2,7 +2,7 @@
 A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <br>
 
 ## DNN example <br>
-### 1. Config layers <br>
+### 1. Configure layers <br>
   std::vector\<abcdl::dnn::Layer*> layers; <br>
   layers.push_back(new abcdl::dnn::InputLayer(784)); <br>
   layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc())); <br>
