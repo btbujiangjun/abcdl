@@ -16,8 +16,7 @@ namespace algebra{
 
 
 template<class T>
-Matrix<T> MatrixHelper<T>::dot(const Matrix<T>& mat_a,
-						       const Matrix<T>& mat_b){
+Matrix<T> MatrixHelper<T>::dot(const Matrix<T>& mat_a, const Matrix<T>& mat_b){
     Matrix<T> mat;
     dot(mat, mat_a, mat_b);
     return mat;
@@ -69,6 +68,13 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     }
 
     mat.set_shallow_data(data, row_a, col_b);
+}
+
+template<class T>
+Matrix<T> MatrixHelper<T>::outer(const Matrix<T>& mat_a, const Matrix<T>& mat_b){
+	Matrix<T> mat;
+	outer(mat, mat_a, mat_b);
+	return mat;
 }
 
 template<class T>
