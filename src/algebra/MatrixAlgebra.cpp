@@ -106,7 +106,7 @@ size_t Matrix<T>::argmax() const{
 
 template<class T>
 size_t Matrix<T>::argmax(const size_t id, const Axis_type axis_type) const{
-    bool is_row = (axis_type == abcdl::algebra::Row);
+    bool is_row = (axis_type == abcdl::algebra::Axis_type::ROW);
 	if(is_row){
         CHECK(id < _rows);
     }else{
@@ -121,7 +121,7 @@ size_t Matrix<T>::argmax(const size_t id, const Axis_type axis_type) const{
 		T value = is_row ? get_data(id, i) : get_data(i, id);
 		if(value > max){
 			max = value;
-			max_id = i;
+			max_idx = i;
 		}
 	}
 	return max_idx;   
