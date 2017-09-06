@@ -38,7 +38,7 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
   dnn.load_model(path); <br>
 
 ## CNN example <br>
-### Configure layers <br>
+### 1. Configure layers <br>
   std::vector\<abcdl::cnn::Layer*> layers; <br>
   layers.push_back(new abcdl::cnn::InputLayer(28, 28)); <br>
   layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, new abcdl::framework::SigmoidActivateFunc())); <br>
@@ -46,7 +46,7 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
   layers.push_back(new abcdl::cnn::ConvolutionLayer(3, 1, 5, new abcdl::framework::SigmoidActivateFunc())); <br>
   layers.push_back(new abcdl::cnn::OutputLayer(10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost())); <br>
   
-### initialize network
+### 2. initialize network
   abcdl::cnn::CNN cnn; <br>
   cnn.set_layers(layers); <br>
   
