@@ -21,14 +21,14 @@ template<class T>
 class MatrixHelper{
 public:
     //algebra
-    Matrix<T> dot(const Matrix<T>& mat_a,
-                  const Matrix<T>& mat_b);
+    Matrix<T> dot(const Matrix<T>& mat_a, const Matrix<T>& mat_b);
     void dot(Matrix<T>& mat,
 			 const Matrix<T>& mat_a,
 			 const Matrix<T>& mat_b);
     void outer(Matrix<T>& mat,
 			   const Matrix<T>& mat_a,
 			   const Matrix<T>& mat_b);
+    Matrix<T> outer(const Matrix<T>& mat_a, const Matrix<T>& mat_b);
     void pow(Matrix<T>& mat,
 			 const Matrix<T>& mat_a,
 			 const T& exponent);
