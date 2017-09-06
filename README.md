@@ -1,5 +1,5 @@
 # abcdl
-A c++ light Deep Learning framework for ABC <br>
+A c++ lightly `Deep Learning` framework for ABC <br>
 
 ## DNN example <br>
 ### 1. Config layers <br>
