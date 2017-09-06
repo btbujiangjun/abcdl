@@ -16,15 +16,10 @@ namespace rnn{
 
 class RNN{
 public:
-    RNN(const size_t feature_dim,
-        const size_t hidden_dim,
-        const std::string path = "",
-        const size_t bptt_truncate = 4){
+    RNN(const size_t feature_dim, const size_t hidden_dim){
 
         _feature_dim    = feature_dim;
         _hidden_dim     = hidden_dim;
-        _bptt_truncate  = bptt_truncate;
-        _path           = path;
 
         _U.reset(hidden_dim, feature_dim, 0, 1, -std::sqrt(1.0/feature_dim), std::sqrt(1.0/feature_dim));
         _W.reset(hidden_dim, hidden_dim, 0, 1, -std::sqrt(1.0/hidden_dim), std::sqrt(1.0/hidden_dim));
@@ -33,11 +28,10 @@ public:
         _layer = new abcdl::rnn::Layer(hidden_dim, bptt_truncate);
     }
 
-    RNN(const std::string& path, const size_t bptt_truncate = 4){
+    RNN(const std::string& path){
         if(load_model(path)){
             _feature_dim    = _U.cols();
             _hidden_dim     = _U.rows();
-            _bptt_truncate  = bptt_truncate;
             _path           = path;
             _layer          = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate);
         }
@@ -54,6 +48,7 @@ public:
     void set_epoch(const size_t epoch) const {_epoch = epoch;}
     void set_mini_batch_size(const size_t mini_batch_size) const { _mini_batch_size = mini_batch_size; }
     void set_alpha(const real alpha) const {_alpha = alpha;}
+    void set_bptt_truncate(const size_t bptt_truncate){_bptt_truncate = bptt_truncate;}
 
 private:
     void mini_batch_update(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
@@ -70,7 +65,7 @@ private:
 private:
     size_t _feature_dim;
     size_t _hidden_dim;
-    size_t _bptt_truncate; 
+    size_t _bptt_truncate = 4; 
 
     size_t _epoch = 5;
     size_t _mini_batch_size = 1;
@@ -83,10 +78,8 @@ private:
     abcdl::algebra::Mat _W;
     abcdl::algebra::Mat _V;
 
-    Layer* _layer;
+    abcdl::rnn::Layer* _layer;
 };//class RNN 
 
 }//namespace rnn
 }//namespace abcdl
-
-#endif
