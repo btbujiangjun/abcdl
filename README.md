@@ -8,11 +8,11 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
   layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc())); <br>
   layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost())); <br>
 
-### 2.Initailize Network <br>
+### 2. Initailize Network <br>
   abcdl::dnn::DNN dnn; <br>
   dnn.set_layers(layers); <br>
 
-### 3.Load training data <br>
+### 3. Load training data <br>
   abcdl::utils::MnistHelper<real> helper; <br>
   
   abcdl::algebra::Mat train_data; <br>
@@ -24,7 +24,7 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
 ### 4. Train network <br>
   dnn.train(train_data, train_label); <br>
 
-### 5.Predict <br>
+### 5. Predict <br>
   abcdl::algebra::Mat result; <br>
   abcdl::algebra::Mat predict_data; <br>
   helper.read_image("data/mnist/t10k-images-idx3-ubyte", &predict_data, 1); <br>
@@ -50,7 +50,7 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
   abcdl::cnn::CNN cnn; <br>
   cnn.set_layers(layers); <br>
   
-### 3.Load training data <br>
+### 3. Load training data <br>
   abcdl::utils::MnistHelper<real> helper; <br>
   
   abcdl::algebra::Mat train_data; <br>
@@ -62,7 +62,7 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
 ### 4. Train network <br>
   cnn.train(train_data, train_label); <br>
 
-### 5.Predict <br>
+### 5. Predict <br>
   abcdl::algebra::Mat result; <br>
   abcdl::algebra::Mat predict_data; <br>
   helper.read_image("data/mnist/t10k-images-idx3-ubyte", &predict_data, 1); <br>
