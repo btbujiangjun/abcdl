@@ -1,7 +1,7 @@
 /***********************************************
  * Author: Jun Jiang - jiangjun4@sina.com
  * Create: 2017-09-05 16:04
- * Last modified : 2017-09-05 16:05
+ * Last modified : 2017-09-06 14:42
  * Filename	  : Layer.cpp
  * Description   : RNN network Layer 
  **********************************************/
@@ -82,11 +82,7 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 			derivate_pre_weight += helper.outer(derivate_t, derivate_state_t.Ts());
 			
             //update derivate_weight
-			train_seq_data.get_row_data(bptt_step, train_data_t);
-            derivate_weight.clone(derivate_weight_t);
-
-			derivate_weight_t.dot(train_data_t.transpose());
-			derivate_weight_t.add(derivate_t);
+            auto derivate_weight_t = helper.dot(derivate_weight, train_seq_data.get_row(bptt_step).Ts()) + derivate_t;
 
             size_t idx = train_data_t.argmax(0, 1);
             derivate_weight.get_col_data(idx, derivate_weight_t_c);
