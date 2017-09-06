@@ -3,7 +3,7 @@ A c++ light Deep Learning framework for ABC </bt>
 
 ## DNN example <br>
 ### 1. Config layers </bt>
-  std::vector<abcdl::dnn::Layer*> layers; <bt>
+  std::vector\<abcdl::dnn::Layer*> layers; <bt>
   layers.push_back(new abcdl::dnn::InputLayer(784)); <bt>
   layers.push_back(new abcdl::dnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc())); <bt>
   layers.push_back(new abcdl::dnn::OutputLayer(30, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost())); <bt>
