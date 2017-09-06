@@ -36,7 +36,8 @@ A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <
 
 ### 7. Deserialize model <br>
   dnn.load_model(path); <br>
-  
+
+## 
 ## CNN example <br>
 ### Configure layers <br>
   std::vector\<abcdl::cnn::Layer*> layers; <br>
