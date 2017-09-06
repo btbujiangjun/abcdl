@@ -106,16 +106,24 @@ size_t Matrix<T>::argmax() const{
 
 template<class T>
 size_t Matrix<T>::argmax(const size_t id, const Axis_type axis_type) const{
-    if(axis_type == abcdl::algebra::Row){
+    bool is_row = (axis_type == abcdl::algebra::Row);
+	if(is_row){
         CHECK(id < _rows);
     }else{
         CHECK(id < _cols);
     }
-	T max = _data[0];
-    size_t max_idx = 0;
-	auto lamda = [](T* a, const T& b, size_t* max_idx, const size_t idx){if(b > *a){*a = b; *max_idx = idx;}};
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&max, &max_idx, _data, get_size(), lamda);
+
+    size_t max_idx 	= 0;
+	T max 			= is_row ? get_data(id, 0) : get_data(0, id);
+	size_t size 	= is_row ? _cols : _rows;
+	
+	for(size_t i = 0; i != size; i++){
+		T value = is_row ? get_data(id, i) : get_data(i, id);
+		if(value > max){
+			max = value;
+			max_id = i;
+		}
+	}
 	return max_idx;   
 }
 
