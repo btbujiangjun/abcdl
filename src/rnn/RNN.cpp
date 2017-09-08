@@ -8,7 +8,7 @@
 
 #include "rnn/RNN.h"
 #include "utils/Log.h"
-#include "utils/Shuffle.h"
+#include "utils/Shuffler.h"
 #include <functional>
 
 namespace abcdl{
@@ -64,17 +64,11 @@ void RNN::mini_batch_update(std::vector<abcdl::algebra::Mat*> train_seq_data,
     const size_t num_train_data   = train_seq_data.size();
     
     std::vector<abcdl::algebra::Mat*> derivate_weight;
+    std::vector<abcdl::algebra::Mat*> derivate_pre_weight;
+    std::vector<abcdl::algebra::Mat*> derivate_act_weight;
     for(size_t i = 0 ; i != num_train_data; i++){
         derivate_weight.push_back(new abcdl::algebra::DenseMatrixT<real>(_U->rows(), _U->cols()));
-    }
-    
-    std::vector<abcdl::algebra::Mat*> derivate_pre_weight;
-    for(size_t i = 0; i != num_train_data; i++){
         derivate_pre_weight.push_back(new abcdl::algebra::DenseMatrixT<real>(_W->rows(), _W->cols()));
-    }
-
-    std::vector<abcdl::algebra::Mat*> derivate_act_weight;
-    for(size_t i = 0; i != num_train_data; i++){
         derivate_act_weight.push_back(new abcdl::algebra::DenseMatrixT<real>(_V->rows(), _V->cols()));
     }
 
@@ -84,7 +78,7 @@ void RNN::mini_batch_update(std::vector<abcdl::algebra::Mat*> train_seq_data,
     for(size_t i = 0; i != num_train_data; i++){
         threads.push_back(
             std::thread(
-                std::bind(&Layer::back_propagation, *_layer, train_seq_data[i], train_seq_label[i], _U, _W, _V, derivate_weight[i], derivate_pre_weight[i], derivate_act_weight[i], debug)
+                std::bind(&Layer::backward, *_layer, *train_seq_data[i], *train_seq_label[i], _U, _W, _V, *derivate_weight[i], *derivate_pre_weight[i], *derivate_act_weight[i])
             )
         );
         if(i == (num_train_data - 1) || i % num_thread == (num_thread - 1) ){
@@ -105,9 +99,9 @@ void RNN::mini_batch_update(std::vector<abcdl::algebra::Mat*> train_seq_data,
     derivate_pre_weight[0]->multiply(_alpha / num_train_data);
     derivate_act_weight[0]->multiply(_alpha / num_train_data);
 
-    _U->subtract(derivate_weight[0]);
-    _W->subtract(derivate_pre_weight[0]);
-    _V->subtract(derivate_act_weight[0]);
+    _U -= derivate_weight[0] * (_alpha / num_train_data);
+    _W -= derivate_pre_weight[0] * (_alpha / num_train_data);
+    _V -= derivate_act_weight[0] * (_alpha / num_train_data);
 
     for(auto d : derivate_weight){
         delete d;
@@ -127,13 +121,12 @@ real RNN::total_loss(std::vector<abcdl::algebra::Mat*>* train_seq_data,
                      std::vector<abcdl::algebra::Mat*>* train_seq_label){
 
 	real loss_value = 0;
-	
-    auto state      = new abcdl::algebra::DenseMatrixT<real>();
-	auto activation = new abcdl::algebra::DenseMatrixT<real>();
+    abcdl::algebra::Mat state;
+    abcdl::algebra::Mat activation;
 	
     size_t num_train_data = train_seq_data->size();
 	for(size_t j = 0; j != num_train_data; j++){
-		_layer->feed_farward(train_seq_data->at(j), _U, _W, _V, state, activation, false);
+		_layer->farward(*train_seq_data->at(j), _U, _W, _V, state, activation);
 
 		auto mat_label = train_seq_label->at(j)->argmax(0);
         size_t rows = mat_label->rows();
@@ -142,9 +135,6 @@ real RNN::total_loss(std::vector<abcdl::algebra::Mat*>* train_seq_data,
         }
         delete mat_label;
 	}
-
-    delete state;
-    delete activation;
 
 	return loss_value;
 }
@@ -188,18 +178,23 @@ bool RNN::load_model(const std::string& path){
         return false;
     }
     
-    _U = models[0];
-    _W = models[1];
-    _U = models[2];
+    _U = *(models[0]);
+    _W = *(models[1]);
+    _U = *(models[2]);
 
-    _feature_dim    = _U->cols();
-    _hidden_dim     = _U->rows();
+    _feature_dim    = _U.cols();
+    _hidden_dim     = _U.rows();
     _path           = path;
 
     if(_layer != nullptr){
         delete _layer;
     }
     _layer = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate);
+
+    for(auto&& mat : models){
+        delete mat;
+    }
+    models.clear();
 
     return true;
 }
