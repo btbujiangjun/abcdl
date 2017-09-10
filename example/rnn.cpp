@@ -6,17 +6,26 @@
 * Description: 
 **********************************************/
 
-#include "utils/RNNHelper.h"
 #include "rnn/RNN.h"
+#include "utils/Log.h"
+#include "utils/RNNHelper.h"
 
 int main(int argc, char** argv){
-	std::map<std::string, size_t> map;
+    abcdl::utils::log::set_min_log_level(abcdl::utils::log::INFO);
+    abcdl::utils::log::initialize_log(argc, argv);
+
 	abcdl::utils::RNNHelper helper(8000);
-	helper.read_word2index("data/rnn/word_to_index", map);
+	
+	//std::map<std::string, size_t> map;
+	//helper.read_word2index("data/rnn/word_to_index", map);
 
 	std::vector<abcdl::algebra::Mat*> data_seq_data;
 	std::vector<abcdl::algebra::Mat*> data_seq_label;
-	helper.read_seqdata("data/rnn/train_seq_data", &data_seq_data, "data/rnn/train_seq_label", &data_seq_label, 1000);
+	if(!helper.read_seq_data("data/rnn/train_seq_data", data_seq_data, "data/rnn/train_seq_label", data_seq_label, 1000)){
+		return -1;
+	}
+
+	data_seq_data[0]->display("|");
 
     printf("Start training....\n");
 
