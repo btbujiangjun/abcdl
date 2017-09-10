@@ -12,11 +12,11 @@
 int main(int argc, char** argv){
 	std::map<std::string, size_t> map;
 	abcdl::utils::RNNHelper helper(8000);
-	helper.read_word2index("data/word_to_index", map);
+	helper.read_word2index("data/rnn/word_to_index", map);
 
 	std::vector<abcdl::algebra::Mat*> data_seq_data;
 	std::vector<abcdl::algebra::Mat*> data_seq_label;
-	helper.read_seqdata("data/train_seq_data", &data_seq_data, "data/train_seq_label", &data_seq_label, 1000);
+	helper.read_seqdata("data/rnn/train_seq_data", &data_seq_data, "data/rnn/train_seq_label", &data_seq_label, 1000);
 
     printf("Start training....\n");
 
@@ -32,5 +32,4 @@ int main(int argc, char** argv){
 		delete d;
 	}
 	data_seq_label.clear();
-
 }
