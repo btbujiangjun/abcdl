@@ -12,63 +12,73 @@ namespace abcdl{
 namespace algebra{
 
 template<class T>
-void Matrix<T>::dot(const Matrix<T>& mat){
+Matrix<T>& Matrix<T>::dot(const Matrix<T>& mat){
     MatrixHelper<T> mh;
-    mh.dot(*this, *this, mat);    
+    mh.dot(*this, *this, mat);
+	return *this;	
 }
 
 template<class T>
-void Matrix<T>::outer(const Matrix<T>& mat){
+Matrix<T>& Matrix<T>::outer(const Matrix<T>& mat){
     MatrixHelper<T> mh;
     mh.outer(*this, *this, mat);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::pow(const T& exponent){
+Matrix<T>& Matrix<T>::pow(const T& exponent){
     MatrixHelper<T> mh;
     mh.pow(*this, *this, exponent);
+	return *this;
 }
 
 template<class T> 
-void Matrix<T>::log(){
+Matrix<T>& Matrix<T>::log(){
     MatrixHelper<T> mh;
     mh.log(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::exp(){
+Matrix<T>& Matrix<T>::exp(){
     MatrixHelper<T> mh;
     mh.exp(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::sigmoid(){
+Matrix<T>& Matrix<T>::sigmoid(){
     MatrixHelper<T> mh;
     mh.sigmoid(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::softmax(){
+Matrix<T>& Matrix<T>::softmax(){
     MatrixHelper<T> mh;
     mh.softmax(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::tanh(){
+Matrix<T>& Matrix<T>::tanh(){
     MatrixHelper<T> mh;
     mh.tanh(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::relu(){
+Matrix<T>& Matrix<T>::relu(){
     MatrixHelper<T> mh;
     mh.relu(*this, *this);
+	return *this;
 }
 
 template<class T>
-void Matrix<T>::expand(const size_t row_dim, const size_t col_dim){
+Matrix<T>& Matrix<T>::expand(const size_t row_dim, const size_t col_dim){
     MatrixHelper<T> mh;
     mh.expand(*this, *this, row_dim, col_dim);
+	return *this;
 }
 
 template<class T>
@@ -102,6 +112,33 @@ size_t Matrix<T>::argmax() const{
 	utils::ParallelOperator po;
 	po.parallel_reduce_mul2one<T>(&max, &max_idx, _data, get_size(), lamda);
 	return max_idx;   
+}
+
+template<class T>
+Matrix<size_t> Matrix<T>::argmax(Axis_type axis_type) const{
+    size_t size = (axis_type == Axis_type::ROW)? _rows : _cols;
+   	size_t end_idx = (axis_type == Axis_type::ROW) ? _cols : _rows;
+    size_t* idx_data = new size_t[size];
+    for(size_t i = 0; i != size; i++){
+        T max_value = 0;
+        size_t max_idx = 0;
+        for(size_t j = 0; j != end_idx; j++){
+            T value = (axis_type == Axis_type::ROW) ? _data[i * _cols + j] : _data[j * _cols + i];
+            if( j == 0 || value > max_value){
+                max_value = value;
+                max_idx = j;
+            }
+        }
+        idx_data[i] = max_idx;
+    }
+
+    size_t rows = (axis_type == Axis_type::ROW) ? size : 1;
+    size_t cols = (axis_type == Axis_type::ROW) ? 1 : size;
+
+	abcdl::algebra::Matrix<size_t> mat;
+	mat.set_shallow_data(idx_data, rows, cols);
+
+    return mat;
 }
 
 template<class T>
