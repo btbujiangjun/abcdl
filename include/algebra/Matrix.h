@@ -170,7 +170,7 @@ public:
 
 	T max() const;
 	size_t argmax() const;
-	Matrix<size_t> argmax(Axis_type axis_type) const;
+	Matrix<int> argmax(Axis_type axis_type) const;
 	size_t argmax(const size_t id, const Axis_type axis_type) const;
 	T min() const;
 	size_t argmin() const;
