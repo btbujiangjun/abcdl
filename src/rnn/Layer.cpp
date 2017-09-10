@@ -27,12 +27,12 @@ void Layer::farward(const abcdl::algebra::Mat& train_seq_data,
 		//s[t] = tanh(U*x[t] + W*s[t-1])
 		//o[t] = softmax(V* s[t])
 		if(t > 0){
-			s_t = (helper.dot(weight, train_seq_data.get_row(t).Ts()) + helper.dot(pre_weight, state.get_row(t - 1).Ts())).tanh().Ts();
+			s_t = (helper.dot(weight, train_seq_data.get_row(t).Ts()) + helper.dot(pre_weight, state.get_row(t - 1).Ts())).tanh();
 		}else{
-			s_t = helper.dot(weight, train_seq_data.get_row(t).Ts()).tanh().Ts();
+			s_t = helper.dot(weight, train_seq_data.get_row(t).Ts()).tanh();
 		}
 
-		state.set_row(t, s_t);
+		state.set_row(t, s_t.Ts());
 		activation.set_row(t, helper.dot(act_weight, s_t).softmax().Ts());	
 	}
 }
@@ -65,7 +65,7 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
         //calc derivate_t
 		abcdl::algebra::Mat state_derivate;
 		helper.sigmoid_derivative(state_derivate, state.get_row(t).Ts());
-		auto derivate_t = helper.dot(act_weight.Ts(), derivate_output_t) * state_derivate;
+		auto derivate_t = helper.dot(act_weight.Ts(), derivate_output_t.Ts()) * state_derivate;
 
 		//back_propagation steps
 		for(size_t step = 0; step < _bptt_truncate && (int)step <= t; step++){

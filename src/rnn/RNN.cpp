@@ -27,9 +27,6 @@ void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 
 	abcdl::algebra::Mat state;
 	abcdl::algebra::Mat activation;
-	abcdl::algebra::Mat derivate_weight;
-	abcdl::algebra::Mat derivate_pre_weight;
-	abcdl::algebra::Mat derivate_act_weight;
 	
 	abcdl::algebra::Mat batch_derivate_weight;
 	abcdl::algebra::Mat batch_derivate_pre_weight;
@@ -40,8 +37,8 @@ void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 		auto start_time = now();
 
 		for(size_t j = 0; j != num_train_data; j++){
-			_layer->farward(*train_seq_data[shuffler.get_row(j)], _U, _W, _V, state, activation);
-			_layer->backward(*train_seq_data[shuffler.get_row(j)], *train_seq_label[shuffler.get_row(j)], _U, _W, _V, state, activation, batch_derivate_weight, batch_derivate_pre_weight, batch_derivate_act_weight);
+			_layer->farward(*train_seq_data[shuffler.get(j)], _U, _W, _V, state, activation);
+			_layer->backward(*train_seq_data[shuffler.get(j)], *train_seq_label[shuffler.get(j)], _U, _W, _V, state, activation, batch_derivate_weight, batch_derivate_pre_weight, batch_derivate_act_weight);
 
             if( j % _mini_batch_size == (_mini_batch_size - 1) || j == (num_train_data - 1)){
 				size_t n = j % _mini_batch_size + 1;

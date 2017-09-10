@@ -39,8 +39,8 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
         auto start_time = now();
 
         for(size_t j = 0; j != num_train_data; j++){
-            train_data.get_row(&data, shuffler.get_row(j));
-            train_label.get_row(&label, shuffler.get_row(j));
+            train_data.get_row(&data, shuffler.get(j));
+            train_label.get_row(&label, shuffler.get(j));
 
             for(size_t k = 0; k != layer_size; k++){
                 if(k == 0){

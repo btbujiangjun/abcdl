@@ -50,8 +50,8 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
         shuffler.shuffle();
 
         for(size_t j = 0; j != num_train_data; j++){
-            train_data.get_row(&data, shuffler.get_row(j));
-            train_label.get_row(&label, shuffler.get_row(j));
+            train_data.get_row(&data, shuffler.get(j));
+            train_label.get_row(&label, shuffler.get(j));
 
             forward(data);
             backward(label);
