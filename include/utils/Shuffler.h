@@ -22,7 +22,7 @@ public:
 
     void shuffle();
 
-    size_t get_row(const size_t row_id) const;
+    size_t get(const size_t row_id) const {return _shuffler_idx[row_id];}
 
 private:
     size_t _size;
@@ -50,10 +50,6 @@ void Shuffler::shuffle(){
         _shuffler_idx[i] = value;
     }
 
-}
-
-size_t Shuffler::get_row(const size_t row_id) const{
-    return _shuffler_idx[row_id];
 }
 
 }//namespace utils
