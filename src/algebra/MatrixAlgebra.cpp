@@ -115,14 +115,14 @@ size_t Matrix<T>::argmax() const{
 }
 
 template<class T>
-Matrix<size_t> Matrix<T>::argmax(Axis_type axis_type) const{
+Matrix<int> Matrix<T>::argmax(Axis_type axis_type) const{
     size_t size = (axis_type == Axis_type::ROW)? _rows : _cols;
    	size_t end_idx = (axis_type == Axis_type::ROW) ? _cols : _rows;
-    size_t* idx_data = new size_t[size];
-    for(size_t i = 0; i != size; i++){
+    int* idx_data = new int[size];
+    for(int i = 0; i != size; i++){
         T max_value = 0;
-        size_t max_idx = 0;
-        for(size_t j = 0; j != end_idx; j++){
+        int max_idx = 0;
+        for(int j = 0; j != end_idx; j++){
             T value = (axis_type == Axis_type::ROW) ? _data[i * _cols + j] : _data[j * _cols + i];
             if( j == 0 || value > max_value){
                 max_value = value;
@@ -135,7 +135,7 @@ Matrix<size_t> Matrix<T>::argmax(Axis_type axis_type) const{
     size_t rows = (axis_type == Axis_type::ROW) ? size : 1;
     size_t cols = (axis_type == Axis_type::ROW) ? 1 : size;
 
-	abcdl::algebra::Matrix<size_t> mat;
+	abcdl::algebra::Matrix<int> mat;
 	mat.set_shallow_data(idx_data, rows, cols);
 
     return mat;
