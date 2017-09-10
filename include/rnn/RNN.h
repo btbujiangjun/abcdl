@@ -25,7 +25,7 @@ public:
         _W.reset(hidden_dim, hidden_dim, 0, 1, -std::sqrt(1.0/hidden_dim), std::sqrt(1.0/hidden_dim));
         _V.reset(feature_dim, hidden_dim, 0, 1, -std::sqrt(1.0/hidden_dim), std::sqrt(1.0/hidden_dim));
 
-        _layer = new abcdl::rnn::Layer(hidden_dim, bptt_truncate);
+        _layer = new abcdl::rnn::Layer(hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost());
     }
 
     RNN(const std::string& path){
@@ -33,21 +33,21 @@ public:
             _feature_dim    = _U.cols();
             _hidden_dim     = _U.rows();
             _path           = path;
-            _layer          = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate);
+            _layer          = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost());
         }
 
     }
     ~RNN(){delete _layer;}
 
     void train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-               const std::vector<abcdl::algebra::Mat*>& train_seq_label) 
+               const std::vector<abcdl::algebra::Mat*>& train_seq_label); 
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
 
-    void set_epoch(const size_t epoch) const {_epoch = epoch;}
-    void set_mini_batch_size(const size_t mini_batch_size) const { _mini_batch_size = mini_batch_size; }
-    void set_alpha(const real alpha) const {_alpha = alpha;}
+    void set_epoch(const size_t epoch){_epoch = epoch;}
+    void set_mini_batch_size(const size_t mini_batch_size){ _mini_batch_size = mini_batch_size; }
+    void set_alpha(const real alpha){_alpha = alpha;}
     void set_bptt_truncate(const size_t bptt_truncate){_bptt_truncate = bptt_truncate;}
 
 private:
@@ -74,9 +74,9 @@ private:
     std::string _path;
     abcdl::utils::ModelLoader loader;
 
-    abcdl::algebra::Mat _U;
-    abcdl::algebra::Mat _W;
-    abcdl::algebra::Mat _V;
+    abcdl::algebra::RandomMatrix<real> _U;
+    abcdl::algebra::RandomMatrix<real> _W;
+    abcdl::algebra::RandomMatrix<real> _V;
 
     abcdl::rnn::Layer* _layer;
 };//class RNN 

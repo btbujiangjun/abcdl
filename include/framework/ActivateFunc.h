@@ -9,6 +9,7 @@
 
 #include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
+#include "framework/Cost.h"
 
 namespace abcdl{
 namespace framework{

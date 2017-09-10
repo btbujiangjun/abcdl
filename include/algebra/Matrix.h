@@ -154,22 +154,23 @@ public:
     Matrix<T>& operator /= (const Matrix<T>& mat);
 
     //algebra
-    void dot(const Matrix<T>& mat);
-    void outer(const Matrix<T>& mat);
-    void pow(const T& exponent);
-    void log();
-    void exp();
-    void sigmoid();
-	void softmax();
-	void tanh();
-	void relu();
+    Matrix<T>& dot(const Matrix<T>& mat);
+    Matrix<T>& outer(const Matrix<T>& mat);
+    Matrix<T>& pow(const T& exponent);
+    Matrix<T>& log();
+    Matrix<T>& exp();
+    Matrix<T>& sigmoid();
+	Matrix<T>& softmax();
+	Matrix<T>& tanh();
+	Matrix<T>& relu();
     bool convn(const Matrix<T>& kernal,
                const size_t stride,
                const Convn_type type = VALID);
-    void expand(size_t row_dim, size_t col_dim);
+    Matrix<T>& expand(size_t row_dim, size_t col_dim);
 
 	T max() const;
 	size_t argmax() const;
+	Matrix<size_t> argmax(Axis_type axis_type) const;
 	size_t argmax(const size_t id, const Axis_type axis_type) const;
 	T min() const;
 	size_t argmin() const;
