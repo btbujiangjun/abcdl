@@ -31,7 +31,9 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
                 const abcdl::algebra::Mat& train_label,
                 const abcdl::algebra::Mat& test_data,
                 const abcdl::algebra::Mat& test_label){
-    CHECK(train_data.rows() == train_label.rows() && test_data.rows() == test_label.rows());
+	LOG(INFO) << "cnn train starting...";
+
+	CHECK(train_data.rows() == train_label.rows() && test_data.rows() == test_label.rows());
     if(!check(train_data.cols())){
         return;
     }
@@ -64,11 +66,11 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
         }//end per epoch
 
         auto training_time = now();
-        printf("Epoch %ld train run time: %ld ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
+        printf("Epoch[%ld] train run time: [%ld] ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
 
 	    if(num_test_data > 0){
-	        printf("Epoch %ld %ld/%ld\n", i, evaluate(test_data, test_label), num_test_data);
-    	    printf("Epoch %ld predict run time: %ld ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(now() - training_time).count());
+	        printf("Epoch[%ld] [%ld/%ld]\n", i, evaluate(test_data, test_label), num_test_data);
+    	    printf("Epoch[%ld] predict run time: [%ld] ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(now() - training_time).count());
 	    }
     }
 }

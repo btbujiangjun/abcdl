@@ -69,7 +69,7 @@ void DNN::train(const abcdl::algebra::Mat& train_data,
         }
 
         auto train_time = now();
-        printf("Epoch [%ld] training run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
+        printf("Epoch[%ld] training run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
 
         if(test_data.rows() > 0){
             size_t num = evaluate(test_data, test_label);
