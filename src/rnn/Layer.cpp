@@ -58,13 +58,15 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 
 	for(long int t = seq_size - 1; t >= 0 ; t--){
 		auto derivate_output_t = derivate_output.get_row(t).Ts();
+		auto state_t = state.get_row(t).Ts();
 
         //update derivate_act_weight
-		derivate_act_weight += helper.outer(derivate_output_t, state.get_row(t).Ts());;
+		derivate_output_t.outer(state_t);
+		derivate_act_weight += derivate_output_t;
 
         //calc derivate_t
 		abcdl::algebra::Mat state_derivate;
-		helper.sigmoid_derivative(state_derivate, state.get_row(t).Ts());
+		helper.sigmoid_derivative(state_derivate, state_t);
 		auto derivate_t = helper.dot(act_weight.Ts(), derivate_output_t.Ts()) * state_derivate;
 
 		//back_propagation steps
