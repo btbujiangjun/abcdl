@@ -246,9 +246,10 @@ Matrix<T> Matrix<T>::Ts(){
 }
 
 template<class T>
-void Matrix<T>::transpose(){
+Matrix<T>& Matrix<T>::transpose(){
     MatrixHelper<T> mh;
     mh.transpose(*this, *this);
+	return *this;
 }
 
 template<class T>
