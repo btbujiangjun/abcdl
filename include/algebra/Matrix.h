@@ -113,7 +113,7 @@ public:
                const size_t rows,
                const size_t cols);
 
-    void transpose();
+    Matrix<T>& transpose();
     Matrix<T> Ts();
 
     inline Matrix& reshape(const size_t row, const size_t col){
