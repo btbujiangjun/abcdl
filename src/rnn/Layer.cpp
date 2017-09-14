@@ -56,9 +56,12 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
     auto now = []{return std::chrono::system_clock::now();};
     auto start_time = now();
 
-	for(long int t = seq_size - 1; t >= 0 ; t--){
-		auto derivate_output_t = derivate_output.get_row(t).Ts();
-		auto state_t = state.get_row(t).Ts();
+	for(size_t s = seq_size; s > 0 ; s--){
+		size_t t = s - 1;
+		auto derivate_output_t = derivate_output.get_row(t);
+		derivate_output_t.transpose();
+
+		auto state_t = state.get_row(t).transpose();
 
         //update derivate_act_weight
 		derivate_output_t.outer(state_t);
