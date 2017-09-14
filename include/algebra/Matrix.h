@@ -38,7 +38,13 @@ public:
     Matrix(const T* data,
            const size_t rows,
            const size_t cols);
-    ~Matrix();
+	Matrix(const Matrix<T>& mat){
+		_rows = mat.rows();
+		_cols = mat.cols();
+		_data = new T[_rows * _cols];
+		memcpy(_data, mat.data(), sizeof(T) * _rows * _cols);
+	}
+	~Matrix();
 
     inline size_t rows() const { return _rows;}
     inline size_t cols() const { return _cols;}
