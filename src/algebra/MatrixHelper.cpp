@@ -360,6 +360,7 @@ void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 template class MatrixHelper<int>;
 template class MatrixHelper<float>;
 template class MatrixHelper<double>;
+template class MatrixHelper<size_t>;
 
 }//namespace algebra
 }//namespace abcdl
