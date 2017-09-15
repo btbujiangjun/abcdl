@@ -27,13 +27,13 @@ void Layer::farward(const abcdl::algebra::Mat& train_seq_data,
 		//s[t] = tanh(U*x[t] + W*s[t-1])
 		//o[t] = softmax(V* s[t])
 		if(t > 0){
-			s_t = (helper.dot(weight, train_seq_data.get_row(t).Ts()) + helper.dot(pre_weight, state.get_row(t - 1).Ts())).tanh();
+			s_t = (helper.dot(weight, train_seq_data.get_row(t).transpose()) + helper.dot(pre_weight, state.get_row(t - 1).transpose())).tanh();
 		}else{
-			s_t = helper.dot(weight, train_seq_data.get_row(t).Ts()).tanh();
+			s_t = helper.dot(weight, train_seq_data.get_row(t).transpose()).tanh();
 		}
 
 		state.set_row(t, s_t.Ts());
-		activation.set_row(t, helper.dot(act_weight, s_t).softmax().Ts());	
+		activation.set_row(t, helper.dot(act_weight, s_t).softmax().transpose());	
 	}
 }
 
@@ -47,49 +47,38 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 					 abcdl::algebra::Mat& derivate_weight,
 					 abcdl::algebra::Mat& derivate_pre_weight,
 					 abcdl::algebra::Mat& derivate_act_weight){
-
-	//todo cost function
 	abcdl::algebra::Mat derivate_output;
 	_cost->delta(derivate_output, activation,train_seq_label);
 	
 	size_t seq_size = train_seq_data.rows();
-    auto now = []{return std::chrono::system_clock::now();};
-    auto start_time = now();
-
-	for(size_t s = seq_size; s > 0 ; s--){
+	for(size_t s = seq_size; s != 0 ; s--){
 		size_t t = s - 1;
-		auto derivate_output_t = derivate_output.get_row(t);
-		derivate_output_t.transpose();
-
+		auto derivate_output_t = derivate_output.get_row(t).transpose();
 		auto state_t = state.get_row(t).transpose();
 
         //update derivate_act_weight
-		derivate_output_t.outer(state_t);
-		derivate_act_weight += derivate_output_t;
+		derivate_act_weight += helper.outer(derivate_output_t, state_t);
 
         //calc derivate_t
 		abcdl::algebra::Mat state_derivate;
 		helper.sigmoid_derivative(state_derivate, state_t);
-		auto derivate_t = helper.dot(act_weight.Ts(), derivate_output_t.Ts()) * state_derivate;
+		auto derivate_t = helper.dot(act_weight.Ts(), derivate_output_t) * state_derivate;
 
 		//back_propagation steps
-		for(size_t step = 0; step < _bptt_truncate && (int)step <= t; step++){
+		for(size_t step = 0; step < _bptt_truncate && step <= t; step++){
 			size_t bptt_step = t - step;
-
-    		printf("Backpropagation step t=%ld bptt step=%ld\n", t, bptt_step);
-
 			abcdl::algebra::Mat derivate_state_t;
 			if(bptt_step > 0){
-				state.get_row(&derivate_state_t, bptt_step -1);
+				state.get_row(&derivate_state_t, bptt_step - 1);
 			}else{
 				derivate_state_t.reset(0, state.cols(), 1);
 			}
 
             //update derivate_pre_weight
-			derivate_pre_weight += helper.outer(derivate_t, derivate_state_t.Ts());
+			derivate_pre_weight += helper.outer(derivate_t, derivate_state_t.transpose());
 			
             //update derivate_weight
-			auto train_data_t = train_seq_data.get_row(bptt_step).Ts();
+			auto train_data_t = train_seq_data.get_row(bptt_step).transpose();
             auto derivate_weight_t = helper.dot(derivate_weight, train_data_t) + derivate_t;
 
             size_t idx = train_data_t.argmax(0, abcdl::algebra::Axis_type::ROW);
@@ -102,7 +91,6 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 			}
 		}
 	}
-    printf("thread[%lu][%ld-%ld][%ld].\n", std::this_thread::get_id(), start_time, now(), std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count());
 }
 
 
