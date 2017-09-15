@@ -182,7 +182,7 @@ public:
                                 const T* op2,
                                 const size_t num_op2,
                                 const std::function<void(T*, const T&, const T&)> &f){
-        CHECK(num_op1 == num_op2);
+        CHECK(num_op1 > 0 && num_op2 > 0);
         size_t block_size = get_block_size(num_op1 * num_op2);
         size_t num_thread = get_num_thread(num_op1 * num_op2, block_size);
         std::vector<std::thread> threads(num_thread);
