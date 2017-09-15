@@ -41,7 +41,7 @@ Matrix<T>::Matrix(const T& value,
     _rows = rows;
     _cols = cols;
     _data = new T[_rows * _cols];
-    if(value == 0 || value == -1){
+    if(value == 0 || value == static_cast<T>(-1)){
         memset(_data, value, sizeof(T) * _rows * _cols);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
@@ -228,7 +228,7 @@ void Matrix<T>::reset(const T& value,
         _cols = cols;
     }
 
-    if(value == 0 || value == -1){
+    if(value == 0 || value == static_cast<T>(-1)){
         memset(_data, value, sizeof(T) * size);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
@@ -351,6 +351,7 @@ void RandomMatrix<T>::reset(size_t rows,
 template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
+template class Matrix<size_t>;
 
 template class RandomMatrix<float>;
 }//namespace algebra
