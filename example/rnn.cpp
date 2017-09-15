@@ -19,15 +19,14 @@ int main(int argc, char** argv){
 	//std::map<std::string, size_t> map;
 	//helper.read_word2index("data/rnn/word_to_index", map);
 
+    const size_t sample_size = 10000;
 	std::vector<abcdl::algebra::Mat*> data_seq_data;
 	std::vector<abcdl::algebra::Mat*> data_seq_label;
-	if(!helper.read_seq_data("data/rnn/train_seq_data", data_seq_data, "data/rnn/train_seq_label", data_seq_label, 1000)){
+	if(!helper.read_seq_data("data/rnn/train_seq_data", data_seq_data, "data/rnn/train_seq_label", data_seq_label, sample_size)){
 		return -1;
 	}
 
-	data_seq_data[0]->display("|");
-
-    printf("Start training....\n");
+    LOG(INFO) << "RNN Start training....";
 
     abcdl::rnn::RNN rnn(8000, 100);
     rnn.train(data_seq_data, data_seq_label);
