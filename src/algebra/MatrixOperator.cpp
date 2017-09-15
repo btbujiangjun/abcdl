@@ -219,5 +219,6 @@ Matrix<T>& Matrix<T>::operator /= (const Matrix<T>& mat){
 template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
+template class Matrix<size_t>;
 }//namespace algebra
 }//namespace abcdl
