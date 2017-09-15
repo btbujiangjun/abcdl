@@ -28,9 +28,9 @@ void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 	abcdl::algebra::Mat state;
 	abcdl::algebra::Mat activation;
 	
-	abcdl::algebra::Mat batch_derivate_weight;
-	abcdl::algebra::Mat batch_derivate_pre_weight;
-	abcdl::algebra::Mat batch_derivate_act_weight;
+	abcdl::algebra::Mat batch_derivate_weight(_U.rows(), _U.cols());
+	abcdl::algebra::Mat batch_derivate_pre_weight(_W.rows(), _W.cols());
+	abcdl::algebra::Mat batch_derivate_act_weight(_V.rows(), _V.cols());
 
 	for(size_t i = 0; i != _epoch; i++){
         shuffler.shuffle();
