@@ -5,9 +5,7 @@
 * Filename: MatrixHelper.h
 * Description: matrix common operation
 **********************************************/
-
-#ifndef _ABCDL_ALGEBRA_MATRIXHELPER_H_
-#define _ABCDL_ALGEBRA_MATRIXHELPER_H_
+#pragma once
 
 #include "algebra/Matrix.h"
 #include "utils/ParallelOperator.h"
@@ -115,5 +113,3 @@ private:
 
 }//namespace algebra
 }//namespace abcdl
-
-#endif //_ABCDL_ALGEBRA_MATRIXHELPER_H_
