@@ -48,6 +48,7 @@ public:
     void set_epoch(const size_t epoch){_epoch = epoch;}
     void set_mini_batch_size(const size_t mini_batch_size){ _mini_batch_size = mini_batch_size; }
     void set_alpha(const real alpha){_alpha = alpha;}
+    void set_model_path(const std::string& path){_path = path;}
     void set_bptt_truncate(const size_t bptt_truncate){_bptt_truncate = bptt_truncate;}
 
 private:
@@ -68,10 +69,10 @@ private:
     size_t _bptt_truncate = 4; 
 
     size_t _epoch = 5;
-    size_t _mini_batch_size = 1;
+    size_t _mini_batch_size = 10;
     real _alpha = 0.1;
 
-    std::string _path;
+    std::string _path = "./model/rnn.model";
     abcdl::utils::ModelLoader loader;
 
     abcdl::algebra::RandomMatrix<real> _U;
