@@ -73,7 +73,7 @@ bool RNNHelper::read_seq_data(const std::string& data_file,
 				   		      std::vector<abcdl::algebra::Mat*>& train_seq_data,
 					  	 	  const std::string& label_file,
 					  		  std::vector<abcdl::algebra::Mat*>& train_seq_label,
-                             int limit){
+                              int limit){
     return read_data(data_file, train_seq_data, limit) &&read_data(label_file, train_seq_label, limit);
 }
 
@@ -99,8 +99,8 @@ bool RNNHelper::read_data(const std::string& data_file,
         if(limit > 0 && (int)mat.size() >= limit){
             break;
         }
-		in_file.close();
 	}
+	in_file.close();
 	return true;
 }
 
