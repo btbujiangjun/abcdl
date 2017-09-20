@@ -41,6 +41,54 @@ private:
 
 };//class MnistHelper
 
+template<class T>
+class MnistReader{
+public:
+    MnistReader(const std::string& dir){
+        _dir = dir;
+    }
+    MnistReader(const std::string& dir, const std::string& dataset){
+        _dir = dir;
+        _dataset = dataset;
+    }
+    virtual bool read_train_image(abcdl::algebra::Matrix<T>* out_mat,
+                                  const int limit = -1,
+                                  const size_t threshold = 30){
+        return _helper.read_image(_dir + "/" + _dataset + "/train-images-idx3-ubyte", out_mat, limit, threshold); 
+    }
+    virtual bool read_test_image(abcdl::algebra::Matrix<T>* out_mat,
+                                 const int limit = -1,
+                                 const size_t threshold = 30){
+        return _helper.read_image(_dir + "/" + _dataset + "/t10k-images-idx3-ubyte", out_mat, limit, threshold); 
+    }
+    virtual bool read_train_label(abcdl::algebra::Matrix<T>* out_mat, const int limit = -1){
+        return _helper.read_label(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_test_label(abcdl::algebra::Matrix<T>* out_mat, const int limit = -1){
+        return _helper.read_label(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_train_vec_label(abcdl::algebra::Matrix<T>* out_mat,
+                              const int limit = -1,
+                              const uint vec_size = 10){
+        return _helper.read_vec_label(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_test_vec_label(abcdl::algebra::Matrix<T>* out_mat,
+                             const int limit = -1,
+                             const uint vec_size = 10){
+        return _helper.read_vec_label(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_mat, limit);
+    }
+
+private:
+    std::string _dir;
+    std::string _dataset = "mnist";
+    MnistHelper<T> _helper;
+};//MnistReader
+
+template<class T>
+class FashionMnistReader : public MnistReader<T>{
+public:
+    FashionMnistReader(const std::string& dir) : MnistReader<T>(dir, "fashion-mnist"){}
+};//class FashionMnistReader
 
 template<class T>
 bool MnistHelper<T>::read_image(const std::string& image_file,
