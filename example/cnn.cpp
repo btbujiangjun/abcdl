@@ -28,22 +28,21 @@ int main(int argc, char** argv){
     abcdl::cnn::CNN cnn;
     cnn.set_layers(layers);
 
-    abcdl::utils::MnistHelper<real> helper;
+    abcdl::utils::FashionMnistReader<real> helper("data");
     const size_t train_size = 60000;
     const size_t test_size  = 10000;
 
-    const std::string data_set = "data/fashion-mnist/";
     abcdl::algebra::Mat train_data;
-    helper.read_image(data_set + "train-images-idx3-ubyte", &train_data, train_size);
+    helper.read_train_image(&train_data, train_size);
 
     abcdl::algebra::Mat train_label;
-    helper.read_vec_label(data_set + "train-labels-idx1-ubyte", &train_label, train_size);
+    helper.read_train_vec_label(&train_label, train_size);
 
     abcdl::algebra::Mat test_data;
-    helper.read_image(data_set + "t10k-images-idx3-ubyte", &test_data, test_size);
+    helper.read_test_image(&test_data, test_size);
 
     abcdl::algebra::Mat test_label;
-    helper.read_vec_label(data_set + "t10k-labels-idx1-ubyte", &test_label, test_size);
+    helper.read_test_vec_label(&test_label, test_size);
 
     cnn.train(train_data, train_label, test_data, test_label);
 }
