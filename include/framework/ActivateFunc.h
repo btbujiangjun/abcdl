@@ -33,13 +33,41 @@ public:
     }
 };//class SigmoidActivateFunc
 
+class TanhActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
+        helper.tanh(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+        helper.tanh_derivative(mat, activate_mat);
+    }
+};//class TanhActivateFunc
+
 class ReluActivateFunc : public ActivateFunc{
     void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
         helper.relu(mat, z_mat);
     }
     void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+        helper.relu_derivative(mat, activate_mat);
     }
 };//class ReluActivateFunc
+
+class LeakyReluActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
+        helper.leaky_relu(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+        helper.leaky_relu_derivative(mat, activate_mat);
+    }
+};//class TanhActivateFunc
+
+class EluActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
+        helper.elu(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+        helper.elu_derivative(mat, activate_mat);
+    }
+};//class EluActivateFunc
 
 }//namespace framework
 }//namespace abcdl
