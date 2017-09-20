@@ -160,10 +160,64 @@ void MatrixHelper<T>::tanh(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
+void MatrixHelper<T>::tanh_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ T tanh = std::exp(std::min((T)EXP_MAX, -2 * b)); *a = 1 - tanh * tanh;};
+    if(mat.get_size() != mat_a.get_size()){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
 void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
     auto lamda = [](T* a, const T& b){ if(b < 0) {*a = 0;} };
     if(&mat != &mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
+void MatrixHelper<T>::relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = 1;} };
+    if(&mat != &mat_a){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
+void MatrixHelper<T>::leaky_relu(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ if(b < 0) {*a = (T)(0.01 * b);} };
+    if(&mat != &mat_a){
+        mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
+void MatrixHelper<T>::leaky_relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ if(b >= 0){*a = 1;} else{*a = 0.01;} };
+    if(&mat != &mat_a){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
+void MatrixHelper<T>::elu(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = b;} else{*a = std::exp(std::min((T)EXP_MAX, b)) - 1;} };
+    if(&mat != &mat_a){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
+void MatrixHelper<T>::elu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = 1;} else{*a = std::exp(std::min((T)EXP_MAX, b));} };
+    if(&mat != &mat_a){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
     }
     po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
