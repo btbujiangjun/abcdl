@@ -149,6 +149,32 @@ public:
         }
     }
 
+    template<class T1, class T>
+    void parallel_mul2mul(T1* op1,
+                          const size_t num_op1,
+                          const T* op2,
+                          const size_t num_op2,
+                          const std::function<void(T1*, const T&)> &f){
+        CHECK(num_op1 == num_op2);
+        size_t block_size = get_block_size(num_op1);
+        size_t num_thread = get_num_thread(num_op1, block_size);
+        std::vector<std::thread> threads(num_thread);
+
+        for(size_t i = 0; i != num_thread; i++){
+            threads[i] = std::thread(
+                [&op1, &op2, &f](size_t start_idx, size_t end_idx){
+                    for(size_t ti = start_idx; ti != end_idx; ti++){
+                        f(&op1[ti], op2[ti]);
+                    }
+                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
+            );
+        }
+
+        for(auto& thread : threads){
+            thread.join();
+        }
+    }
+
     template<class T>
     void parallel_mul2mul_repeat(T* op1,
                                  const size_t num_op1,
