@@ -158,8 +158,17 @@ public:
     Matrix<T> operator / (const Matrix<T>& mat) const;
     Matrix<T>& operator /= (const T& value);
     Matrix<T>& operator /= (const Matrix<T>& mat);
+   
+    operator Matrix<int>() const;
+    operator Matrix<float>() const;
+    operator Matrix<double>() const;
+    operator Matrix<size_t>() const;
 
     //algebra
+    Matrix<T>& add(const Matrix<T>& mat);
+    Matrix<T>& subtract(const Matrix<T>& mat);
+    Matrix<T>& multiply(const Matrix<T>& mat);
+    Matrix<T>& division(const Matrix<T>& mat);
     Matrix<T>& dot(const Matrix<T>& mat);
     Matrix<T>& outer(const Matrix<T>& mat);
     Matrix<T>& pow(const T& exponent);
