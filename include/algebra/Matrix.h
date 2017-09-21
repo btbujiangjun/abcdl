@@ -38,13 +38,13 @@ public:
     Matrix(const T* data,
            const size_t rows,
            const size_t cols);
-	Matrix(const Matrix<T>& mat){
-		_rows = mat.rows();
-		_cols = mat.cols();
-		_data = new T[_rows * _cols];
-		memcpy(_data, mat.data(), sizeof(T) * _rows * _cols);
-	}
-	~Matrix();
+    Matrix(const Matrix<T>& mat){
+        _rows = mat.rows();
+        _cols = mat.cols();
+        _data = new T[_rows * _cols];
+        memcpy(_data, mat.data(), sizeof(T) * _rows * _cols);
+    }
+    ~Matrix();
 
     inline size_t rows() const { return _rows;}
     inline size_t cols() const { return _cols;}
@@ -53,25 +53,25 @@ public:
     inline T* data() const { return _data; }
     inline T& get_data(const size_t idx) const{
         CHECK(idx < get_size());
-		return _data[idx];
-	}
+        return _data[idx];
+    }
     inline T& get_data(const size_t row_id, const size_t col_id) const{
         size_t size = row_id * _cols + col_id;
         CHECK(size < get_size());
-		return _data[size];
-	}
+        return _data[size];
+    }
 
     inline void set_data(const T& value, const size_t idx){
         CHECK(idx < get_size());
-		_data[idx] = value;
-	}
+        _data[idx] = value;
+    }
     inline void set_data(const T& value,
                          const size_t row_id,
                          const size_t col_id){
         size_t size = row_id * _cols + col_id;
         CHECK(size < get_size());
-		_data[size] = value;
-	}
+        _data[size] = value;
+    }
     inline void set_data(const T* data,
                          const size_t rows,
                          const size_t cols){
@@ -79,15 +79,15 @@ public:
             if(_data != nullptr){
                 delete[] _data;
             }
-    		_data = new T[rows * cols];
+            _data = new T[rows * cols];
         }
-		_rows = rows;
-		_cols = cols;
-		memcpy(_data, data, sizeof(T) * rows * cols);
-	}
+        _rows = rows;
+        _cols = cols;
+        memcpy(_data, data, sizeof(T) * rows * cols);
+    }
     inline void set_data(const Matrix<T>& mat){
-		set_data(mat.data(), mat.rows(), mat.cols());
-	}
+        set_data(mat.data(), mat.rows(), mat.cols());
+    }
 
     void set_shallow_data(T* data,
                           const size_t rows,
@@ -95,17 +95,17 @@ public:
     
     Matrix<T> get_row(const size_t row_id, const size_t row_size = 1) const;
     void get_row(Matrix<T>* mat,
-				 const size_t row_id,
-				 const size_t row_size = 1) const;
+                 const size_t row_id,
+                 const size_t row_size = 1) const;
     void set_row(const Matrix<T>& mat);
     void set_row(const size_t row_id, const Matrix<T>& mat);
     void insert_row(const Matrix<T>& mat);
     void insert_row(const size_t row_id, const Matrix<T>& mat);
 
     Matrix<T> get_col(const size_t col_id, const size_t col_size = 1) const;
-	void get_col(Matrix<T>* mat,
-				 const size_t col_id,
-				 const size_t col_size = 1) const;
+    void get_col(Matrix<T>* mat,
+                 const size_t col_id,
+                 const size_t col_size = 1) const;
     void set_col(const Matrix<T>& mat);
     void set_col(const size_t col_id, const Matrix<T>& mat);
     void insert_col(const Matrix<T>& mat);
@@ -132,8 +132,8 @@ public:
     void display(const std::string& split="\t") const;
 
     //operator
-	T& operator [] (const size_t idx) const;
-	bool operator == (const Matrix<T>& mat) const;
+    T& operator [] (const size_t idx) const;
+    bool operator == (const Matrix<T>& mat) const;
 
     Matrix<T>& operator = (const T& value);
     Matrix<T>& operator = (const Matrix<T>& mat);
@@ -175,20 +175,20 @@ public:
     Matrix<T>& log();
     Matrix<T>& exp();
     Matrix<T>& sigmoid();
-	Matrix<T>& softmax();
-	Matrix<T>& tanh();
-	Matrix<T>& relu();
+    Matrix<T>& softmax();
+    Matrix<T>& tanh();
+    Matrix<T>& relu();
     bool convn(const Matrix<T>& kernal,
                const size_t stride,
                const Convn_type type = VALID);
     Matrix<T>& expand(size_t row_dim, size_t col_dim);
 
-	T max() const;
-	size_t argmax() const;
-	Matrix<size_t> argmax(Axis_type axis_type) const;
-	size_t argmax(const size_t id, const Axis_type axis_type) const;
-	T min() const;
-	size_t argmin() const;
+    T max() const;
+    size_t argmax() const;
+    Matrix<size_t> argmax(Axis_type axis_type) const;
+    size_t argmax(const size_t id, const Axis_type axis_type) const;
+    T min() const;
+    size_t argmin() const;
     T sum() const;
     real mean() const;
     bool inverse(Matrix<real>& mat);
@@ -202,8 +202,8 @@ public:
     Matrix<int>* argmax(const size_t axis);
     size_t argmax(const size_t id, const size_t axis);
 
-	bool isnan();
-	bool isinf();
+    bool isnan();
+    bool isinf();
 
     virtual bool swap(const size_t a_row,
                       const size_t a_col,
