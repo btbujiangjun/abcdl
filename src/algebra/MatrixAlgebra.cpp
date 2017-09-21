@@ -12,6 +12,30 @@ namespace abcdl{
 namespace algebra{
 
 template<class T>
+Matrix<T>& Matrix<T>::add(const Matrix<T>& mat){
+	*this += mat;
+    return *this;	
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::subtract(const Matrix<T>& mat){
+	*this -= mat;
+    return *this;	
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::multiply(const Matrix<T>& mat){
+	*this *= mat;
+    return *this;	
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::division(const Matrix<T>& mat){
+	*this /= mat;
+	return *this;	
+}
+
+template<class T>
 Matrix<T>& Matrix<T>::dot(const Matrix<T>& mat){
     MatrixHelper<T> mh;
     mh.dot(*this, *this, mat);
