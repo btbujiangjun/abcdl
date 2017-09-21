@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 
     abcdl::algebra::Mat train_data;
     helper.read_train_image(&train_data, train_size);
-
+    ((abcdl::algebra::IMat)train_data.get_row(0)).reshape(28, 28).display("|");
     abcdl::algebra::Mat train_label;
     helper.read_train_vec_label(&train_label, train_size);
 
