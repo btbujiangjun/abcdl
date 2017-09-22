@@ -129,7 +129,7 @@ public:
         return *this;
     }
 
-    void display(const std::string& split="\t") const;
+    void display(const std::string& split="\t", bool with_title = true) const;
 
     //operator
     T& operator [] (const size_t idx) const;
