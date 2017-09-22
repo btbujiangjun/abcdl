@@ -240,7 +240,7 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
 
 template<class T>
 inline int MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
-    auto header = reinterpret_cast<size_t*>(buffer.get());
+    auto header = reinterpret_cast<int*>(buffer.get());
     auto value = *(header + position);
     return (value << 24) | ((value << 8) & 0x00FF0000) | ((value >> 8) & 0X0000FF00) | (value >> 24);
 }
