@@ -201,7 +201,7 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
         return {};
     }
 
-    auto size = file.tellg();
+    size_t size = file.tellg();
     std::unique_ptr<char[]> buffer(new char[size]);
 
     //read the entire file to buffer
