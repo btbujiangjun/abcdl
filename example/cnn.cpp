@@ -33,7 +33,7 @@ int main(int argc, char** argv){
     const size_t test_size  = 10000;
 
     abcdl::algebra::Mat train_data;
-    helper.read_train_image(&train_data, train_size);
+    helper.read_train_image(&train_data, train_size, 30);
 
     for(size_t i = 0; i != 20 && i != train_data.rows(); i++){
         ((abcdl::algebra::IMat)train_data.get_row(i)).reshape(28, 28).display("", false);
