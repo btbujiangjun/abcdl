@@ -34,9 +34,9 @@ public:
 
 private:
     inline std::unique_ptr<char[]> read_mnist_file(const std::string& path,
-                                                   size_t key,
+                                                   const int key,
                                                    size_t* out_rows);
-    inline size_t read_header(const std::unique_ptr<char[]>& buffer, size_t position);
+    inline int read_header(const std::unique_ptr<char[]>& buffer, size_t position);
     inline T* vectorize_label(const size_t data, const size_t sizes);
 
 };//class MnistHelper
@@ -188,7 +188,7 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
 }
 template<class T>
 inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string& path,
-                                                               size_t key,
+                                                               const int key,
                                                                size_t* out_rows){
 
     *out_rows = 0;
@@ -201,7 +201,7 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
         return {};
     }
 
-    size_t size = file.tellg();
+    auto size = file.tellg();
     std::unique_ptr<char[]> buffer(new char[size]);
 
     //read the entire file to buffer
@@ -239,7 +239,7 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
 }
 
 template<class T>
-inline size_t MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
+inline int MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
     auto header = reinterpret_cast<size_t*>(buffer.get());
     auto value = *(header + position);
     return (value << 24) | ((value << 8) & 0x00FF0000) | ((value >> 8) & 0X0000FF00) | (value >> 24);
