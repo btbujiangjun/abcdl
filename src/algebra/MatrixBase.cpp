@@ -263,7 +263,11 @@ void Matrix<T>::display(const std::string& split, const bool with_title) const{
                 printf("%s", split.c_str());
             }
         }
-        if(with_title) printf("]\n");
+        if(with_title){
+            printf("]\n");
+        }else{
+            printf("\n");
+        }
     }
     if(with_title) printf("]\n");
 }
