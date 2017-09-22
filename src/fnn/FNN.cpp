@@ -141,6 +141,7 @@ bool FNN::load_model(const std::string& path){
     models.clear();
     return true;
 }
+
 bool FNN::write_model(const std::string& path){
     std::vector<abcdl::algebra::Mat*> models;
     for(size_t i = 1; i != _layers.size(); i++){
