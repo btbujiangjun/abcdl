@@ -25,12 +25,12 @@ int main(int argc, char** argv){
         fnn.set_layers(layers);
     }
 
-    abcdl::utils::FashionMnistReader<real> helper("data");
-   
     const int train_size = -1;
     const int test_size = -1;
-
+    
+    abcdl::utils::FashionMnistReader<real> helper("data");
     abcdl::algebra::Mat train_data;
+
     helper.read_train_image(&train_data, train_size);
     abcdl::algebra::Mat train_label;
     helper.read_train_vec_label(&train_label, train_size);
