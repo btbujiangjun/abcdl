@@ -253,19 +253,19 @@ Matrix<T>& Matrix<T>::transpose(){
 }
 
 template<class T>
-void Matrix<T>::display(const std::string& split) const{
-    printf("[%ld*%ld][\n", _rows, _cols);
+void Matrix<T>::display(const std::string& split, const bool with_title) const{
+    if(with_title) printf("[%ld*%ld][\n", _rows, _cols);
     for(size_t i = 0; i != _rows; i++){
-        printf("row[%ld][", i);
+        if(with_title) printf("row[%ld][", i);
         for(size_t j = 0; j != _cols; j++){
             printf("%s", std::to_string(_data[i * _cols + j]).c_str());
             if(j != this->_cols - 1){
                 printf("%s", split.c_str());
             }
         }
-        printf("]\n");
+        if(with_title) printf("]\n");
     }
-    printf("]\n");
+    if(with_title) printf("]\n");
 }
 
 
