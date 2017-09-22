@@ -21,7 +21,7 @@ public:
     bool read_image(const std::string& image_file,
                     abcdl::algebra::Matrix<T>* out_mat,
                     const int limit = -1,
-                    const uint threshold = 30);
+                    const uint threshold = 0);
 
     bool read_label(const std::string& label_file,
                     abcdl::algebra::Matrix<T>* out_mat,
@@ -116,7 +116,11 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
     uint size = count * rows * cols;
     T* data = new T[size];
     for(size_t i = 0; i < size; i++){
-        data[i] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
+        if(threshold > 0){
+            data[i] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
+        }else{
+            data[i] = static_cast<T>(*image_data_buffer++) / 255;
+        }
     }
 
     out_mat->set_shallow_data(data, count, rows * cols);
