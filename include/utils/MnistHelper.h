@@ -34,10 +34,10 @@ public:
 
 private:
     inline std::unique_ptr<char[]> read_mnist_file(const std::string& path,
-                                                   uint key,
-                                                   uint* out_rows);
-    inline uint read_header(const std::unique_ptr<char[]>& buffer, size_t position);
-    inline T* vectorize_label(const uint data, const uint sizes);
+                                                   size_t key,
+                                                   size_t* out_rows);
+    inline size_t read_header(const std::unique_ptr<char[]>& buffer, size_t position);
+    inline T* vectorize_label(const size_t data, const size_t sizes);
 
 };//class MnistHelper
 
@@ -69,12 +69,12 @@ public:
     }
     virtual bool read_train_vec_label(abcdl::algebra::Matrix<T>* out_mat,
                               const int limit = -1,
-                              const uint vec_size = 10){
+                              const size_t vec_size = 10){
         return _helper.read_vec_label(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_mat, limit);
     }
     virtual bool read_test_vec_label(abcdl::algebra::Matrix<T>* out_mat,
                              const int limit = -1,
-                             const uint vec_size = 10){
+                             const size_t vec_size = 10){
         return _helper.read_vec_label(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_mat, limit);
     }
 
@@ -96,7 +96,7 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
                                 const int limit,
                                 const size_t threshold){
 
-    uint count = 0;
+    size_t count = 0;
     auto image_buffer = read_mnist_file(image_file, 0x803, &count);
 
     if(!image_buffer || count == 0){
@@ -113,7 +113,7 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
 
     auto image_data_buffer = reinterpret_cast<unsigned char*>(image_buffer.get() + 16);
 
-    uint size = count * rows * cols;
+    size_t size = count * rows * cols;
     T* data = new T[size];
     for(size_t i = 0; i < size; i++){
         if(threshold > 0){
@@ -132,7 +132,7 @@ template<class T>
 bool MnistHelper<T>::read_label(const std::string& label_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit){
-    uint count = 0;
+    size_t count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -161,7 +161,7 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit,
                                 const size_t vec_size){
-    uint count = 0;
+    size_t count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -188,8 +188,8 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
 }
 template<class T>
 inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string& path,
-                                                               uint key,
-                                                               uint* out_rows){
+                                                               size_t key,
+                                                               size_t* out_rows){
 
     *out_rows = 0;
 
@@ -239,14 +239,14 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
 }
 
 template<class T>
-inline uint MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
-    auto header = reinterpret_cast<uint*>(buffer.get());
+inline size_t MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
+    auto header = reinterpret_cast<size_t*>(buffer.get());
     auto value = *(header + position);
     return (value << 24) | ((value << 8) & 0x00FF0000) | ((value >> 8) & 0X0000FF00) | (value >> 24);
 }
 
 template<class T>
-inline T* MnistHelper<T>::vectorize_label(const uint data, const uint sizes){
+inline T* MnistHelper<T>::vectorize_label(const size_t data, const size_t sizes){
     T* vec = new T[sizes];
     memset(vec, static_cast<T>(0), sizeof(T) * sizes);
 
