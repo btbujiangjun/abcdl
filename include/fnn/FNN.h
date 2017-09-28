@@ -55,7 +55,9 @@ public:
     bool write_model(const std::string& path);
 
 private:
-    size_t evaluate(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
+    size_t evaluate(const abcdl::algebra::Mat& train_data,
+                    const abcdl::algebra::Mat& train_label,
+                    real* loss);
 
 private:
     size_t _epoch = 30;
