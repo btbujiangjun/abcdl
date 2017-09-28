@@ -11,6 +11,7 @@
 #include <vector>
 #include "algebra/Matrix.h"
 #include "fnn/Layer.h"
+#include "framework/Loss.h"
 #include "utils/Log.h"
 #include "utils/ModelLoader.h"
 
@@ -19,19 +20,32 @@ namespace fnn{
 
 class FNN{
 public:
-    FNN(){}
+    FNN(){
+        _loss = new abcdl::framework::MSELoss();
+    }
     ~FNN(){
         for(auto& layer : _layers){
             delete layer;
 			layer = nullptr;
         }
         _layers.clear();
+
+        if(_loss != nullptr){
+            delete _loss;
+            _loss = nullptr;
+        }
     }
     
 	void set_epoch(const size_t epoch){ _epoch = epoch; }
     void set_alpha(const real alpha){ _alpha = alpha; }
     void set_lamda(const real lamda){ _lamda = lamda; }
     void set_batch_size(const size_t batch_size){ _batch_size = batch_size; }
+    void set_loss_function(abcdl::framework::Loss* loss){
+        if(_loss != nullptr){
+            delete _loss;
+        }
+        _loss = loss;
+    }
 
     void set_layers(std::vector<abcdl::fnn::Layer*>& layers){
         size_t layer_size = layers.size();
@@ -65,7 +79,7 @@ private:
     real _lamda = 0.1;
     size_t _batch_size = 50;
     std::vector<abcdl::fnn::Layer*> _layers;
-
+    abcdl::framework::Loss* _loss;
     abcdl::utils::ModelLoader _model_loader;
 };//class FNN
 
