@@ -101,7 +101,7 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
             ++predict_num;
         }
 
-        total_loss += _loss->loss(test_data.get_row(i), mat);
+        total_loss += _loss->loss(test_label.get_row(i), mat);
     }
 
     *loss = total_loss / rows;
