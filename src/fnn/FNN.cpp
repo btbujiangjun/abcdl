@@ -72,7 +72,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         }
 
         auto train_time = now();
-        printf("Epoch[%ld] loss[%f] training run time:[%ld]ms\n", i, total_loss/num_train_data, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
+        printf("Epoch[%ld] loss[%f] training run time:[%ld]ms\n", i + 1, total_loss/num_train_data, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
 
         if(test_data.rows() > 0){
             real loss = 0;
