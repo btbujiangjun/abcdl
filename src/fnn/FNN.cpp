@@ -72,14 +72,17 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         printf("Epoch[%ld] training run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
 
         if(test_data.rows() > 0){
-            size_t num = evaluate(test_data, test_label);
+            real loss = 0;
+            size_t num = evaluate(test_data, test_label, &loss);
             printf("Epoch[%ld][%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
-    	    printf("Epoch[%ld] predict run time:[%ld]ms\n", i + 1, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
+    	    printf("Epoch[%ld] loss[%f] predict run time:[%ld]ms\n", i + 1, loss, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
         }
     }
 }
 
-size_t FNN::evaluate(const abcdl::algebra::Mat& test_data, const abcdl::algebra::Mat& test_label){
+size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
+                     const abcdl::algebra::Mat& test_label,
+                     real* loss){
     CHECK(test_data.cols() == _layers[0]->get_input_dim());
     CHECK(test_data.rows() == test_label.rows());
     CHECK(test_label.cols() == _layers[_layers.size() - 1]->get_output_dim());
@@ -88,12 +91,19 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data, const abcdl::algebra:
     size_t predict_num = 0;
     abcdl::algebra::Mat mat;
 
+    real total_loss = 0;
     for(size_t i = 0; i != rows; i++){
         predict(mat, test_data.get_row(i));
         if(mat.argmax() == test_label.get_row(i).argmax()){
             ++predict_num;
         }
+
+        auto diff_mat = mat - test_label.get_row(i);
+        total_loss += (diff_mat * diff_mat).sum() / 2;
     }
+
+    *loss = total_loss / rows;
+
     return predict_num;
 }
 
