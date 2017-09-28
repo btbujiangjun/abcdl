@@ -37,6 +37,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         
         shuffler.shuffle();
         auto start_time = now();
+        real total_loss = 0;
 
         for(size_t j = 0; j != num_train_data; j++){
             train_data.get_row(&data, shuffler.get(j));
@@ -63,13 +64,15 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
                 }
             }
 
+            total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
+
             if(j % 100 == 0){
                 printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i + 1, _epoch, j, num_train_data);
             }
         }
 
         auto train_time = now();
-        printf("Epoch[%ld] training run time:[%ld]ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
+        printf("Epoch[%ld] loss[%f] training run time:[%ld]ms\n", i, total_loss/num_train_data, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
 
         if(test_data.rows() > 0){
             real loss = 0;
@@ -98,8 +101,7 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
             ++predict_num;
         }
 
-        auto diff_mat = mat - test_label.get_row(i);
-        total_loss += (diff_mat * diff_mat).sum() / 2;
+        total_loss += _loss->loss(test_data.get_row(i), mat);
     }
 
     *loss = total_loss / rows;
