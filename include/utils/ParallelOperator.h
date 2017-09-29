@@ -360,7 +360,7 @@ public:
     }
 
     inline size_t get_num_thread(const size_t size, const size_t block_size) const{
-        if(block_size >= _min_block_size){
+        if(block_size > _min_block_size){
             return _num_thread;
         }
         size_t num_thread = size / block_size;
