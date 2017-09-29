@@ -9,11 +9,37 @@
 #include "rnn/RNN.h"
 #include "utils/Log.h"
 #include "utils/RNNHelper.h"
+#include "utils/MnistHelper.h"
 
 int main(int argc, char** argv){
     abcdl::utils::log::set_min_log_level(abcdl::utils::log::INFO);
     abcdl::utils::log::initialize_log(argc, argv);
 
+    abcdl::rnn::RNN rnn(28, 100);
+    rnn.set_epoch(50);
+   
+    const int train_size = 100;
+    const int test_size = 10;
+    abcdl::utils::FashionMnistReader<real> helper("data");
+    std::vector<abcdl::algebra::Mat*> train_data;
+    std::vector<abcdl::algebra::Mat*> train_label;
+    helper.read_train_images(&train_data, train_size);
+    helper.read_train_vec_labels(&train_label, train_size);
+
+    LOG(INFO) << "RNN Start training....";
+    LOG(INFO) << "training size:" << train_data.size();
+    rnn.train(train_data, train_label);
+	
+    for(auto&& d : train_data){
+		delete d;
+	}
+	train_data.clear();
+	
+	for(auto&& d : train_label){
+		delete d;
+	}
+	train_label.clear();
+/*
 	abcdl::utils::RNNHelper helper(8000);
 	
 	//std::map<std::string, size_t> map;
@@ -44,4 +70,7 @@ int main(int argc, char** argv){
 		delete d;
 	}
 	data_seq_label.clear();
+
+*/
+
 }
