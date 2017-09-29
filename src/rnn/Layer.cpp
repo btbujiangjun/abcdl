@@ -48,7 +48,7 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 					 abcdl::algebra::Mat& derivate_pre_weight,
 					 abcdl::algebra::Mat& derivate_act_weight){
 	abcdl::algebra::Mat derivate_output;
-	_cost->delta(derivate_output, activation,train_seq_label);
+	_cost->delta(derivate_output, activation, train_seq_label);
 	
 	size_t seq_size = train_seq_data.rows();
 	for(size_t s = seq_size; s != 0 ; s--){
