@@ -77,8 +77,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         if(test_data.rows() > 0){
             real loss = 0;
             size_t num = evaluate(test_data, test_label, &loss);
-            printf("Epoch[%ld][%ld/%ld] rate[%f]\n", i + 1, num, test_data.rows(), num/(real)test_data.rows());
-    	    printf("Epoch[%ld] loss[%f] predict run time:[%ld]ms\n", i + 1, loss, std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
+    	    printf("Epoch[%ld] loss[%f] [%ld/%ld] rate[%f] predict run time:[%ld]ms\n", i + 1, loss, num, test_data.rows(), num/(real)test_data.rows(), std::chrono::duration_cast<std::chrono::milliseconds>(now() - train_time).count());
         }
     }
 }
