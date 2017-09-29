@@ -101,7 +101,9 @@ real RNN::loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 }
 
 bool RNN::check_data(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-              		 const std::vector<abcdl::algebra::Mat*>& train_seq_label){ 
+              		 const std::vector<abcdl::algebra::Mat*>& train_seq_label){
+    return train_seq_data.size() == train_seq_label.size();
+    /*
 	size_t size = train_seq_data.size();
 	for(size_t i = 0; i != size; i++){
 		if(train_seq_data[i]->rows() != train_seq_label[i]->rows() ||
@@ -112,6 +114,7 @@ bool RNN::check_data(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 		}
 	}
 	return true;
+    */
 }			  
 
 bool RNN::load_model(const std::string& path){
