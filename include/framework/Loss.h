@@ -24,7 +24,7 @@ public:
     real loss(const abcdl::algebra::Mat& label,
               const abcdl::algebra::Mat& activate){
         auto diff_mat = label - activate;
-        return (diff_mat * diff_mat).sum();
+        return (diff_mat * diff_mat).sum()/2;
     }
 };//class MSELoss
 
