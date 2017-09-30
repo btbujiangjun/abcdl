@@ -32,21 +32,21 @@ int main(int argc, char** argv){
     const size_t train_size = 60000;
     const size_t test_size  = 10000;
 
-    abcdl::algebra::Mat train_data;
-    helper.read_train_image(&train_data, train_size, 30);
+    abcdl::algebra::MatSet train_data;
+    helper.read_train_images(train_data, train_size, 30);
 
     for(size_t i = 0; i != 20 && i != train_data.rows(); i++){
-        ((abcdl::algebra::IMat)train_data.get_row(i)).reshape(28, 28).display("", false);
+        ((abcdl::algebra::IMat)train_data[i]).display("", false);
     }
 
-    abcdl::algebra::Mat train_label;
-    helper.read_train_vec_label(&train_label, train_size);
+    abcdl::algebra::MatSet train_label;
+    helper.read_train_vec_labels(train_label, train_size);
 
-    abcdl::algebra::Mat test_data;
-    helper.read_test_image(&test_data, test_size);
+    abcdl::algebra::MatSet test_data;
+    helper.read_test_images(test_data, test_size);
 
-    abcdl::algebra::Mat test_label;
-    helper.read_test_vec_label(&test_label, test_size);
+    abcdl::algebra::MatSet test_label;
+    helper.read_test_vec_labels(test_label, test_size);
 
     cnn.train(train_data, train_label, test_data, test_label);
 }
