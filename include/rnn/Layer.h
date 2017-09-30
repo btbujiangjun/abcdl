@@ -8,8 +8,10 @@
 #pragma once
 
 #include "algebra/Matrix.h"
+#include "algebra/MatrixSet.h"
 #include "algebra/MatrixHelper.h"
 #include "framework/Cost.h"
+#include "framework/ActivateFunc.h"
 
 namespace abcdl{
 namespace rnn{
@@ -18,13 +20,18 @@ class Layer{
 public:
 	Layer(const size_t hidden_dim,
 		  const size_t bptt_truncate,
-		  abcdl::framework::Cost* cost){
-	    _hidden_dim = hidden_dim;
+		  abcdl::framework::Cost* cost,
+          abcdl::framework::ActivateFunc* activate_func){
+	    _hidden_dim    = hidden_dim;
         _bptt_truncate = bptt_truncate;
-		_cost = cost;
+		_cost          = cost;
+        _activate_func = activate_func;
 	}
 
-	~Layer(){delete _cost;}
+	~Layer(){
+        delete _cost;
+        delete _activate_func;
+    }
 
 	void farward(const abcdl::algebra::Mat& train_seq_data,
                  const abcdl::algebra::Mat& weight,
@@ -48,6 +55,7 @@ private:
 	size_t _hidden_dim;
     size_t _bptt_truncate;
 	abcdl::framework::Cost* _cost;
+    abcdl::framework::ActivateFunc* _activate_func;
 	abcdl::algebra::MatrixHelper<real> helper;
 };//class Layer
 
