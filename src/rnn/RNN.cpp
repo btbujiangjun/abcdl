@@ -14,8 +14,8 @@
 namespace abcdl{
 namespace rnn{
 
-void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-                const std::vector<abcdl::algebra::Mat*>& train_seq_label){
+void RNN::train(const abcdl::algebra::MatSet& train_seq_data,
+                const abcdl::algebra::MatSet& train_seq_label){
 	if(!check_data(train_seq_data, train_seq_label)){
         printf("RNN::sgd Data dim Error.\n");
 		return ;
@@ -37,8 +37,8 @@ void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 		auto start_time = now();
 
 		for(size_t j = 0; j != num_train_data; j++){
-			_layer->farward(*train_seq_data[shuffler.get(j)], _U, _W, _V, state, activation);
-			_layer->backward(*train_seq_data[shuffler.get(j)], *train_seq_label[shuffler.get(j)], _U, _W, _V, state, activation, batch_derivate_weight, batch_derivate_pre_weight, batch_derivate_act_weight);
+			_layer->farward(train_seq_data[shuffler.get(j)], _U, _W, _V, state, activation);
+			_layer->backward(train_seq_data[shuffler.get(j)], train_seq_label[shuffler.get(j)], _U, _W, _V, state, activation, batch_derivate_weight, batch_derivate_pre_weight, batch_derivate_act_weight);
 
             if( j % _mini_batch_size == (_mini_batch_size - 1) || j == (num_train_data - 1)){
 				size_t n = j % _mini_batch_size + 1;
@@ -63,8 +63,8 @@ void RNN::train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 	printf("training finished.\n");
 }
 
-real RNN::total_loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-                     const std::vector<abcdl::algebra::Mat*>& train_seq_label){
+real RNN::total_loss(const abcdl::algebra::MatSet& train_seq_data,
+                     const abcdl::algebra::MatSet& train_seq_label){
 
 	real loss_value = 0;
     abcdl::algebra::Mat state;
@@ -72,9 +72,9 @@ real RNN::total_loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 	
     size_t num_train_data = train_seq_data.size();
 	for(size_t j = 0; j != num_train_data; j++){
-		_layer->farward(*train_seq_data[j], _U, _W, _V, state, activation);
+		_layer->farward(train_seq_data[j], _U, _W, _V, state, activation);
 
-		auto mat_label = train_seq_label[j]->argmax(abcdl::algebra::Axis_type::ROW);
+		auto mat_label = train_seq_label[j].argmax(abcdl::algebra::Axis_type::ROW);
         size_t rows = mat_label.rows();
         for(size_t row = 0; row != rows; row++){
             loss_value -= std::log(activation.get_data(row, mat_label.get_data(row, 0)));
@@ -84,8 +84,8 @@ real RNN::total_loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
 	return loss_value;
 }
 
-real RNN::loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-               const std::vector<abcdl::algebra::Mat*>& train_seq_label){
+real RNN::loss(const abcdl::algebra::MatSet& train_seq_data,
+               const abcdl::algebra::MatSet& train_seq_label){
 
     //L(y, o) = - (1/N)(Sum y_n*log(o_n))
 
@@ -94,27 +94,17 @@ real RNN::loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
     
     size_t size = train_seq_label.size();
     for(size_t i = 0; i != size; i++){
-        N += train_seq_label[i]->rows();
+        N += train_seq_label[i].rows();
     }
 
     return loss_value / N;
 }
 
-bool RNN::check_data(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-              		 const std::vector<abcdl::algebra::Mat*>& train_seq_label){
-    return train_seq_data.size() == train_seq_label.size();
-    /*
-	size_t size = train_seq_data.size();
-	for(size_t i = 0; i != size; i++){
-		if(train_seq_data[i]->rows() != train_seq_label[i]->rows() ||
-			train_seq_data[i]->cols() != train_seq_label[i]->cols()){
-			printf("train_data[%ld] do not match[%ld-%ld][%ld-%ld]\n", i, train_seq_data[i]->rows(), train_seq_label[i]->rows(), train_seq_data[i]->cols(), train_seq_label[i]->cols());
-			
-			return false;
-		}
-	}
-	return true;
-    */
+bool RNN::check_data(const abcdl::algebra::MatSet& train_seq_data,
+              		 const abcdl::algebra::MatSet& train_seq_label){
+    return train_seq_data.size() == train_seq_label.size() &&
+           train_seq_data.rows() == train_seq_label.rows() &&
+           train_seq_data.cols() == train_seq_label.cols();
 }			  
 
 bool RNN::load_model(const std::string& path){
@@ -137,7 +127,7 @@ bool RNN::load_model(const std::string& path){
     if(_layer != nullptr){
         delete _layer;
     }
-    _layer = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost());
+    _layer = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost(), new abcdl::framework::TanhActivateFunc());
 
     for(auto&& mat : models){
         delete mat;
