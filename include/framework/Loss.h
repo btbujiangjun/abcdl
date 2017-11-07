@@ -22,7 +22,7 @@ public:
 class MSELoss : public Loss{
 public:
     real loss(const abcdl::algebra::Mat& label,
-              const abcdl::algebra::Mat& activate){
+              const abcdl::algebra::Mat& activate) override{
         auto diff_mat = label - activate;
         return (diff_mat * diff_mat).sum()/2;
     }
