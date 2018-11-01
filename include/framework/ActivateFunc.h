@@ -25,21 +25,49 @@ protected:
 
 class SigmoidActivateFunc : public ActivateFunc{
 public:
-    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat) override{
         helper.sigmoid(mat, z_mat);
     }
-    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat) override{
         helper.sigmoid_derivative(mat, activate_mat);
     }
 };//class SigmoidActivateFunc
 
+class TanhActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat) override{
+        helper.tanh(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat) override{
+        helper.tanh_derivative(mat, activate_mat);
+    }
+};//class TanhActivateFunc
+
 class ReluActivateFunc : public ActivateFunc{
-    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat){
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat) override{
         helper.relu(mat, z_mat);
     }
-    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat){
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat) override{
+        helper.relu_derivative(mat, activate_mat);
     }
 };//class ReluActivateFunc
+
+class LeakyReluActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat) override{
+        helper.leaky_relu(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat) override{
+        helper.leaky_relu_derivative(mat, activate_mat);
+    }
+};//class TanhActivateFunc
+
+class EluActivateFunc : public ActivateFunc{
+    void activate(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& z_mat) override{
+        helper.elu(mat, z_mat);
+    }
+    void derivative(abcdl::algebra::Mat& mat, const abcdl::algebra::Mat& activate_mat) override{
+        helper.elu_derivative(mat, activate_mat);
+    }
+};//class EluActivateFunc
 
 }//namespace framework
 }//namespace abcdl

@@ -25,7 +25,7 @@ public:
         _W.reset(hidden_dim, hidden_dim, 0, 1, -std::sqrt(1.0/hidden_dim), std::sqrt(1.0/hidden_dim));
         _V.reset(feature_dim, hidden_dim, 0, 1, -std::sqrt(1.0/hidden_dim), std::sqrt(1.0/hidden_dim));
 
-        _layer = new abcdl::rnn::Layer(hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost());
+        _layer = new abcdl::rnn::Layer(hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost(), new abcdl::framework::TanhActivateFunc());
     }
 
     RNN(const std::string& path){
@@ -33,18 +33,23 @@ public:
             _feature_dim    = _U.cols();
             _hidden_dim     = _U.rows();
             _path           = path;
-            _layer          = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost());
+            _layer          = new abcdl::rnn::Layer(_hidden_dim, _bptt_truncate, new abcdl::framework::CrossEntropyCost(), new abcdl::framework::TanhActivateFunc());
         }
-
     }
     ~RNN(){delete _layer;}
 
-    void train(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-               const std::vector<abcdl::algebra::Mat*>& train_seq_label); 
+    void train(const abcdl::algebra::MatSet& train_seq_data,
+               const abcdl::algebra::MatSet& train_seq_label); 
 
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
 
+    void set_layer(abcdl::rnn::Layer* layer){
+        if(_layer != nullptr){
+            delete _layer;
+        }
+        _layer = layer;
+    }
     void set_epoch(const size_t epoch){_epoch = epoch;}
     void set_mini_batch_size(const size_t mini_batch_size){ _mini_batch_size = mini_batch_size; }
     void set_alpha(const real alpha){_alpha = alpha;}
@@ -52,17 +57,17 @@ public:
     void set_bptt_truncate(const size_t bptt_truncate){_bptt_truncate = bptt_truncate;}
 
 private:
-    void mini_batch_update(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-                           const std::vector<abcdl::algebra::Mat*>& train_seq_label);
+    void mini_batch_update(const abcdl::algebra::MatSet& train_seq_data,
+                           const abcdl::algebra::MatSet& train_seq_label);
 
-    real loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-              const std::vector<abcdl::algebra::Mat*>& train_seq_label);
+    real loss(const abcdl::algebra::MatSet& train_seq_data,
+              const abcdl::algebra::MatSet& train_seq_label);
 
-    real total_loss(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-                    const std::vector<abcdl::algebra::Mat*>& train_seq_label);
+    real total_loss(const abcdl::algebra::MatSet& train_seq_data,
+                    const abcdl::algebra::MatSet& train_seq_label);
     
-	bool check_data(const std::vector<abcdl::algebra::Mat*>& train_seq_data,
-             		const std::vector<abcdl::algebra::Mat*>& train_seq_label); 
+	bool check_data(const abcdl::algebra::MatSet& train_seq_data,
+             		const abcdl::algebra::MatSet& train_seq_label); 
 private:
     size_t _feature_dim;
     size_t _hidden_dim;

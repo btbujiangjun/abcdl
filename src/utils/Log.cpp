@@ -38,11 +38,7 @@ static std::string join(const std::string& part1, const std::string& part2){
 
 static inline bool env2bool(const char* env_name, bool default_value = false){
     char* env_value = getenv(env_name);
-    if(env_value == nullptr){
-        return default_value;
-    }else{
-        return memchr("tTyY1\0", env_value[0], 6) != nullptr;
-    }
+    return env_value == nullptr ? default_value : memchr("tTyY1\0", env_value[0], 6) != nullptr;
 }
 static inline int env2int(const char* env_name, int default_value = 0){
     char* env_value = getenv(env_name);

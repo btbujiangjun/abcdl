@@ -27,9 +27,9 @@ void Layer::farward(const abcdl::algebra::Mat& train_seq_data,
 		//s[t] = tanh(U*x[t] + W*s[t-1])
 		//o[t] = softmax(V* s[t])
 		if(t > 0){
-			s_t = (helper.dot(weight, train_seq_data.get_row(t).transpose()) + helper.dot(pre_weight, state.get_row(t - 1).transpose())).tanh();
+			_activate_func->activate(s_t, helper.dot(weight, train_seq_data.get_row(t).transpose()) + helper.dot(pre_weight, state.get_row(t - 1).transpose()));
 		}else{
-			s_t = helper.dot(weight, train_seq_data.get_row(t).transpose()).tanh();
+			_activate_func->activate(s_t, helper.dot(weight, train_seq_data.get_row(t).transpose()));
 		}
 
 		state.set_row(t, s_t.Ts());
@@ -48,7 +48,7 @@ void Layer::backward(const abcdl::algebra::Mat& train_seq_data,
 					 abcdl::algebra::Mat& derivate_pre_weight,
 					 abcdl::algebra::Mat& derivate_act_weight){
 	abcdl::algebra::Mat derivate_output;
-	_cost->delta(derivate_output, activation,train_seq_label);
+	_cost->delta(derivate_output, activation, train_seq_label);
 	
 	size_t seq_size = train_seq_data.rows();
 	for(size_t s = seq_size; s != 0 ; s--){

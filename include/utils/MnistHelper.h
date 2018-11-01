@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include "algebra/Matrix.h"
+#include "algebra/MatrixSet.h"
 
 namespace abcdl{
 namespace utils{
@@ -21,7 +22,12 @@ public:
     bool read_image(const std::string& image_file,
                     abcdl::algebra::Matrix<T>* out_mat,
                     const int limit = -1,
-                    const uint threshold = 30);
+                    const size_t threshold = 0);
+
+    bool read_images(const std::string& image_file,
+                     abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                     const int limit = -1,
+                     const size_t threshold = 0);
 
     bool read_label(const std::string& label_file,
                     abcdl::algebra::Matrix<T>* out_mat,
@@ -30,25 +36,98 @@ public:
     bool read_vec_label(const std::string& label_file,
                         abcdl::algebra::Matrix<T>* out_mat,
                         const int limit = -1,
-                        const uint vec_size = 10);
+                        const size_t vec_size = 10);
+
+    bool read_vec_labels(const std::string& label_file,
+                         abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                         const int limit = -1,
+                         const size_t vec_size = 10);
 
 private:
     inline std::unique_ptr<char[]> read_mnist_file(const std::string& path,
-                                                   uint key,
-                                                   uint* out_rows);
-    inline uint read_header(const std::unique_ptr<char[]>& buffer, size_t position);
-    inline T* vectorize_label(const uint data, const uint sizes);
+                                                   const int key,
+                                                   size_t* out_rows);
+    inline int read_header(const std::unique_ptr<char[]>& buffer, size_t position);
+    inline T* vectorize_label(const size_t data, const size_t sizes);
 
 };//class MnistHelper
 
+template<class T>
+class MnistReader{
+public:
+    MnistReader(const std::string& dir){
+        _dir = dir;
+    }
+    MnistReader(const std::string& dir, const std::string& dataset){
+        _dir = dir;
+        _dataset = dataset;
+    }
+    virtual bool read_train_image(abcdl::algebra::Matrix<T>* out_mat,
+                                  const int limit = -1,
+                                  const size_t threshold = 0){
+        return _helper.read_image(_dir + "/" + _dataset + "/train-images-idx3-ubyte", out_mat, limit, threshold); 
+    }
+    virtual bool read_train_images(abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                   const int limit = -1,
+                                   const size_t threshold = 0){
+        return _helper.read_images(_dir + "/" + _dataset + "/train-images-idx3-ubyte", out_matrix_set, limit, threshold); 
+    }
+    virtual bool read_test_image(abcdl::algebra::Matrix<T>* out_mat,
+                                 const int limit = -1,
+                                 const size_t threshold = 0){
+        return _helper.read_image(_dir + "/" + _dataset + "/t10k-images-idx3-ubyte", out_mat, limit, threshold); 
+    }
+    virtual bool read_test_images(abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                  const int limit = -1,
+                                  const size_t threshold = 0){
+        return _helper.read_images(_dir + "/" + _dataset + "/t10k-images-idx3-ubyte", out_matrix_set, limit, threshold); 
+    }
+    virtual bool read_train_label(abcdl::algebra::Matrix<T>* out_mat, const int limit = -1){
+        return _helper.read_label(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_test_label(abcdl::algebra::Matrix<T>* out_mat, const int limit = -1){
+        return _helper.read_label(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_train_vec_label(abcdl::algebra::Matrix<T>* out_mat,
+                                      const int limit = -1,
+                                      const size_t vec_size = 10){
+        return _helper.read_vec_label(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_train_vec_labels(abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                       const int limit = -1,
+                                       const size_t vec_size = 10){
+        return _helper.read_vec_labels(_dir + "/" + _dataset + "/train-labels-idx1-ubyte", out_matrix_set, limit);
+    }
+    virtual bool read_test_vec_label(abcdl::algebra::Matrix<T>* out_mat,
+                                     const int limit = -1,
+                                     const size_t vec_size = 10){
+        return _helper.read_vec_label(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_mat, limit);
+    }
+    virtual bool read_test_vec_labels(abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                      const int limit = -1,
+                                      const size_t vec_size = 10){
+        return _helper.read_vec_labels(_dir + "/" + _dataset + "/t10k-labels-idx1-ubyte", out_matrix_set, limit);
+    }
+
+private:
+    std::string _dir;
+    std::string _dataset = "mnist";
+    MnistHelper<T> _helper;
+};//MnistReader
+
+template<class T>
+class FashionMnistReader : public MnistReader<T>{
+public:
+    FashionMnistReader(const std::string& dir) : MnistReader<T>(dir, "fashion-mnist"){}
+};//class FashionMnistReader
 
 template<class T>
 bool MnistHelper<T>::read_image(const std::string& image_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit,
-                                const uint threshold){
+                                const size_t threshold){
 
-    uint count = 0;
+    size_t count = 0;
     auto image_buffer = read_mnist_file(image_file, 0x803, &count);
 
     if(!image_buffer || count == 0){
@@ -65,10 +144,14 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
 
     auto image_data_buffer = reinterpret_cast<unsigned char*>(image_buffer.get() + 16);
 
-    uint size = count * rows * cols;
+    size_t size = count * rows * cols;
     T* data = new T[size];
     for(size_t i = 0; i < size; i++){
-        data[i] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
+        if(threshold > 0){
+            data[i] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
+        }else{
+            data[i] = static_cast<T>(*image_data_buffer++) / 255;
+        }
     }
 
     out_mat->set_shallow_data(data, count, rows * cols);
@@ -77,10 +160,51 @@ bool MnistHelper<T>::read_image(const std::string& image_file,
 }
 
 template<class T>
+bool MnistHelper<T>::read_images(const std::string& image_file,
+                                 abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                 const int limit,
+                                 const size_t threshold){
+
+    size_t count = 0;
+    auto image_buffer = read_mnist_file(image_file, 0x803, &count);
+
+    if(!image_buffer || count == 0){
+        return false;
+    }
+
+    if( limit > 0 && limit < (int)count){
+        count = limit;
+    }
+
+    //read image data
+    auto rows = read_header(image_buffer, 2);
+    auto cols = read_header(image_buffer, 3);
+
+    auto image_data_buffer = reinterpret_cast<unsigned char*>(image_buffer.get() + 16);
+
+    auto size = rows * cols;
+    abcdl::algebra::Matrix<T> mat(rows, cols);
+    for(size_t i = 0; i != count; i++){
+        mat.reset();
+        T* data = mat.data();
+        for(int j = 0; j != size; j++){
+            if(threshold > 0){
+                data[j] = static_cast<T>(*image_data_buffer++) > threshold ? 1 : 0;
+            }else{
+                data[j] = static_cast<T>(*image_data_buffer++) / 255;
+            }
+        }
+        out_matrix_set.push_back(mat);
+    }
+
+    return true;
+}
+
+template<class T>
 bool MnistHelper<T>::read_label(const std::string& label_file,
                                 abcdl::algebra::Matrix<T>* out_mat,
                                 const int limit){
-    uint count = 0;
+    size_t count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -103,13 +227,12 @@ bool MnistHelper<T>::read_label(const std::string& label_file,
     return true;
 }
 
-
 template<class T>
 bool MnistHelper<T>::read_vec_label(const std::string& label_file,
-                                abcdl::algebra::Matrix<T>* out_mat,
-                                const int limit,
-                                const uint vec_size){
-    uint count = 0;
+                                    abcdl::algebra::Matrix<T>* out_mat,
+                                    const int limit,
+                                    const size_t vec_size){
+    size_t count = 0;
     auto label_buffer = read_mnist_file(label_file, 0x801, &count);
     if(!label_buffer || count == 0){
         return false;
@@ -126,7 +249,7 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
     memset(labels, 0, sizeof(T) * count * vec_size);
 
     for(size_t i = 0; i < count; i++){
-        auto label = static_cast<uint>(*label_data_buffer++);
+        auto label = static_cast<size_t>(*label_data_buffer++);
         labels[i * vec_size + label] = 1;
     }
 
@@ -134,10 +257,41 @@ bool MnistHelper<T>::read_vec_label(const std::string& label_file,
 
     return true;
 }
+
+template<class T>
+bool MnistHelper<T>::read_vec_labels(const std::string& label_file,
+                                     abcdl::algebra::MatrixSet<T>& out_matrix_set,
+                                     const int limit,
+                                     const size_t vec_size){
+    size_t count = 0;
+    auto label_buffer = read_mnist_file(label_file, 0x801, &count);
+    if(!label_buffer || count == 0){
+        return false;
+    }
+
+    if( limit > 0 && limit < (int)count){
+        count = limit;
+    }
+
+    //read label data
+    auto label_data_buffer = reinterpret_cast<unsigned char*>(label_buffer.get() + 8);
+
+    T* labels = new T[vec_size];
+    for(size_t i = 0; i < count; i++){
+        memset(labels, 0, sizeof(T) * vec_size);
+        auto label = static_cast<size_t>(*label_data_buffer++);
+        labels[label] = 1;
+        out_matrix_set.push_back(abcdl::algebra::Matrix<T>(labels, 1, vec_size));
+    }
+    delete labels;
+
+    return true;
+}
+
 template<class T>
 inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string& path,
-                                                               uint key,
-                                                               uint* out_rows){
+                                                               const int key,
+                                                               size_t* out_rows){
 
     *out_rows = 0;
 
@@ -187,14 +341,14 @@ inline std::unique_ptr<char[]> MnistHelper<T>::read_mnist_file(const std::string
 }
 
 template<class T>
-inline uint MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
-    auto header = reinterpret_cast<uint*>(buffer.get());
+inline int MnistHelper<T>::read_header(const std::unique_ptr<char[]>& buffer, size_t position){
+    auto header = reinterpret_cast<int*>(buffer.get());
     auto value = *(header + position);
     return (value << 24) | ((value << 8) & 0x00FF0000) | ((value >> 8) & 0X0000FF00) | (value >> 24);
 }
 
 template<class T>
-inline T* MnistHelper<T>::vectorize_label(const uint data, const uint sizes){
+inline T* MnistHelper<T>::vectorize_label(const size_t data, const size_t sizes){
     T* vec = new T[sizes];
     memset(vec, static_cast<T>(0), sizeof(T) * sizes);
 

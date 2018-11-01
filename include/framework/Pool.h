@@ -28,7 +28,7 @@ public:
               const abcdl::algebra::Mat& mat,
               const size_t rows,
               const size_t cols,
-              const size_t scale);
+              const size_t scale) override;
 };//class MeanPooling
 
 class MaxPooling : public Pooling{
@@ -37,7 +37,7 @@ public:
               const abcdl::algebra::Mat& mat,
               const size_t rows,
               const size_t cols,
-              const size_t scale);
+              const size_t scale) override;
 };//class MaxPooling
 
 class L2Pooling : public Pooling{
@@ -46,7 +46,7 @@ public:
               const abcdl::algebra::Mat& mat,
               const size_t rows,
               const size_t cols,
-              const size_t scale);
+              const size_t scale) override;
 };//class L2Pooling
 
 }//namespace framework

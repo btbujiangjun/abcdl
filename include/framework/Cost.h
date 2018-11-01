@@ -30,7 +30,7 @@ class QuadraticCost : public Cost{
 public:
     void delta(abcdl::algebra::Mat& mat,
                const abcdl::algebra::Mat& activate,
-               const abcdl::algebra::Mat& y){
+               const abcdl::algebra::Mat& y) override{
         abcdl::algebra::Mat derivative_mat;
         helper.sigmoid_derivative(derivative_mat, activate);
         mat = (activate - y) * derivative_mat;
@@ -43,7 +43,7 @@ public:
 class CrossEntropyCost : public Cost{
     void delta(abcdl::algebra::Mat& mat,
                const abcdl::algebra::Mat& activate,
-               const abcdl::algebra::Mat& y){
+               const abcdl::algebra::Mat& y) override{
         mat = activate - y;
     }
 };//class CrossEntropyCost

@@ -27,21 +27,22 @@ void CNN::set_layers(std::vector<abcdl::cnn::Layer*> layers){
     }
 }
 
-void CNN::train(const abcdl::algebra::Mat& train_data,
-                const abcdl::algebra::Mat& train_label,
-                const abcdl::algebra::Mat& test_data,
-                const abcdl::algebra::Mat& test_label){
+void CNN::train(const abcdl::algebra::MatSet& train_data,
+                const abcdl::algebra::MatSet& train_label,
+                const abcdl::algebra::MatSet& test_data,
+                const abcdl::algebra::MatSet& test_label){
 	LOG(INFO) << "cnn train starting...";
 
-	CHECK(train_data.rows() == train_label.rows() && test_data.rows() == test_label.rows());
-    if(!check(train_data.cols())){
+	CHECK(train_data.size() == train_label.size() &&
+       test_data.size() == test_label.size() &&
+       train_data.rows() == test_data.rows() &&
+       train_data.cols() == test_data.cols());
+    if(!check(train_data.rows(), train_data.cols())){
         return;
     }
 
-    abcdl::algebra::Mat data;
-    abcdl::algebra::Mat label;
-    size_t num_train_data = train_data.rows();
-    size_t num_test_data = test_data.rows();
+    size_t num_train_data = train_data.size();
+    size_t num_test_data = test_data.size();
     abcdl::utils::Shuffler shuffler(num_train_data);
     auto now = []{return std::chrono::system_clock::now();};
 
@@ -50,11 +51,8 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
         shuffler.shuffle();
 
         for(size_t j = 0; j != num_train_data; j++){
-            train_data.get_row(&data, shuffler.get(j));
-            train_label.get_row(&label, shuffler.get(j));
-
-            forward(data);
-            backward(label);
+            forward(train_data[shuffler.get(j)]);
+            backward(train_label[shuffler.get(j)]);
 
             if(j % _batch_size  == _batch_size - 1 || j == num_train_data - 1){
                 update_gradient(j % _batch_size + 1, _alpha);
@@ -69,8 +67,7 @@ void CNN::train(const abcdl::algebra::Mat& train_data,
         printf("Epoch[%ld] train run time: [%ld] ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
 
 	    if(num_test_data > 0){
-	        printf("Epoch[%ld] [%ld/%ld]\n", i, evaluate(test_data, test_label), num_test_data);
-    	    printf("Epoch[%ld] predict run time: [%ld] ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(now() - training_time).count());
+            printf("Epoch[%ld] [%ld/%ld] predict run time:[%ld] ms\n", i, evaluate(test_data, test_label), num_test_data, std::chrono::duration_cast<std::chrono::milliseconds>(now() - training_time).count());
 	    }
     }
 }
@@ -87,7 +84,7 @@ void CNN::forward(const abcdl::algebra::Mat& mat){
     for(size_t k = 0; k != layer_size; k++){
         auto layer = _layers[k];
         if(layer->get_layer_type() == abcdl::framework::INPUT){
-            ((InputLayer*)layer)->set_x(mat.clone().reshape(layer->get_rows(), layer->get_cols()));
+            ((InputLayer*)layer)->set_x(mat);
         }
 
         layer->forward(pre_layer);
@@ -118,19 +115,12 @@ void CNN::update_gradient(const size_t batch_size, const real alpha){
     }
 }
 
-size_t CNN::evaluate(const abcdl::algebra::Mat& data_mat, const abcdl::algebra::Mat& label_mat){
-    abcdl::algebra::Mat data;
-    abcdl::algebra::Mat label;
-    
+size_t CNN::evaluate(const abcdl::algebra::MatSet& data_mat, const abcdl::algebra::MatSet& label_mat){
     size_t cnt = 0;
-    size_t row = data_mat.rows();
-
-    for(size_t i = 0; i != row; i++){
-        data_mat.get_row(&data, i);
-        label_mat.get_row(&label, i);
-    
-        forward(data);
-        if(label.argmax() == _layers[_layers.size() - 1]->get_activation(0).argmax()){
+    size_t size = data_mat.size();
+    for(size_t i = 0; i != size; i++){
+        forward(data_mat[i]);
+        if(label_mat[i].argmax() == _layers[_layers.size() - 1]->get_activation(0).argmax()){
             cnt++;
         }
     }
@@ -138,7 +128,7 @@ size_t CNN::evaluate(const abcdl::algebra::Mat& data_mat, const abcdl::algebra::
 }
 
 
-bool CNN::check(const size_t size) const{
+bool CNN::check(const size_t rows, const size_t cols) const{
     if(_layers.size() <= 2){
         printf("layer size[%ld]\n", _layers.size());
         LOG(FATAL) << "convolution neural network layer must be more than 2";
@@ -148,7 +138,7 @@ bool CNN::check(const size_t size) const{
         LOG(FATAL) << "Convolution neural network last layer must be OutputLayer";
         return false;
     }
-    if(size != _layers[0]->get_rows() * _layers[0]->get_cols()){
+    if(rows != _layers[0]->get_rows() || cols != _layers[0]->get_cols()){
         LOG(FATAL) << "Data dim size error";
         return false;
     }

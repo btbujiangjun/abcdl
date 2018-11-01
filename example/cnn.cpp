@@ -28,21 +28,25 @@ int main(int argc, char** argv){
     abcdl::cnn::CNN cnn;
     cnn.set_layers(layers);
 
-    abcdl::utils::MnistHelper<real> helper;
+    abcdl::utils::FashionMnistReader<real> helper("data");
     const size_t train_size = 60000;
     const size_t test_size  = 10000;
 
-    abcdl::algebra::Mat train_data;
-    helper.read_image("data/mnist/train-images-idx3-ubyte", &train_data, train_size);
+    abcdl::algebra::MatSet train_data;
+    helper.read_train_images(train_data, train_size, 30);
 
-    abcdl::algebra::Mat train_label;
-    helper.read_vec_label("data/mnist/train-labels-idx1-ubyte", &train_label, train_size);
+    for(size_t i = 0; i != 20 && i != train_data.rows(); i++){
+        ((abcdl::algebra::IMat)train_data[i]).display("", false);
+    }
 
-    abcdl::algebra::Mat test_data;
-    helper.read_image("data/mnist/t10k-images-idx3-ubyte", &test_data, test_size);
+    abcdl::algebra::MatSet train_label;
+    helper.read_train_vec_labels(train_label, train_size);
 
-    abcdl::algebra::Mat test_label;
-    helper.read_vec_label("data/mnist/t10k-labels-idx1-ubyte", &test_label, test_size);
+    abcdl::algebra::MatSet test_data;
+    helper.read_test_images(test_data, test_size);
+
+    abcdl::algebra::MatSet test_label;
+    helper.read_test_vec_labels(test_label, test_size);
 
     cnn.train(train_data, train_label, test_data, test_label);
 }
