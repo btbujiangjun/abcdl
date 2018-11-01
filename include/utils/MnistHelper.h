@@ -283,7 +283,7 @@ bool MnistHelper<T>::read_vec_labels(const std::string& label_file,
         labels[label] = 1;
         out_matrix_set.push_back(abcdl::algebra::Matrix<T>(labels, 1, vec_size));
     }
-    delete labels;
+    delete[] labels;
 
     return true;
 }
