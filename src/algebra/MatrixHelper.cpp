@@ -194,7 +194,7 @@ void MatrixHelper<T>::expand(Matrix<T>& result,
 
     for(size_t i = 0; i != num_thread; i++){
         threads[i] = std::thread(
-            [&data, &new_data, &row, &col, &col_a, &row_dim, &col_dim](size_t start_idx, size_t end_idx){
+            [&data, &new_data,&col, &col_a, &row_dim, &col_dim](size_t start_idx, size_t end_idx){
 				for(size_t ti = start_idx; ti < end_idx; ti++){
 					for(size_t tj = 0; tj != col; tj++){
                         new_data[ti * col + tj] = data[ti / row_dim * col_a + tj / col_dim];
