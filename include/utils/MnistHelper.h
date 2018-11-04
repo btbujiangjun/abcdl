@@ -5,6 +5,7 @@
 * Filename: MnistHelper.h
 * Description: read mnist file
 **********************************************/
+#pragma once
 
 #include <fstream>
 #include <iostream>
