@@ -8,13 +8,10 @@
 
 #include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
-#include "utils/ParallelOperator.h"
 #include <random>
 #include <string.h>
 #include <iostream>
 #include <stdio.h>
-
-using abcdl::utils::ParallelOperator;
 
 namespace abcdl{
 namespace algebra{
@@ -45,7 +42,7 @@ Matrix<T>::Matrix(const T& value,
         memset(_data, value, sizeof(T) * _rows * _cols);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
-        ParallelOperator po;
+        //ParallelOperator po;
         po.parallel_mul2one<T>(_data, get_size(), value, lamda);
     }
 }
@@ -232,7 +229,7 @@ void Matrix<T>::reset(const T& value,
         memset(_data, value, sizeof(T) * size);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
-        ParallelOperator po;
+        //ParallelOperator po;
         po.parallel_mul2one<T>(_data, size, value, lamda);
     }
 }
@@ -294,7 +291,7 @@ void RandomMatrix<T>::reset(){
     T min   = _min;
     T max   = _max;
 
-    ParallelOperator po;
+    //ParallelOperator po;
     size_t size = this->_rows * this->_cols;
     T* data = this->_data;
     size_t block_size = po.get_block_size(size);
