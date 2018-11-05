@@ -11,6 +11,7 @@
 #include <cstring>
 #include "utils/TypeDef.h"
 #include "utils/Log.h"
+#include "utils/ParallelOperator.h"
 
 
 namespace abcdl{
@@ -237,6 +238,8 @@ private:
     inline bool equal_shape(const Matrix<T>& mat) const{
         return _rows == mat.rows() && _cols == mat.cols();
     }
+	abcdl::utils::ParallelOperator po;
+
 protected:
     size_t _rows;
     size_t _cols;
@@ -283,6 +286,7 @@ public:
     }
 
 private:
+	abcdl::utils::ParallelOperator po;
     T _mean_value   = 0;
     T _stddev       = 1;
     T _min          = 0;
