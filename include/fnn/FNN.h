@@ -5,7 +5,6 @@
  * Filename      : FNN.h
  * Description   : Deep Neural Net 
  **********************************************/
-
 #pragma once
 
 #include <vector>
@@ -34,6 +33,7 @@ public:
             delete _loss;
             _loss = nullptr;
         }
+
     }
     
 	void set_epoch(const size_t epoch){ _epoch = epoch; }
