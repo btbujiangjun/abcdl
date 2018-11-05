@@ -29,17 +29,11 @@ public:
     }
 
     inline const size_t rows() const{
-        if( _mats.size() == 0 ){
-            return 0;
-        }
-        return _mats[0].rows();
+        return  _mats.size() == 0 ? 0 : _mats[0].rows();
     }
 
     inline const size_t cols() const{
-        if( _mats.size() == 0){
-            return 0;
-        }
-        return _mats[0].cols();
+        return _mats.size() == 0 ? 0 : _mats[0].cols();
     }
 private:
     std::vector<abcdl::algebra::Matrix<T>> _mats;
