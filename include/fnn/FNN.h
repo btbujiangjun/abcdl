@@ -52,7 +52,7 @@ public:
         CHECK(layer_size > 1 && layers[0]->get_layer_type() == abcdl::framework::INPUT);
         size_t output_dim = layers[0]->get_output_dim();
         for(size_t i = 1; i != layer_size; i++){
-            CHECK(layers[i]->get_layer_type() == (i == layer_size - 1) ? abcdl::framework::OUTPUT : abcdl::framework::FULL_CONN);
+            CHECK(layers[i]->get_layer_type() == ((i == layer_size - 1) ? abcdl::framework::OUTPUT : abcdl::framework::FULL_CONN));
             CHECK(output_dim == layers[i]->get_input_dim());
             output_dim = layers[i]->get_output_dim();
         }
