@@ -20,11 +20,12 @@ namespace utils{
 class ParallelOperator{
 public:
     ParallelOperator(){
-        _num_thread = std::thread::hardware_concurrency();
+		_num_thread = std::thread::hardware_concurrency();
+		//LOG(INFO) << _num_thread << " threads are parallel operator.";
     }
 
-    ParallelOperator(const size_t num_thread){
-        _num_thread = num_thread;
+    explicit ParallelOperator(const size_t num_thread){
+		_num_thread = num_thread;
     }
 
     template<class T>
