@@ -17,32 +17,32 @@ template<class T>
 class MatrixSet{
 public:
     void push_back(abcdl::algebra::Matrix<T> mat){
-        _matset.push_back(mat);
+        _mats.push_back(mat);
     }
 
     abcdl::algebra::Matrix<T> operator [] (size_t idx) const{
-        return _matset[idx];
+        return _mats[idx];
     }
 
     inline const size_t size() const{
-        return _matset.size();
+        return _mats.size();
     }
 
     inline const size_t rows() const{
-        if( _matset.size() == 0 ){
+        if( _mats.size() == 0 ){
             return 0;
         }
-        return _matset[0].rows();
+        return _mats[0].rows();
     }
 
     inline const size_t cols() const{
-        if( _matset.size() == 0){
+        if( _mats.size() == 0){
             return 0;
         }
-        return _matset[0].cols();
+        return _mats[0].cols();
     }
 private:
-    std::vector<abcdl::algebra::Matrix<T>> _matset;
+    std::vector<abcdl::algebra::Matrix<T>> _mats;
 }; //class MatrixSet
 
 typedef MatrixSet<real> MatSet;
