@@ -10,10 +10,10 @@
 #include "algebra/Matrix.h"
 #include "utils/ParallelOperator.h"
 
-using abcdl::algebra::Matrix;
-
 namespace abcdl{
 namespace algebra{
+
+using abcdl::algebra::Matrix;
 
 template<class T>
 class MatrixHelper{
@@ -61,7 +61,6 @@ public:
 
 private:
     abcdl::utils::ParallelOperator po;
-
 };//class MatrixHelper
 
 }//namespace algebra
