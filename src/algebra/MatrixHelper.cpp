@@ -179,7 +179,7 @@ void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
 
 template<class T>
 void MatrixHelper<T>::relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = 1;} };
+    auto lamda = [](T* a, const T& b){ if(b > 0) {*a = 1;} };
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
