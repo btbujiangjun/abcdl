@@ -17,10 +17,12 @@
 namespace abcdl{
 namespace utils{
 
+static size_t s_num_thread = std::thread::hardware_concurrency();
+
 class ParallelOperator{
 public:
     ParallelOperator(){
-		_num_thread = std::thread::hardware_concurrency();
+		_num_thread = s_num_thread;
 		//LOG(INFO) << _num_thread << " threads are parallel operator.";
     }
 
@@ -303,9 +305,9 @@ public:
 
     template<class T>
     void parallel_reduce_boolean(bool* result_value,
-                                  const T* op1,
-                             	  const size_t num_op1,
-                         		  const std::function<void(bool*, const T&)> &f){
+                                 const T* op1,
+                             	 const size_t num_op1,
+                         		 const std::function<void(bool*, const T&)> &f){
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
