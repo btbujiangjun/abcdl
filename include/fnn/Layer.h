@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "utils/Log.h"
 #include "framework/Layer.h"
 #include "framework/Cost.h"
 #include "framework/ActivateFunc.h"
@@ -45,7 +46,32 @@ public:
     size_t get_output_dim() const{ return _output_dim; }
     abcdl::framework::Layer_type get_layer_type() const{return _layer_type;}
 
+    bool set_weight(const abcdl::algebra::Mat& weight){
+        if(weight.rows() != _weight.rows()){
+            LOG(FATAL) << "set weight rows error:" << weight.rows() << " must be:" << _weight.rows();
+            return false;
+        }
+        if(weight.cols() != _weight.cols()){
+            LOG(FATAL) << "set weight cols error:" << weight.cols() << " must be:" << _weight.cols();
+            return false;
+        }
+        _weight = weight;
+        return true;
+    }
     abcdl::algebra::Mat& get_weight(){  return _weight; }
+
+    bool set_bias(const abcdl::algebra::Mat& bias){
+        if(bias.rows() != _bias.rows()){
+            LOG(FATAL) << "set bias rows error:" << bias.rows() << " must be:" << _bias.rows();
+            return false;
+        }
+        if(bias.cols() != _bias.cols()){
+            LOG(FATAL) << "set bias cols error:" << bias.cols() << " must be:" << _bias.cols();
+            return false;
+        }
+        _bias = bias;
+        return true;
+    }
     abcdl::algebra::Mat& get_bias(){ return _bias; }
     abcdl::algebra::Mat& get_activate_data(){ return _activate_data; }
     
