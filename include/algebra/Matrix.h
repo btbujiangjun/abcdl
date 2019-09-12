@@ -50,7 +50,14 @@ public:
     inline size_t rows() const { return _rows;}
     inline size_t cols() const { return _cols;}
     inline size_t get_size() const { return _rows * _cols;}
-
+    inline void clear(){
+        _rows = 0;
+        _cols = 0;
+        if (_data!= nullptr){
+            delete[] _data;
+            _data = nullptr;
+        }
+    }
     inline T* data() const { return _data; }
     inline T& get_data(const size_t idx) const{
         CHECK(idx < get_size());
@@ -130,7 +137,7 @@ public:
         return *this;
     }
 
-    void display(const std::string& split="\t", bool with_title = true) const;
+    void display(const std::string& split="\t", bool with_title = true) const; 
 
     //operator
     T& operator [] (const size_t idx) const;
