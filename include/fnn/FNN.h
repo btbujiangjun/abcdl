@@ -19,7 +19,12 @@ namespace fnn{
 
 class FNN{
 public:
+
     FNN(){
+        _loss = new abcdl::framework::MSELoss();
+    }
+    FNN(const std::string& path){
+        _path = path;
         _loss = new abcdl::framework::MSELoss();
     }
     ~FNN(){
@@ -59,25 +64,33 @@ public:
         _layers = layers;
     }
 
-    void train(const abcdl::algebra::Mat& train_data,
-               const abcdl::algebra::Mat& train_label,
-               const abcdl::algebra::Mat& test_data,
-               const abcdl::algebra::Mat& test_label);
+    void train(const abcdl::algebra::Mat& train_data, const abcdl::algebra::Mat& train_label);
     void predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data);
+    size_t evaluate(const abcdl::algebra::Mat& test_data,
+                    const abcdl::algebra::Mat& test_label,
+                    real* loss);
 
+    bool load_model(){
+        return load_model(_path);
+    }
+    bool write_model(){
+        return write_model(_path);
+    }
     bool load_model(const std::string& path);
     bool write_model(const std::string& path);
-
-private:
-    size_t evaluate(const abcdl::algebra::Mat& train_data,
-                    const abcdl::algebra::Mat& train_label,
-                    real* loss);
+    void dump_model(){
+        for(auto& layer : _layers){
+            layer->get_weight().display();
+            layer->get_bias().display();
+        }
+    }
 
 private:
     size_t _epoch = 30;
     real _alpha = 0.5;
     real _lamda = 0.1;
-    size_t _batch_size = 50;
+    size_t _batch_size = 512;
+    std::string _path = "temp_model.fnn.model";
     std::vector<abcdl::fnn::Layer*> _layers;
     abcdl::framework::Loss* _loss;
     abcdl::utils::ModelLoader _model_loader;
