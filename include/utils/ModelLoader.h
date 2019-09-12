@@ -24,6 +24,18 @@ public:
 
 class ModelLoader{
 public:
+    ModelLoader(){}
+    ModelLoader(const std::string& path){
+        _path = path;
+    }
+    
+    template<class T>
+    bool write(std::vector<abcdl::algebra::Matrix<T>*> models,
+               const std::string& signature = "",
+               bool is_append = false){
+        return write(models, _path, signature, is_append);
+    }
+
     template<class T>
     bool write(std::vector<abcdl::algebra::Matrix<T>*> models,
                const std::string& path,
@@ -32,15 +44,28 @@ public:
 
     template<class T>
     bool write(abcdl::algebra::Matrix<T>* model,
+               const std::string& signature = "",
+               bool is_append = false){
+        return write(model, _path, signature, is_append);
+    }
+
+    template<class T>
+    bool write(abcdl::algebra::Matrix<T>* model,
                const std::string& path,
                const std::string& signature = "",
                bool is_append = false);
 
     template<class T>
+    bool read(std::vector<abcdl::algebra::Matrix<T>*>* models,
+              const std::string& signature = ""){
+        return read(_path, models, signature);
+    }
+    template<class T>
     bool read(const std::string& path,
               std::vector<abcdl::algebra::Matrix<T>*>* models,
               const std::string& signature = "");
 private:
+    std::string _path;
     template<class T>
     bool generate_header(std::vector<abcdl::algebra::Matrix<T>*> models,
                          std::vector<ModelInfo>* infos);
