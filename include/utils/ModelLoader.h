@@ -25,7 +25,7 @@ public:
 class ModelLoader{
 public:
     ModelLoader(){}
-    ModelLoader(const std::string& path){
+    explicit ModelLoader(const std::string& path){
         _path = path;
     }
     
@@ -67,7 +67,7 @@ public:
 private:
     std::string _path;
     template<class T>
-    bool generate_header(std::vector<abcdl::algebra::Matrix<T>*> models,
+    bool generate_header(const std::vector<abcdl::algebra::Matrix<T>*> models,
                          std::vector<ModelInfo>* infos);
 };//class ModelLoader
 
@@ -169,9 +169,8 @@ bool ModelLoader::read(const std::string& path,
     in_file.close();
     return true;
 }
-
 template<class T>
-bool ModelLoader::generate_header(std::vector<abcdl::algebra::Matrix<T>*> models,
+bool ModelLoader::generate_header(const std::vector<abcdl::algebra::Matrix<T>*> models,
                                   std::vector<ModelInfo>* infos){
     for(auto&& model : models){
         ModelInfo info;
@@ -191,6 +190,5 @@ bool ModelLoader::generate_header(std::vector<abcdl::algebra::Matrix<T>*> models
     }
     return true;
 }
-
 }//namespace utils
 }//namespace abcdl
