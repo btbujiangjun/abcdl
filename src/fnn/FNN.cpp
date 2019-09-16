@@ -60,6 +60,8 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
                 if(j % _batch_size == _batch_size - 1 || j == num_train_data - 1){
                     _layers[k]->update_gradient(j % _batch_size + 1, _alpha, _lamda);
                 }
+
+                dump_model();
             }
 
             total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
@@ -116,32 +118,32 @@ void FNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predic
 bool FNN::load_model(const std::string& path){
     _path = path;
     LOG(INFO) << "loading model from:" << path;
-    std::vector<abcdl::algebra::Mat*> models;
-    if(!_model_loader.read<real>(path, &models, "FNNMODEL") || models.size() % 2 != 0){
-        if(models.size() == 0){
+    std::vector<abcdl::algebra::Mat*> params;
+    if(!_model_loader.read<real>(path, &params, "FNNMODEL") || params.size() % 2 != 0){
+        if(params.size() == 0){
             LOG(INFO) << "Train with new model";
             return false;
         }
-        for(auto& model : models){
-            delete model;
+        for(auto& param : params){
+            delete param;
         }
-        models.clear();
-        LOG(FATAL) << "Load model error:" << models.size() << " must be:" << _layers.size();
+        params.clear();
+        LOG(FATAL) << "Load model error:" << params.size() << " must be:" << _layers.size();
         return false;
     }
     
-    size_t size = models.size() / 2;
+    size_t size = params.size() / 2;
     if(_layers.size() - 1 != size){
         LOG(FATAL) << "Model size is error:" << size << " must be:" << _layers.size() - 1;
         return false;
     }
 
     for(int i = 1; i < _layers.size(); i++){
-        if(!_layers[i]->set_weight(*models[2 * (i-1)])){
+        if(!_layers[i]->set_weight(*params[2 * (i-1)])){
             LOG(FATAL) << "Set Layer weight error, layer: " << i;
             return false;
         }
-        if(!_layers[i]->set_bias(*models[2 * (i - 1) + 1])){
+        if(!_layers[i]->set_bias(*params[2 * (i - 1) + 1])){
             LOG(FATAL) << "Set Layer bias error, layer: " << i;
             return false;
         }
@@ -154,32 +156,32 @@ bool FNN::load_model(const std::string& path){
     }
     _layers.clear();
 
-    for(size_t i = 0; i != models.size() / 2; i++){
+    for(size_t i = 0; i != params.size() / 2; i++){
         if(i == 0){
-            _layers.push_back(new InputLayer(models[0]->rows()));
+            _layers.push_back(new InputLayer(params[0]->rows()));
         }
-        if(i == models.size() / 2 - 1){
-            _layers.push_back(new OutputLayer(models[i * 2]->rows(), models[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost(), *models[i * 2], *models[i * 2 + 1]));
+        if(i == params.size() / 2 - 1){
+            _layers.push_back(new OutputLayer(params[i * 2]->rows(), params[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost(), *params[i * 2], *params[i * 2 + 1]));
         }else{
-            _layers.push_back(new FullConnLayer(models[i * 2]->rows(), models[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), *models[i * 2], *models[i * 2 + 1]));
+            _layers.push_back(new FullConnLayer(params[i * 2]->rows(), params[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), *params[i * 2], *params[i * 2 + 1]));
         }
     }
     */
 
-    for(auto& model : models){
-        delete model;
+    for(auto& param : params){
+        delete param;
     }
-    models.clear();
+    params.clear();
     return true;
 }
 
 bool FNN::write_model(const std::string& path){
-    std::vector<abcdl::algebra::Mat*> models;
+    std::vector<abcdl::algebra::Mat*> params;
     for(size_t i = 1; i != _layers.size(); i++){
-        models.push_back(&_layers[i]->get_weight());
-        models.push_back(&_layers[i]->get_bias());
+        params.push_back(&_layers[i]->get_weight());
+        params.push_back(&_layers[i]->get_bias());
     }
-    return _model_loader.write<real>(models, path, "FNNMODEL", false);
+    return _model_loader.write<real>(params, path, "FNNMODEL", false);
 }
 
 }//namespace fnn
