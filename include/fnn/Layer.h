@@ -185,5 +185,22 @@ private:
     abcdl::algebra::Mat _y;
 };//class OutputLayer
 
+class BatchNormalizationLayer : public Layer{
+public:
+    BatchNormalizationLayer(const size_t input_dim,
+                            const real epsilon) : Layer(input_dim, input_dim, abcdl::framework::BN){
+        _epsilon = epsilon;
+        this->_weight.reset(0, 2, input_dim);
+    }
+    void forward(Layer* pre_layer) = 0;
+    void backward(Layer* pre_layer, Layer* next_layer) = 0;
+private:
+    real _epsilon = 0;
+    abcdl::algebra::Mat _means;
+    abcdl::algebra::Mat _variances;
+    abcdl::algebra::Mat _scales;
+    abcdl::algebra::Mat _normalize;
+};//class BatchNormalizationLayer
+
 }//namespace fnn
 }//namespace abcdl
