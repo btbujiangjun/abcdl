@@ -19,32 +19,32 @@
 namespace abcdl{
 namespace utils{
 
-template<class LT,class T>
+template<class T>
 class LibsvmHelper{
 public:
 
     struct libsvm_sample{
-        LT label;
+        T label;
         std::vector<std::pair<size_t, T>> data;
     };
 
     bool read_data(const size_t dim,
                    const std::string& file,
                    abcdl::algebra::Matrix<T>* out_data_mat,
-                   abcdl::algebra::Matrix<LT>* out_label_mat);
+                   abcdl::algebra::Matrix<T>* out_label_mat);
     bool read_data(const size_t dim,
                    const size_t label_dim,
                    const std::string& file,
                    abcdl::algebra::Matrix<T>* out_data_mat,
-                   abcdl::algebra::Matrix<LT>* out_label_mat);
+                   abcdl::algebra::Matrix<T>* out_label_mat);
     bool write_data(const std::string& file,
                     const abcdl::algebra::Matrix<T>& data_mat,
-                    const abcdl::algebra::Matrix<LT>& label_mat);
+                    const abcdl::algebra::Matrix<T>& label_mat);
 private:
     size_t delta_size = 10000;
     abcdl::utils::StringHelper string_helper;
     void read_data_append_mat(abcdl::algebra::Matrix<T>* out_data_mat,
-                              abcdl::algebra::Matrix<LT>* out_label_mat,
+                              abcdl::algebra::Matrix<T>* out_label_mat,
                               const std::vector<libsvm_sample>& samples,
                               const size_t dim,
                               const size_t label_dim){
@@ -53,10 +53,10 @@ private:
         }
 
         abcdl::algebra::Matrix<T> data_mat(samples.size(), dim);
-        abcdl::algebra::Matrix<LT> label_mat(samples.size(), label_dim);
+        abcdl::algebra::Matrix<T> label_mat(samples.size(), label_dim);
         for(int i = 0; i < samples.size(); i++){
             auto& sample = samples[i];
-            label_mat.set_data(sample.label, i, sample.label);
+            label_mat.set_data(1, i, (size_t)sample.label);
             for(auto& pair : sample.data){
                 if (pair.first >= dim){
                     continue;
@@ -71,19 +71,19 @@ private:
     }
 };//class LibsvmHelper
 
-template<class LT, class T>
-bool LibsvmHelper<LT, T>::read_data(const size_t dim,
-                                    const std::string& file,
-                                    abcdl::algebra::Matrix<T>* out_data_mat,
-                                    abcdl::algebra::Matrix<LT>* out_label_mat){
+template<class T>
+bool LibsvmHelper<T>::read_data(const size_t dim,
+                                const std::string& file,
+                                abcdl::algebra::Matrix<T>* out_data_mat,
+                                abcdl::algebra::Matrix<T>* out_label_mat){
     return read_data(dim, 1, file, out_data_mat, out_label_mat);
 }
-template<class LT, class T>
-bool LibsvmHelper<LT, T>::read_data(const size_t dim,
-                                    const size_t label_dim,
-                                    const std::string& file,
-                                    abcdl::algebra::Matrix<T>* out_data_mat,
-                                    abcdl::algebra::Matrix<LT>* out_label_mat){
+template<class T>
+bool LibsvmHelper<T>::read_data(const size_t dim,
+                                const size_t label_dim,
+                                const std::string& file,
+                                abcdl::algebra::Matrix<T>* out_data_mat,
+                                abcdl::algebra::Matrix<T>* out_label_mat){
 
     LOG(INFO) << "Start load Libsvm file:" << file;
     std::vector<libsvm_sample> samples;
@@ -119,10 +119,10 @@ bool LibsvmHelper<LT, T>::read_data(const size_t dim,
     return true;
 }
 
-template<class LT, class T>
-bool LibsvmHelper<LT, T>::write_data(const std::string& file,
-                                     const abcdl::algebra::Matrix<T>& data_mat,
-                                     const abcdl::algebra::Matrix<LT>& label_mat){
+template<class T>
+bool LibsvmHelper<T>::write_data(const std::string& file,
+                                 const abcdl::algebra::Matrix<T>& data_mat,
+                                 const abcdl::algebra::Matrix<T>& label_mat){
     if(data_mat.rows() != label_mat.rows()){
         return false;
     }
