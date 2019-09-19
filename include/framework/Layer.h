@@ -15,8 +15,24 @@ enum Layer_type{
     FULL_CONN,
 	SUBSAMPLING,
 	CONVOLUTION,
-	OUTPUT
+	OUTPUT,
+    BN
 };
+
+/**
+class Layer{
+public:
+    Layer(Layer_type type){
+        _type = type;
+    }
+
+    Layer_type get_layer_type() const{
+        return _type;
+    }
+private:
+    Layer_type _type;
+};//class Layer
+**/
 
 }//namespace framework
 }//namespace abcdl
