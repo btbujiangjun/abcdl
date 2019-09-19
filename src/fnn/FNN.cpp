@@ -60,8 +60,6 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
                 if(j % _batch_size == _batch_size - 1 || j == num_train_data - 1){
                     _layers[k]->update_gradient(j % _batch_size + 1, _alpha, _lamda);
                 }
-
-                dump_model();
             }
 
             total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
@@ -84,6 +82,9 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
     CHECK(test_data.rows() == test_label.rows());
     CHECK(test_label.cols() == _layers[_layers.size() - 1]->get_output_dim());
 
+    auto now = []{return std::chrono::system_clock::now();};
+    auto start_time = now();
+    
     size_t rows = test_data.rows();
     size_t predict_num = 0;
     abcdl::algebra::Mat mat;
@@ -91,27 +92,42 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
     real total_loss = 0;
     for(size_t i = 0; i != rows; i++){
         predict(mat, test_data.get_row(i));
-        if(mat.argmax() == test_label.get_row(i).argmax()){
-            ++predict_num;
+        if (i >= 0){
+            //printf("%f/%f\n", mat.get_data(0, 0) , test_label.get_row(i).get_data(0, 0));
+            //mat.display("|");
+            //test_label.get_row(i).display("^");
+            //test_data.get_row(i).display("~");
+            //printf("\n");
         }
-
+        if(mat.cols() == 1 && mat == test_label.get_row(i)){
+            ++ predict_num; 
+        }else if(mat.argmax() == test_label.get_row(i).argmax()){
+            ++ predict_num;
+        }
         total_loss += _loss->loss(test_label.get_row(i), mat);
+        mat.clear();
     }
     *loss = total_loss / rows;
     
-    LOG(INFO) << "loss[" << loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
+    LOG(INFO) << "loss[" << *loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
+    auto predict_time = now();
+    printf("evalate loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", *loss, predict_num/(real)rows, predict_num, rows, std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
     return predict_num;
 }
 
 void FNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data){
     CHECK(predict_data.cols() == _layers[0]->get_input_dim());
     size_t layer_size = _layers.size();
-    for(size_t k = 0; k != layer_size; k++){
+    for(size_t k = 0; k < layer_size; k++){
         if(k == 0){
             ((InputLayer*)_layers[k])->set_x(predict_data);
         }
         _layers[k]->forward(_layers[k-1]);
+        if(k > 0){
+            //_layers[k]->get_activate_data().display("|");
+        }
     }
+    //_layers[layer_size - 1]->get_activate_data().display("|");
     result = _layers[layer_size - 1]->get_activate_data();
 }
 
@@ -149,29 +165,12 @@ bool FNN::load_model(const std::string& path){
         }
     }
 
-    LOG(INFO) << "Load model success:" << path;
-    /*
-    for(auto& layer : _layers){
-        delete layer;
-    }
-    _layers.clear();
-
-    for(size_t i = 0; i != params.size() / 2; i++){
-        if(i == 0){
-            _layers.push_back(new InputLayer(params[0]->rows()));
-        }
-        if(i == params.size() / 2 - 1){
-            _layers.push_back(new OutputLayer(params[i * 2]->rows(), params[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost(), *params[i * 2], *params[i * 2 + 1]));
-        }else{
-            _layers.push_back(new FullConnLayer(params[i * 2]->rows(), params[i * 2]->cols(), new abcdl::framework::SigmoidActivateFunc(), *params[i * 2], *params[i * 2 + 1]));
-        }
-    }
-    */
-
     for(auto& param : params){
         delete param;
     }
     params.clear();
+    LOG(INFO) << "Load model success:" << path;
+    
     return true;
 }
 
