@@ -110,11 +110,9 @@ void Matrix<T>::insert_row(const Matrix<T>& mat){
     insert_row(_rows, mat);
 }
 template<class T>
-void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){
-    
+void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){  
     if(get_size() == 0){
         set_data(mat.data(), mat.rows(), mat.cols());
-
         return;
     }
 
@@ -130,6 +128,18 @@ void Matrix<T>::insert_row(const size_t row_id, const Matrix<T>& mat){
         memcpy(&data[(row_id + mat.rows()) * _cols], &_data[row_id * _cols], sizeof(T) * (_rows - row_id) * _cols);
     }
     set_shallow_data(data, _rows + mat.rows(), _cols);
+}
+
+template<class T>
+void Matrix<T>::swap_row(const size_t row_id1, const size_t row_id2){
+    CHECK(row_id1 < _rows && row_id2 < _rows && row_id1 >=1 && row_id2 >= 1);
+    if(row_id1 == row_id2){
+        return;
+    }
+    T* data = new T[_cols];
+    memcpy(&data, &_data[row_id1 * _cols], sizeof(T) * _cols);
+    memcpy(&_data[row_id1 * _cols], &_data[row_id2 * _cols], sizeof(T) * _cols);
+    memcpy(&_data[row_id2 * _cols], &data, sizeof(T) * _cols);
 }
 
 template<class T>
@@ -170,11 +180,17 @@ void Matrix<T>::set_col(const size_t col_id, const Matrix<T>& mat){
 
 template<class T>
 void Matrix<T>::insert_col(const Matrix<T>& mat){
-    set_col(0, mat);
+    set_col(_cols, mat);
 }
 
 template<class T>
 void Matrix<T>::insert_col(const size_t col_id, const Matrix<T>& mat){
+    
+    if(get_size() == 0){
+        set_data(mat.data(), mat.rows(), mat.cols());
+        return;
+    }
+
     CHECK(mat.rows() == _rows);
     CHECK(col_id <= _cols);
 
@@ -194,6 +210,15 @@ void Matrix<T>::insert_col(const size_t col_id, const Matrix<T>& mat){
     }
 
     set_shallow_data(data, _rows, new_cols);
+}
+
+template<class T>
+void Matrix<T>::extend(const Matrix<T>& mat, const Axis_type type){
+    if(type == Axis_type::COL){
+        insert_col(mat);
+    }else{
+        insert_row(mat);
+    }
 }
 
 template<class T>
@@ -248,6 +273,11 @@ Matrix<T>& Matrix<T>::transpose(){
 }
 
 template<class T>
+void Matrix<T>::for_each(const std::function<void(T*)> &func){ 
+    po.parallel_mul2one<T>(_data, get_size(), func);
+}
+
+template<class T>
 void Matrix<T>::display(const std::string& split, const bool with_title) const{
     if(with_title) printf("[%ld*%ld][\n", _rows, _cols);
     for(size_t i = 0; i != _rows; i++){
@@ -291,8 +321,8 @@ void RandomMatrix<T>::reset(){
 
     size_t size = this->_rows * this->_cols;
     T* data = this->_data;
-    size_t block_size = po.get_block_size(size);
-    size_t num_thread = po.get_num_thread(size, block_size);
+    size_t block_size = this->po.get_block_size(size);
+    size_t num_thread = this->po.get_num_thread(size, block_size);
     std::vector<std::thread> threads(num_thread);
     std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
     std::normal_distribution<T> distribution(_mean_value, _stddev);
@@ -352,5 +382,9 @@ template class Matrix<double>;
 template class Matrix<size_t>;
 
 template class RandomMatrix<float>;
+template class RandomMatrix<double>;
+
+template class EyeMatrix<float>;
+template class EyeMatrix<double>;
 }//namespace algebra
 }//namespace abcdl
