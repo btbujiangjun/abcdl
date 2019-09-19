@@ -308,15 +308,19 @@ public:
                                  const T* op1,
                              	 const size_t num_op1,
                          		 const std::function<void(bool*, const T&)> &f){
+        *result_value = true;
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
-
+        
+        bool* values = new bool[num_thread];
         for(size_t i = 0; i != num_thread; i++){
+            bool* value = &values[i];
+            *value = true;
             threads[i] = std::thread(
-                [&result_value, &op1, &f](size_t start_idx, size_t end_idx){
-					for(size_t ti = start_idx; ti != end_idx && *result_value; ti++){
-    					f(result_value, op1[ti]);
+                [&value, &op1, &f](size_t start_idx, size_t end_idx){
+					for(size_t ti = start_idx; ti != end_idx && *value; ti++){
+    					f(value, op1[ti]);
                     }
                 }, i * block_size, std::min(num_op1, (i + 1) * block_size)
             );
@@ -325,6 +329,11 @@ public:
         for(auto& thread : threads){
             thread.join();
         }
+        bool reduce_result = true;
+        for(size_t i = 0; i < num_thread && reduce_result; i++){
+           reduce_result = reduce_result && values[i]; 
+        }
+        *result_value = reduce_result;
     }
 
     template<class T>
@@ -335,15 +344,19 @@ public:
                             	 const size_t num_op2,
                          		 const std::function<void(bool*, const T&, const T&)> &f){
         CHECK(num_op1 == num_op2);
+        *result_value = true;
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
 
+        bool* values = new bool[num_thread];
         for(size_t i = 0; i != num_thread; i++){
+            bool* value = &values[i];
+            *value = true;
             threads[i] = std::thread(
-                [&result_value, &op1, &op2, &f](size_t start_idx, size_t end_idx){
-					for(size_t ti = start_idx; ti != end_idx && *result_value; ti++){
-    					f(result_value, op1[ti], op2[ti]);
+                [&value, &op1, &op2, &f](size_t start_idx, size_t end_idx){
+					for(size_t ti = start_idx; ti != end_idx && *value; ti++){
+    					f(value, op1[ti], op2[ti]);
                     }
                 }, i * block_size, std::min(num_op1, (i + 1) * block_size)
             );
@@ -352,6 +365,11 @@ public:
         for(auto& thread : threads){
             thread.join();
         }
+        bool reduce_result = true;
+        for(size_t i = 0; i < num_thread && reduce_result; i++){
+           reduce_result = reduce_result && values[i]; 
+        }
+        *result_value = reduce_result;
     }
 
     inline size_t get_block_size(const size_t size) const{
