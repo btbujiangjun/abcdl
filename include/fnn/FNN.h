@@ -80,8 +80,8 @@ public:
     bool write_model(const std::string& path);
     void dump_model(){
         for(auto& layer : _layers){
-            layer->get_weight().display();
-            layer->get_bias().display();
+            layer->get_weight().display("|");
+            layer->get_bias().display("|");
         }
     }
 
