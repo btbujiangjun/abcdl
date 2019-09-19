@@ -5,7 +5,7 @@
  * Filename      : MatrixAlgebra.cpp
  * Description   : 
  **********************************************/
-
+#include "algebra/Matrix.h"
 #include "algebra/MatrixHelper.h"
 
 namespace abcdl{
@@ -67,6 +67,13 @@ template<class T>
 Matrix<T>& Matrix<T>::exp(){
     MatrixHelper<T> mh;
     mh.exp(*this, *this);
+	return *this;
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::sqrt(){
+    MatrixHelper<T> mh;
+    mh.sqrt(*this, *this);
 	return *this;
 }
 
@@ -227,6 +234,100 @@ real Matrix<T>::mean() const{
 	return ((real)sum())/get_size();
 }
 
+template<class T>
+Matrix<real> Matrix<T>::mean(Axis_type type){
+    size_t size = 0;
+    real count = 0;
+    size_t mean_row = 0;
+    size_t mean_col = 0;
+    if(type == Axis_type::ROW){
+        size = _rows;
+        count = _cols;
+        mean_row = _rows;
+        mean_col = 1;
+    }else{
+        size = _cols;
+        count = _rows;
+        mean_row = 1;
+        mean_col = _cols;
+    }
+    real* data = new real[size];
+
+    if(type == Axis_type::ROW){
+        for(size_t i = 0; i < _rows; i++){
+            real total = 0;
+            for(size_t j = 0; j < _cols; j++){
+                total += get_data(i, j);
+            }
+            data[i] = total/count;
+        }
+    }else if(type == Axis_type::COL){
+        for(size_t i = 0; i < _cols; i++){
+            real total = 0;
+            for(size_t j = 0; j < _rows; j++){
+                total += get_data(j, i);
+            }
+            data[i] =  total/count;
+        }
+    }
+
+    Matrix<real> mean_mat;
+    mean_mat.set_shallow_data(data, mean_row, mean_col);
+    return mean_mat;
+}
+
+template<class T>
+Matrix<real> Matrix<T>::inverse(){
+    CHECK(_rows == _cols);
+    //copy src mat
+    Matrix<real> extend_mat = clone();
+    //extend eye matrix
+    extend_mat.extend(EyeMatrix<real>(_rows), Axis_type::COL);
+
+    //adjust row
+    size_t extend_mat_rows = extend_mat.rows();
+    size_t extend_mat_cols = extend_mat.cols();
+    for(size_t i = 0; i != extend_mat_rows; i++){
+        if(extend_mat.get_data(i, i) == 0){
+            size_t j;
+            for(j = 0; j != extend_mat_rows; j++){
+                if(extend_mat.get_data(j, i) != 0){
+                    extend_mat.swap_row(i, j);
+                    break;
+                }
+            }
+            CHECK(j <= extend_mat_rows);//every element is zero in col i, cannot be inverse.
+        }
+    }
+
+    //calc extend matrix
+    for(size_t i = 0; i != extend_mat_rows; i++){
+        //all element div the first element,to make diagonal elemnt is 1
+        real diagonal_element = extend_mat.get_data(i, i);
+        for(size_t j = 0; j < extend_mat_cols; j++){
+            extend_mat.set_data(extend_mat.get_data(i, j)/diagonal_element, i, j);
+        }
+
+        //to make the element of other rows in col i is 0
+        for(size_t m = 0; m != extend_mat_rows; m++){
+            if(m == i){//skip itself
+                continue;
+            }
+            real element = extend_mat.get_data(m, i);
+            for(size_t n = 0; n != extend_mat_cols; n++){
+                extend_mat.set_data(extend_mat.get_data(m, n) - extend_mat.get_data(i, n) * element, m, n);
+            }
+        }
+    }
+
+    //calc inverse matrix
+    Matrix<real> result_mat(_rows, _cols);
+    for(size_t i = 0; i != extend_mat_rows; i++){
+        memcpy(&result_mat.data()[i * _cols], &extend_mat.data()[i * extend_mat_cols + _cols], sizeof(real) * _cols);
+    }
+    return result_mat;
+}
+
 /*
 template<class T>
 bool Matrix<T>::inverse(Matrix<T>& mat){
@@ -239,5 +340,10 @@ template class Matrix<float>;
 template class Matrix<double>;
 template class Matrix<size_t>;
 
+template class RandomMatrix<float>;
+template class RandomMatrix<double>;
+
+template class EyeMatrix<float>;
+template class EyeMatrix<double>;
 }//namespace algebra
 }//namespace abcdl
