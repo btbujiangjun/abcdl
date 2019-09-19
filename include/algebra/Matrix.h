@@ -109,6 +109,7 @@ public:
     void set_row(const size_t row_id, const Matrix<T>& mat);
     void insert_row(const Matrix<T>& mat);
     void insert_row(const size_t row_id, const Matrix<T>& mat);
+    void swap_row(const size_t row_id1, const size_t row_id2);
 
     Matrix<T> get_col(const size_t col_id, const size_t col_size = 1) const;
     void get_col(Matrix<T>* mat,
@@ -118,6 +119,7 @@ public:
     void set_col(const size_t col_id, const Matrix<T>& mat);
     void insert_col(const Matrix<T>& mat);
     void insert_col(const size_t col_id, const Matrix<T>& mat);
+    void extend(const Matrix<T>& mat, const Axis_type type);
 
     Matrix<T> clone() const;
     void clone(Matrix<T>& mat) const;
@@ -136,6 +138,8 @@ public:
         _cols = col;
         return *this;
     }
+
+    void for_each(const std::function<void(T*)> &f);
 
     void display(const std::string& split="\t", bool with_title = true) const; 
 
@@ -182,6 +186,7 @@ public:
     Matrix<T>& pow(const T& exponent);
     Matrix<T>& log();
     Matrix<T>& exp();
+    Matrix<T>& sqrt();
     Matrix<T>& sigmoid();
     Matrix<T>& softmax();
     Matrix<T>& tanh();
@@ -199,7 +204,8 @@ public:
     size_t argmin() const;
     T sum() const;
     real mean() const;
-    bool inverse(Matrix<real>& mat);
+    Matrix<real> mean(Axis_type type);
+    Matrix<real> inverse();
 
 //    bool det(T* result);
 /*
@@ -245,12 +251,12 @@ private:
     inline bool equal_shape(const Matrix<T>& mat) const{
         return _rows == mat.rows() && _cols == mat.cols();
     }
-	abcdl::utils::ParallelOperator po;
 
 protected:
     size_t _rows;
     size_t _cols;
     T*   _data;
+	abcdl::utils::ParallelOperator po;
 };//class Matrix
 
 
@@ -293,7 +299,6 @@ public:
     }
 
 private:
-	abcdl::utils::ParallelOperator po;
     T _mean_value   = 0;
     T _stddev       = 1;
     T _min          = 0;
@@ -301,12 +306,14 @@ private:
 };//class RandomMatrix
 
 template<class T>
-class EyeMatrix : Matrix<T>{
-    explicit EyeMatrix(size_t size){
+class EyeMatrix : public Matrix<T>{
+public:
+    explicit EyeMatrix(const size_t size){
         T* data = new T[size * size];
         memset(data, 0, sizeof(T) * size * size);
+        T value = 1;
         for(size_t i = 0; i != size; i++){
-            data[i * size + i] = static_cast<T>(1);
+            data[i * size + i] = value;
         }
         this->set_shallow_data(data, size, size);
     }
