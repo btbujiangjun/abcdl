@@ -121,6 +121,15 @@ void MatrixHelper<T>::exp(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
+void MatrixHelper<T>::sqrt(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lamda = [](T* a, const T& b){ *a = std::sqrt(b);};
+    if(mat.get_size() != mat_a.get_size()){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+}
+
+template<class T>
 void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
     auto lamda = [](T* a, const T& b){ *a = 1 / (1 + std::exp(-(std::min((T)SIGMOID_MAX, std::max(b, (T)SIGMOID_MIN)))));};
     if(mat.get_size() != mat_a.get_size()){
