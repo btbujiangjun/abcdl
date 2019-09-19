@@ -57,5 +57,19 @@ void OutputLayer::backward(Layer* pre_layer, Layer* next_layer){
     this->_batch_bias     += this->_delta_bias;
 }
 
+void BatchNormalizationLayer::forward(Layer* pre_layer){
+    auto input = pre_layer->get_activate_data();
+    CHECK(input.cols() == this->_weight.cols());
+    _means = input.mean(abcdl::algebra::Axis_type::COL);
+    _variances = (input - _means).pow(2).mean(abcdl::algebra::Axis_type::COL);
+    _scales = (_variances + _epsilon).sqrt().inverse();
+    _normalize = (input - _means) * _scales;
+    this->_activate_data = _normalize * this->_weight.get_row(0) + this->_weight.get_row(1); 
+}
+
+void BatchNormalizationLayer::backward(Layer* pre_layer, Layer* next_layer){
+    
+}
+
 }//namespace fnn
-}//namespace abcdl
+}//amespace abcdl
