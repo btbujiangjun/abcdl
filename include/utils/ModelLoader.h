@@ -88,7 +88,9 @@ bool ModelLoader::write(std::vector<abcdl::algebra::Matrix<T>*> models,
         return false;
     }
      
+    /**
     std::ofstream out_file(path, std::ios::binary);
+    std::ofstream out_file(path, std::ios::out);
 
     out_file.write(signature.c_str(), sizeof(char)*signature.size());
     out_file.write((char*)&num_models, sizeof(size_t));
@@ -108,7 +110,32 @@ bool ModelLoader::write(std::vector<abcdl::algebra::Matrix<T>*> models,
         ModelInfo info = infos[i+num_old_models];
         out_file.write((char*)models[i]->data(), sizeof(T) * info.rows * info.cols);
     }
+    **/
 
+    std::ofstream out_file(path, std::ios::out);
+    out_file << signature << std::endl;
+    out_file << num_models << std::endl;
+    for(auto&& info : infos){
+        out_file << info.type << std::endl;
+        out_file << info.rows << std::endl;
+        out_file << info.cols << std::endl;
+    }
+    
+    size_t num_old_models = old_models.size();
+    for(size_t i = 0; i != num_old_models; i++){
+        size_t model_size = infos[i].rows * infos[i].cols;
+        for(size_t j = 0; j < model_size; j++){
+            out_file << old_models[i]->get_data(j) << std::endl;
+        }
+    }
+
+    num_models = models.size();
+    for(size_t i = 0; i < num_models; i++){
+        size_t model_size = infos[i + num_old_models].rows * infos[i + num_old_models].cols;
+        for(size_t j = 0; j < model_size; j++){
+            out_file << models[i]->get_data(j) << std::endl;
+        }
+    }
     out_file.close();
 
     return true;
@@ -127,7 +154,8 @@ template<class T>
 bool ModelLoader::read(const std::string& path,
                        std::vector<abcdl::algebra::Matrix<T>*>* models,
                        const std::string& signature){
-    std::ifstream in_file(path, std::ios::binary);
+    //std::ifstream in_file(path, std::ios::binary);
+    std::ifstream in_file(path, std::ios::in);
     if(!in_file){
         LOG(FATAL) << "Can't open Filename:" + path;
         return false;
@@ -135,21 +163,27 @@ bool ModelLoader::read(const std::string& path,
 
     size_t num_models = 0;
     std::string read_signature(signature.size(), ' ');
-    in_file.read(&read_signature[0], sizeof(char) * signature.size());
+
+    in_file >> read_signature;
+    //in_file.read(&read_signature[0], sizeof(char) * signature.size());
     if(read_signature != signature){
         LOG(FATAL) << "ModelLoader read model error:[signature error]";
         in_file.close();
         return false;
     }
 
-    in_file.read((char*)(&num_models), sizeof(size_t));
+    //in_file.read((char*)(&num_models), sizeof(size_t));
+    in_file >> num_models;
 
     std::vector<ModelInfo> infos;
     for(size_t i = 0; i != num_models; i++){
         ModelInfo info;
-        in_file.read(&info.type, sizeof(char));
-        in_file.read((char*)(&info.rows), sizeof(size_t));
-        in_file.read((char*)(&info.cols), sizeof(size_t));
+        //in_file.read(&info.type, sizeof(char));
+        //in_file.read((char*)(&info.rows), sizeof(size_t));
+        //in_file.read((char*)(&info.cols), sizeof(size_t));
+        in_file >> info.type;
+        in_file >> info.rows;
+        in_file >> info.cols;
         infos.push_back(info);
     }
 
@@ -159,8 +193,10 @@ bool ModelLoader::read(const std::string& path,
         size_t size      = info.rows * info.cols;
         
         T* data = new T[size];
-        in_file.read((char*)data, sizeof(T) * size);
-
+        //in_file.read((char*)data, sizeof(T) * size);
+        for(size_t j = 0; j < size; j++){
+            in_file >> data[j];
+        }
         auto mat = new abcdl::algebra::Matrix<T>();
         mat->set_shallow_data(data, info.rows, info.cols);
         models->push_back(mat);
