@@ -14,7 +14,7 @@ class SessionQ{
 public:
 
     void init(const size_t feature_dim, const size_t label_dim){
-        fnn.set_alpha(0.1);
+        fnn.set_alpha(0.05);
         fnn.set_epoch(1);
         fnn.set_batch_size(1024);
         /*
@@ -73,6 +73,7 @@ int main(int argc, char** argv){
     paths.push_back("./data/sessionq/sessionq.train.libsvmag");
     paths.push_back("./data/sessionq/sessionq.train.libsvmah");
     paths.push_back("./data/sessionq/sessionq.train.libsvmai");
+    
     SessionQ sessionq;
     sessionq.init(feature_dim, label_dim);
     
