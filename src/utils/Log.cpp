@@ -74,11 +74,8 @@ static bool g_log_inited = false;
 static bool g_log_to_stderr = env2bool("ABCDL_LOG_LOGTOSTDERR", true);
 static const std::vector<std::string> g_log_level_name = {"INFO", "WARNING", "ERROR", "FATAL"};
 static int g_log_min_level = env2int("ABCDL_LOG_MIN_LEVEL", env2index("ABCDL_LOG_MIN_LEVEL", g_log_level_name, 0));
-
 static std::vector<std::vector<int>> g_log_fds;
 static std::vector<int> g_log_file_fds;
-
-static void (*g_failure_function_ptr)() __attribute__((noreturn)) = abort;
 
 static void free_log_file_fds(){
     for(auto fd : g_log_file_fds){
@@ -121,14 +118,6 @@ void set_min_log_level(int level){
     g_log_min_level = level;
 }
 
-void install_failure_function(void (*callback)()){
-    //g_failure_function_ptr = callback;
-}
-
-void install_failure_writer(void(*callback)(const char*, int)){
-    (void)(callback);
-}
-
 LogMessage::LogMessage(const char* name,
                        int line,
                        int severity) : 
@@ -150,15 +139,6 @@ void LogMessage::generate_log_message(){
             dprintf(fd, "[%s] [%s] [%s:%d] %s\n", g_log_level_name[_severity].c_str(), time_data, _name, _line, str().c_str());
         }
     }
-}
-
-
-LogMessageFatal::LogMessageFatal(const char* file, int line) : 
-    LogMessage(file, line, FATAL){}
-
-LogMessageFatal::~LogMessageFatal(){
-    generate_log_message();
-    g_failure_function_ptr();
 }
 
 }//namespace log
