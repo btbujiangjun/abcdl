@@ -74,14 +74,6 @@ private:
     int _severity;
 };//class LogMessage
 
-class LogMessageFatal : public LogMessage{
-public:
-    LogMessageFatal(const char* file, int line) __attribute__((cold));
-
-    ~LogMessageFatal() __attribute__((noreturn));
-};//class LogMessageFatal
-
-
 }//end namespace log
 }//end namespace utils
 }//end namespace abcdl
