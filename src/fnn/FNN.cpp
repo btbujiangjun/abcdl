@@ -90,29 +90,46 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
     abcdl::algebra::Mat mat;
 
     real total_loss = 0;
-    for(size_t i = 0; i != rows; i++){
+    std::vector<std::pair<real, real>> auc_vec;
+
+    for(size_t i = 0; i < rows; i++){
         predict(mat, test_data.get_row(i));
-        if (i >= 0){
-            //printf("%f/%f\n", mat.get_data(0, 0) , test_label.get_row(i).get_data(0, 0));
-            //mat.display("|");
-            //test_label.get_row(i).display("^");
-            //test_data.get_row(i).display("~");
-            //printf("\n");
-        }
         if(mat.cols() == 1 && mat == test_label.get_row(i)){
             ++ predict_num; 
         }else if(mat.argmax() == test_label.get_row(i).argmax()){
             ++ predict_num;
         }
+        if(mat.cols() == 2){
+            auc_vec.push_back(std::make_pair(test_label.get_row(i).get_data(0, 1), mat.get_data(0, 1)));
+        }
         total_loss += _loss->loss(test_label.get_row(i), mat);
-        mat.clear();
     }
+
     *loss = total_loss / rows;
-    
-    LOG(INFO) << "loss[" << *loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
+    double auc_score = auc(auc_vec); 
+    LOG(INFO) << "evaluate auc[" << auc_score << "] loss[" << *loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
     auto predict_time = now();
-    printf("evalate loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", *loss, predict_num/(real)rows, predict_num, rows, std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
+    printf("evaluate auc[%lf] loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", auc_score, *loss, predict_num/(real)rows, predict_num, rows, std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
     return predict_num;
+}
+
+double FNN::auc(std::vector<std::pair<real,real>>& auc_vec){
+    if(auc_vec.size() == 0){
+        return 0;
+    }
+    std::sort(auc_vec.begin(), auc_vec.end(), [](const std::pair<real, real> a, const std::pair<real, real> b){return a.second < b.second;});
+    size_t m = 0;
+    double rank = 0;
+    for(size_t i = 0; i < auc_vec.size(); i++){
+        //printf("i:%zu, label:%lf,value:%lf\n", i, auc_vec[i].first, auc_vec[i].second);
+        if(auc_vec[i].first > 0){
+            m += 1;
+            rank += (i+1);
+            //printf("m:%zu, rank:%lf\n", m, rank);
+        }
+    }
+    //printf("M:%zu, N:%zu, rank:%lf\n", m, auc_vec.size() - m , rank);
+    return (rank - m * (m + 1) / 2) / (m * (auc_vec.size() - m));
 }
 
 void FNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predict_data){
@@ -127,6 +144,7 @@ void FNN::predict(abcdl::algebra::Mat& result, const abcdl::algebra::Mat& predic
             //_layers[k]->get_activate_data().display("|");
         }
     }
+    //predict_data.display("^");
     //_layers[layer_size - 1]->get_activate_data().display("|");
     result = _layers[layer_size - 1]->get_activate_data();
 }
