@@ -30,7 +30,8 @@ public:
         */
         std::vector<abcdl::fnn::Layer*> layers;
         layers.push_back(new abcdl::fnn::InputLayer(feature_dim));
-        layers.push_back(new abcdl::fnn::FullConnLayer(feature_dim, 64, new abcdl::framework::SigmoidActivateFunc()));
+        layers.push_back(new abcdl::fnn::FullConnLayer(feature_dim, 256, new abcdl::framework::SigmoidActivateFunc()));
+        layers.push_back(new abcdl::fnn::FullConnLayer(256, 64, new abcdl::framework::SigmoidActivateFunc()));
         layers.push_back(new abcdl::fnn::OutputLayer(64, label_dim, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
         fnn.set_layers(layers);
 
