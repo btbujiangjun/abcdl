@@ -69,6 +69,8 @@ public:
     size_t evaluate(const abcdl::algebra::Mat& test_data,
                     const abcdl::algebra::Mat& test_label,
                     real* loss);
+    double auc(std::vector<std::pair<real, real>>& auc_mat);
+
 
     bool load_model(){
         return load_model(_path);
