@@ -36,6 +36,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         shuffler.shuffle();
         auto start_time = now();
         real total_loss = 0;
+        std::vector<std::pair<real, real>> auc_train_vec;
 
         for(size_t j = 0; j != num_train_data; j++){
             train_data.get_row(&data, shuffler.get(j));
@@ -63,14 +64,21 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
             }
 
             total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
+            if(_layers[layer_size - 1]->get_activate_data().cols() == 2){
+                auc_train_vec.push_back(std::make_pair(label.get_data(0, 1), _layers[layer_size - 1]->get_activate_data().get_data(0, 1)));
+            }
 
             if(j % 100 == 0){
                 printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i + 1, _epoch, j, num_train_data);
             }
         }
+        
+        double auc_score = auc(auc_train_vec);
+        double avg_loss = total_loss / num_train_data;
+        auto train_time = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count();
 
-        auto train_time = now();
-        printf("Epoch[%ld] loss[%f] training run time:[%lld]ms\n", i + 1, total_loss/num_train_data, std::chrono::duration_cast<std::chrono::milliseconds>(train_time - start_time).count());
+        LOG(INFO) << "Epoch["<< i+1 <<"] auc["<< auc_score <<"] loss["<< avg_loss <<"] training run time:["<< train_time <<"]ms";
+        printf("Epoch[%ld] auc[%lf] loss[%lf] training run time:[%lld]ms\n", i + 1, auc_score, avg_loss, train_time);
     }
 }
 
@@ -90,7 +98,7 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
     abcdl::algebra::Mat mat;
 
     real total_loss = 0;
-    std::vector<std::pair<real, real>> auc_vec;
+    std::vector<std::pair<real, real>> auc_evaluate_vec;
 
     for(size_t i = 0; i < rows; i++){
         predict(mat, test_data.get_row(i));
@@ -100,13 +108,13 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
             ++ predict_num;
         }
         if(mat.cols() == 2){
-            auc_vec.push_back(std::make_pair(test_label.get_row(i).get_data(0, 1), mat.get_data(0, 1)));
+            auc_evaluate_vec.push_back(std::make_pair(test_label.get_row(i).get_data(0, 1), mat.get_data(0, 1)));
         }
         total_loss += _loss->loss(test_label.get_row(i), mat);
     }
 
     *loss = total_loss / rows;
-    double auc_score = auc(auc_vec); 
+    double auc_score = auc(auc_evaluate_vec); 
     LOG(INFO) << "evaluate auc[" << auc_score << "] loss[" << *loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
     auto predict_time = now();
     printf("evaluate auc[%lf] loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", auc_score, *loss, predict_num/(real)rows, predict_num, rows, std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
