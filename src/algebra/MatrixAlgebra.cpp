@@ -127,8 +127,7 @@ T Matrix<T>::max() const{
 	}
 	T max = _data[0];
 	auto lamda = [](T* a, const T& b){if(b > *a){*a = b;}};
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&max, _data, get_size(), lamda);
+	_po.parallel_reduce_mul2one(&max, _data, get_size(), lamda);
 	return max;   
 }
 
@@ -140,8 +139,7 @@ size_t Matrix<T>::argmax() const{
 	T max = _data[0];
     size_t max_idx = 0;
 	auto lamda = [](T* a, const T& b, size_t* max_idx, const size_t idx){if(b > *a){*a = b; *max_idx = idx;}};
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&max, &max_idx, _data, get_size(), lamda);
+	_po.parallel_reduce_mul2one(&max, &max_idx, _data, get_size(), lamda);
 	return max_idx;   
 }
 
@@ -202,8 +200,7 @@ T Matrix<T>::min() const{
 	}
 	T min = _data[0];
 	auto lamda = [](T* a, const T& b){if(b < *a){*a = b;}};
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&min, _data, get_size(), lamda);
+	_po.parallel_reduce_mul2one(&min, _data, get_size(), lamda);
 	return min;   
 }
 
@@ -215,8 +212,7 @@ size_t Matrix<T>::argmin() const{
 	T min = _data[0];
     size_t min_idx = 0;
 	auto lamda = [](T* a, const T& b, size_t* min_idx, const size_t idx){if(b < *a){*a = b; *min_idx = idx;}};
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&min, &min_idx, _data, get_size(), lamda);
+	_po.parallel_reduce_mul2one(&min, &min_idx, _data, get_size(), lamda);
 	return min_idx;   
 }
 
@@ -224,8 +220,7 @@ template<class T>
 T Matrix<T>::sum() const{
 	T sum = 0;
 	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
-	utils::ParallelOperator po;
-	po.parallel_reduce_mul2one<T>(&sum, _data, get_size(), lamda);
+	_po.parallel_reduce_mul2one(&sum, _data, get_size(), lamda);
 	return sum;   
 }
 
@@ -235,7 +230,7 @@ real Matrix<T>::mean() const{
 }
 
 template<class T>
-Matrix<real> Matrix<T>::mean(Axis_type type){
+Matrix<real> Matrix<T>::mean(Axis_type type) const{
     size_t size = 0;
     real count = 0;
     size_t mean_row = 0;
@@ -277,7 +272,7 @@ Matrix<real> Matrix<T>::mean(Axis_type type){
 }
 
 template<class T>
-Matrix<real> Matrix<T>::inverse(){
+Matrix<real> Matrix<T>::inverse() const{
     CHECK(_rows == _cols);
     //copy src mat
     Matrix<real> extend_mat = clone();
