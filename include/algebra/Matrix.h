@@ -175,7 +175,7 @@ public:
     operator Matrix<float>() const;
     operator Matrix<double>() const;
     operator Matrix<size_t>() const;
-
+   
     //algebra
     Matrix<T>& add(const Matrix<T>& mat);
     Matrix<T>& subtract(const Matrix<T>& mat);
@@ -204,8 +204,8 @@ public:
     size_t argmin() const;
     T sum() const;
     real mean() const;
-    Matrix<real> mean(Axis_type type);
-    Matrix<real> inverse();
+    Matrix<real> mean(Axis_type type) const;
+    Matrix<real> inverse() const;
 
 //    bool det(T* result);
 /*
@@ -256,7 +256,7 @@ protected:
     size_t _rows;
     size_t _cols;
     T*   _data;
-	abcdl::utils::ParallelOperator po;
+	const abcdl::utils::ParallelOperator<T> _po;
 };//class Matrix
 
 
