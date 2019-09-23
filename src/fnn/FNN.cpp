@@ -10,7 +10,7 @@
 #include "utils/Log.h"
 #include "utils/Shuffler.h"
 #include <vector>
-
+#include <algorithm>
 
 namespace abcdl{
 namespace fnn{
@@ -75,7 +75,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         
         double auc_score = auc(auc_train_vec);
         double avg_loss = total_loss / num_train_data;
-        auto train_time = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count();
+        long long int train_time = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count();
 
         LOG(INFO) << "Epoch["<< i+1 <<"] auc["<< auc_score <<"] loss["<< avg_loss <<"] training run time:["<< train_time <<"]ms";
         printf("Epoch[%ld] auc[%lf] loss[%lf] training run time:[%lld]ms\n", i + 1, auc_score, avg_loss, train_time);
@@ -117,7 +117,7 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
     double auc_score = auc(auc_evaluate_vec); 
     LOG(INFO) << "evaluate auc[" << auc_score << "] loss[" << *loss << "] ["<< predict_num <<"/" << rows << "] rate[" << predict_num/(real)rows << "]";
     auto predict_time = now();
-    printf("evaluate auc[%lf] loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", auc_score, *loss, predict_num/(real)rows, predict_num, rows, std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
+    printf("evaluate auc[%lf] loss[%f] rate[%f] [%zu/%zu]predict run time:[%lld]ms\n", auc_score, *loss, predict_num/(real)rows, predict_num, rows, (long long int)std::chrono::duration_cast<std::chrono::milliseconds>(predict_time - start_time).count());
     return predict_num;
 }
 
@@ -180,7 +180,7 @@ bool FNN::load_model(const std::string& path){
         return false;
     }
 
-    for(int i = 1; i < _layers.size(); i++){
+    for(size_t i = 1; i < _layers.size(); i++){
         if(!_layers[i]->set_weight(*params[2 * (i-1)])){
             LOG(FATAL) << "Set Layer weight error, layer: " << i;
             return false;
