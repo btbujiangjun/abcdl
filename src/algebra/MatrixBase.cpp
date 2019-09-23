@@ -42,7 +42,7 @@ Matrix<T>::Matrix(const T& value,
         memset(_data, value, sizeof(T) * _rows * _cols);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
-        po.parallel_mul2one<T>(_data, get_size(), value, lamda);
+        _po.parallel_mul2one(_data, get_size(), value, lamda);
     }
 }
 
@@ -253,7 +253,7 @@ void Matrix<T>::reset(const T& value,
         memset(_data, value, sizeof(T) * size);
     }else{
         auto lamda = [](T* a, const T& b){ *a = b; };
-        po.parallel_mul2one<T>(_data, size, value, lamda);
+        _po.parallel_mul2one(_data, size, value, lamda);
     }
 }
 
@@ -274,7 +274,7 @@ Matrix<T>& Matrix<T>::transpose(){
 
 template<class T>
 void Matrix<T>::for_each(const std::function<void(T*)> &func){ 
-    po.parallel_mul2one<T>(_data, get_size(), func);
+    _po.parallel_mul2one(_data, get_size(), func);
 }
 
 template<class T>
@@ -321,8 +321,8 @@ void RandomMatrix<T>::reset(){
 
     size_t size = this->_rows * this->_cols;
     T* data = this->_data;
-    size_t block_size = this->po.get_block_size(size);
-    size_t num_thread = this->po.get_num_thread(size, block_size);
+    size_t block_size = this->_po.get_block_size(size);
+    size_t num_thread = this->_po.get_num_thread(size, block_size);
     std::vector<std::thread> threads(num_thread);
     std::default_random_engine engine(std::chrono::system_clock::now().time_since_epoch().count());
     std::normal_distribution<T> distribution(_mean_value, _stddev);
