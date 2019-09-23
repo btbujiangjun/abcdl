@@ -59,7 +59,7 @@ public:
     void zero_like(Matrix<T>& mat, const Matrix<T>& mat_a);
 
 private:
-    abcdl::utils::ParallelOperator po;
+    abcdl::utils::ParallelOperator<T> _po;
 };//class MatrixHelper
 
 }//namespace algebra
