@@ -7,7 +7,6 @@
  **********************************************/
 
 #include "algebra/MatrixHelper.h"
-#include "utils/ParallelOperator.h"
 #include <cmath>
 #include <string.h>
 
@@ -30,15 +29,15 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     size_t col_a = mat_a.cols();
     size_t row_b = mat_b.rows();
     size_t col_b = mat_b.cols();
-   
+
     CHECK(col_a == row_b);
-   
+
     T* data   = new T[row_a * col_b];
     T* data_a = mat_a.data();
     T* data_b = mat_b.data();
 
     size_t size = row_a * col_b * col_a;
-    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t num_thread = _po.get_num_thread(size, _po.get_block_size(size));
     size_t block_size = row_a / num_thread;
     if(row_a % num_thread != 0){
         block_size += 1;
@@ -87,7 +86,7 @@ void MatrixHelper<T>::outer(Matrix<T>& mat,
     T* data_b = mat_b.data();
     T* data   = new T[size_a * size_b];
     auto lamda = [](T* a, const T& b, const T& c){*a = b * c;};
-    po.parallel_mul2mul_cross<T>(data, data_a, size_a, data_b, size_b, lamda);
+    _po.parallel_mul2mul_cross(data, data_a, size_a, data_b, size_b, lamda);
     mat.set_shallow_data(data, size_a, size_b);
 }
 
@@ -99,7 +98,7 @@ void MatrixHelper<T>::pow(Matrix<T>& mat,
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), exponent, lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), exponent, lamda);
 }
 
 template<class T>
@@ -108,7 +107,7 @@ void MatrixHelper<T>::log(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() == mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -117,7 +116,7 @@ void MatrixHelper<T>::exp(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -126,7 +125,7 @@ void MatrixHelper<T>::sqrt(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -135,7 +134,7 @@ void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -144,7 +143,7 @@ void MatrixHelper<T>::sigmoid_derivative(Matrix<T>& mat, const Matrix<T>& mat_a)
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -155,7 +154,7 @@ void MatrixHelper<T>::softmax(Matrix<T>& mat, const Matrix<T>& mat_a){
     }
 
     auto lamda = [](T* a, const T& max){*a = std::exp(std::max((*a - max), (T)SOFTMAX_MIN));};
-    po.parallel_mul2one<T>(mat.data(), mat.get_size(), max, lamda);
+    _po.parallel_mul2one(mat.data(), mat.get_size(), max, lamda);
     mat /=  mat.sum();
 }
 
@@ -165,7 +164,7 @@ void MatrixHelper<T>::tanh(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -174,7 +173,7 @@ void MatrixHelper<T>::tanh_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -183,7 +182,7 @@ void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(&mat != &mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -192,7 +191,7 @@ void MatrixHelper<T>::relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -201,7 +200,7 @@ void MatrixHelper<T>::leaky_relu(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(&mat != &mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -210,7 +209,7 @@ void MatrixHelper<T>::leaky_relu_derivative(Matrix<T>& mat, const Matrix<T>& mat
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -219,7 +218,7 @@ void MatrixHelper<T>::elu(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -228,7 +227,7 @@ void MatrixHelper<T>::elu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    po.parallel_mul2one_copy<T>(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
 }
 
 template<class T>
@@ -244,7 +243,7 @@ void MatrixHelper<T>::expand(Matrix<T>& result,
     size_t col   = col_a * col_dim;
     size_t size  = row * col;
 
-    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t num_thread = _po.get_num_thread(size, _po.get_block_size(size));
     size_t block_size = row / num_thread;
     if(row % num_thread != 0){
         block_size += 1;
@@ -326,7 +325,7 @@ bool MatrixHelper<T>::convn(Matrix<T>& result,
     T* kernal_data = kernal.data();
     
     size_t size = conv_row * conv_col * kernal_row * kernal_col;
-    size_t num_thread = po.get_num_thread(size, po.get_block_size(size));
+    size_t num_thread = _po.get_num_thread(size, _po.get_block_size(size));
     size_t block_size = conv_row / num_thread;
     if(conv_row % num_thread != 0){
         block_size += 1;
@@ -393,7 +392,7 @@ void MatrixHelper<T>::transpose(Matrix<T>& mat, const Matrix<T>& mat_a){
 
     T* src_data       = mat_a.data();
     T* data           = new T[mat_a.get_size()];
-    size_t num_thread = po.get_num_thread(mat_a.get_size(), po.get_block_size(mat_a.get_size()));
+    size_t num_thread = _po.get_num_thread(mat_a.get_size(), _po.get_block_size(mat_a.get_size()));
     size_t block_size = cols / num_thread;
     if(cols % num_thread != 0){
         block_size += 1;
