@@ -30,9 +30,9 @@ void MatrixHelper<T>::dot(Matrix<T>& mat,
     size_t col_a = mat_a.cols();
     size_t row_b = mat_b.rows();
     size_t col_b = mat_b.cols();
-
+   
     CHECK(col_a == row_b);
-
+   
     T* data   = new T[row_a * col_b];
     T* data_a = mat_a.data();
     T* data_b = mat_b.data();
