@@ -28,11 +28,11 @@ public:
         std::vector<std::pair<size_t, T>> data;
     };
 
-    bool read_data(const size_t feature_dim,
+    bool read_data(const size_t dim,
                    const std::string& file,
                    abcdl::algebra::Matrix<T>* out_data_mat,
                    abcdl::algebra::Matrix<T>* out_label_mat);
-    bool read_data(const size_t feature_dim,
+    bool read_data(const size_t dim,
                    const size_t label_dim,
                    const std::string& file,
                    abcdl::algebra::Matrix<T>* out_data_mat,
@@ -46,19 +46,19 @@ private:
     void read_data_append_mat(abcdl::algebra::Matrix<T>* out_data_mat,
                               abcdl::algebra::Matrix<T>* out_label_mat,
                               const std::vector<libsvm_sample>& samples,
-                              const size_t feature_dim,
+                              const size_t dim,
                               const size_t label_dim){
         if(samples.size() == 0){
             return;
         }
 
-        abcdl::algebra::Matrix<T> data_mat(samples.size(), feature_dim);
+        abcdl::algebra::Matrix<T> data_mat(samples.size(), dim);
         abcdl::algebra::Matrix<T> label_mat(samples.size(), label_dim);
-        for(int i = 0; i < samples.size(); i++){
+        for(size_t i = 0; i < samples.size(); i++){
             auto& sample = samples[i];
             label_mat.set_data(1, i, (size_t)sample.label);
             for(auto& pair : sample.data){
-                if (pair.first >= feature_dim){
+                if (pair.first >= dim){
                     continue;
                 }
                 data_mat.set_data(pair.second, i, pair.first);
@@ -72,14 +72,14 @@ private:
 };//class LibsvmHelper
 
 template<class T>
-bool LibsvmHelper<T>::read_data(const size_t feature_dim,
+bool LibsvmHelper<T>::read_data(const size_t dim,
                                 const std::string& file,
                                 abcdl::algebra::Matrix<T>* out_data_mat,
                                 abcdl::algebra::Matrix<T>* out_label_mat){
-    return read_data(feature_dim, 1, file, out_data_mat, out_label_mat);
+    return read_data(dim, 1, file, out_data_mat, out_label_mat);
 }
 template<class T>
-bool LibsvmHelper<T>::read_data(const size_t feature_dim,
+bool LibsvmHelper<T>::read_data(const size_t dim,
                                 const size_t label_dim,
                                 const std::string& file,
                                 abcdl::algebra::Matrix<T>* out_data_mat,
@@ -107,13 +107,13 @@ bool LibsvmHelper<T>::read_data(const size_t feature_dim,
         samples.push_back(sample);
         
         if(samples.size() >= delta_size){
-            read_data_append_mat(out_data_mat, out_label_mat, samples, feature_dim, label_dim);
+            read_data_append_mat(out_data_mat, out_label_mat, samples, dim, label_dim);
             samples.clear();
         }
 
     }
         
-    read_data_append_mat(out_data_mat, out_label_mat, samples, feature_dim, label_dim);
+    read_data_append_mat(out_data_mat, out_label_mat, samples, dim, label_dim);
     samples.clear();
 
     return true;
