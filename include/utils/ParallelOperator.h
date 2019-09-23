@@ -19,6 +19,7 @@ namespace utils{
 
 static size_t s_num_thread = std::thread::hardware_concurrency();
 
+template<class T>
 class ParallelOperator{
 public:
     ParallelOperator(){
@@ -30,10 +31,9 @@ public:
 		_num_thread = num_thread;
     }
 
-    template<class T>
     void parallel_mul2one(T* op1,
                           const size_t num_op1,
-                          const std::function<void(T*)> &f){
+                          const std::function<void(T*)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -53,11 +53,10 @@ public:
         }
     }
 
-    template<class T>
     void parallel_mul2one(T* op1,
                           const size_t num_op1,
                           const T& op2,
-                          const std::function<void(T*, const T&)> &f){
+                          const std::function<void(T*, const T&)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -77,11 +76,10 @@ public:
         }
     }
 
-    template<class T>
     void parallel_mul2one_copy(T* result_data,
                                const T* op1,
                                const size_t num_op1,
-                               const std::function<void(T*, const T&)> &f){
+                               const std::function<void(T*, const T&)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -101,12 +99,11 @@ public:
         }
     }
 
-    template<class T>
     void parallel_mul2one_copy(T* result_data,
                                const T* op1,
                                const size_t num_op1,
                                const T& op2,
-                               const std::function<void(T*, const T&, const T&)> &f){
+                               const std::function<void(T*, const T&, const T&)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -126,12 +123,11 @@ public:
         }
     }
 
-    template<class T>
     void parallel_mul2mul(T* op1,
                           const size_t num_op1,
                           const T* op2,
                           const size_t num_op2,
-                          const std::function<void(T*, const T&)> &f){
+                          const std::function<void(T*, const T&)> &f) const{
         CHECK(num_op1 == num_op2);
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
@@ -151,39 +147,12 @@ public:
             thread.join();
         }
     }
-
-    template<class T1, class T>
-    void parallel_mul2mul(T1* op1,
-                          const size_t num_op1,
-                          const T* op2,
-                          const size_t num_op2,
-                          const std::function<void(T1*, const T&)> &f){
-        CHECK(num_op1 == num_op2);
-        size_t block_size = get_block_size(num_op1);
-        size_t num_thread = get_num_thread(num_op1, block_size);
-        std::vector<std::thread> threads(num_thread);
-
-        for(size_t i = 0; i != num_thread; i++){
-            threads[i] = std::thread(
-                [&op1, &op2, &f](size_t start_idx, size_t end_idx){
-                    for(size_t ti = start_idx; ti != end_idx; ti++){
-                        f(&op1[ti], op2[ti]);
-                    }
-                }, i * block_size, std::min(num_op1, (i + 1) * block_size)
-            );
-        }
-
-        for(auto& thread : threads){
-            thread.join();
-        }
-    }
-
-    template<class T>
-    void parallel_mul2mul_repeat(T* op1,
+    
+	void parallel_mul2mul_repeat(T* op1,
                                  const size_t num_op1,
                                  const T* op2,
                                  const size_t num_op2,
-                                 const std::function<void(T*, const T&)> &f){
+                                 const std::function<void(T*, const T&)> &f) const{
         CHECK(num_op1 % num_op2 == 0);
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
@@ -204,13 +173,12 @@ public:
         }
     }
 
-    template<class T>
     void parallel_mul2mul_cross(T* result_data,
                                 const T* op1,
                                 const size_t num_op1,
                                 const T* op2,
                                 const size_t num_op2,
-                                const std::function<void(T*, const T&, const T&)> &f){
+                                const std::function<void(T*, const T&, const T&)> &f) const{
         CHECK(num_op1 > 0 && num_op2 > 0);
         size_t block_size = get_block_size(num_op1 * num_op2);
         size_t num_thread = get_num_thread(num_op1 * num_op2, block_size);
@@ -238,11 +206,10 @@ public:
         }
     }
 
-    template<class T>
     void parallel_reduce_mul2one(T* result_value,
                                  const T* op1,
                          		 const size_t num_op1,
-                         		 const std::function<void(T*, const T&)> &f){
+                         		 const std::function<void(T*, const T&)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -268,12 +235,12 @@ public:
         }
 		delete[] data;
     }
-    template<class T>
-    void parallel_reduce_mul2one(T* result_value,
+    
+	void parallel_reduce_mul2one(T* result_value,
                                  size_t* result_idx,
                                  const T* op1,
                          		 const size_t num_op1,
-                         		 const std::function<void(T*, const T&, size_t*, const size_t)> &f){
+                         		 const std::function<void(T*, const T&, size_t*, const size_t)> &f) const{
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
         std::vector<std::thread> threads(num_thread);
@@ -303,11 +270,10 @@ public:
         delete[] indices;
     }
 
-    template<class T>
     void parallel_reduce_boolean(bool* result_value,
                                  const T* op1,
                              	 const size_t num_op1,
-                         		 const std::function<void(bool*, const T&)> &f){
+                         		 const std::function<void(bool*, const T&)> &f) const{
         *result_value = true;
         size_t block_size = get_block_size(num_op1);
         size_t num_thread = get_num_thread(num_op1, block_size);
@@ -336,13 +302,12 @@ public:
         *result_value = reduce_result;
     }
 
-    template<class T>
     void parallel_reduce_boolean(bool* result_value,
                                  const T* op1,
                             	 const size_t num_op1,
                                  const T* op2,
                             	 const size_t num_op2,
-                         		 const std::function<void(bool*, const T&, const T&)> &f){
+                         		 const std::function<void(bool*, const T&, const T&)> &f) const{
         CHECK(num_op1 == num_op2);
         *result_value = true;
         size_t block_size = get_block_size(num_op1);
@@ -393,8 +358,13 @@ public:
 
 private:
     size_t _num_thread;
-    size_t _min_block_size = 1000;
+    size_t _min_block_size = 1024;
 };//class ParallelOperator
+
+template class ParallelOperator<int>;
+template class ParallelOperator<float>;
+template class ParallelOperator<double>;
+template class ParallelOperator<size_t>;
 
 }//namespace utils
 }//namespace abcdl
