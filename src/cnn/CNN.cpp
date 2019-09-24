@@ -40,11 +40,15 @@ void CNN::train(const abcdl::algebra::MatSet& train_data,
     if(!check(train_data.rows(), train_data.cols())){
         return;
     }
+    
+    auto now = []{return std::chrono::system_clock::now();};
+    auto time_diff = [](std::chrono::time_point<std::chrono::system_clock> end) -> long long int {
+            return static_cast<long long int>((std::chrono::system_clock::now() - end).count());
+    };
 
     size_t num_train_data = train_data.size();
     size_t num_test_data = test_data.size();
     abcdl::utils::Shuffler shuffler(num_train_data);
-    auto now = []{return std::chrono::system_clock::now();};
 
     for(size_t i = 0; i != _epoch; i++){
         auto start_time = now();
@@ -63,11 +67,11 @@ void CNN::train(const abcdl::algebra::MatSet& train_data,
             }
         }//end per epoch
 
-        auto training_time = now();
-        printf("Epoch[%ld] train run time: [%ld] ms\n", i, std::chrono::duration_cast<std::chrono::milliseconds>(training_time - start_time).count());
+        printf("Epoch[%ld] train run time: [%lld] ms\n", i, time_diff(start_time));
 
+        auto evaluate_time = now();
 	    if(num_test_data > 0){
-            printf("Epoch[%ld] [%ld/%ld] predict run time:[%ld] ms\n", i, evaluate(test_data, test_label), num_test_data, std::chrono::duration_cast<std::chrono::milliseconds>(now() - training_time).count());
+            printf("Epoch[%ld] [%ld/%ld] predict run time:[%lld] ms\n", i, evaluate(test_data, test_label), num_test_data, time_diff(evaluate_time));
 	    }
     }
 }
