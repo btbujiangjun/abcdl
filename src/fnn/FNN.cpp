@@ -59,7 +59,7 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
                
                 //mini_batch_update
                 if(j % _batch_size == _batch_size - 1 || j == num_train_data - 1){
-                    _layers[k]->update_gradient(j % _batch_size + 1, _alpha, _lamda);
+                    _layers[k]->update_gradient(j % _batch_size + 1, _alpha, _lambda);
                 }
             }
 

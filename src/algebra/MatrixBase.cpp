@@ -41,8 +41,8 @@ Matrix<T>::Matrix(const T& value,
     if(value == 0 || value == static_cast<T>(-1)){
         memset(_data, value, sizeof(T) * _rows * _cols);
     }else{
-        auto lamda = [](T* a, const T& b){ *a = b; };
-        _po.parallel_mul2one(_data, get_size(), value, lamda);
+        auto lambda = [](T* a, const T& b){ *a = b; };
+        _po.parallel_mul2one(_data, get_size(), value, lambda);
     }
 }
 
@@ -252,8 +252,8 @@ void Matrix<T>::reset(const T& value,
     if(value == 0 || value == static_cast<T>(-1)){
         memset(_data, value, sizeof(T) * size);
     }else{
-        auto lamda = [](T* a, const T& b){ *a = b; };
-        _po.parallel_mul2one(_data, size, value, lamda);
+        auto lambda = [](T* a, const T& b){ *a = b; };
+        _po.parallel_mul2one(_data, size, value, lambda);
     }
 }
 

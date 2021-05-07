@@ -32,8 +32,8 @@ public:
     virtual void backward(Layer* pre_layer, Layer* next_layer) = 0;
     void update_gradient(const size_t batch_size,
                          const real learning_rate,
-                         const real lamda){
-        real weight_decay = 1.0 - learning_rate * (lamda / batch_size);
+                         const real lambda){
+        real weight_decay = 1.0 - learning_rate * (lambda / batch_size);
         _weight *= weight_decay;
         _weight -= _batch_weight * learning_rate / batch_size;
         _bias   -= _batch_bias * learning_rate / batch_size;

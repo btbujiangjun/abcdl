@@ -126,8 +126,8 @@ T Matrix<T>::max() const{
 		return 0;
 	}
 	T max = _data[0];
-	auto lamda = [](T* a, const T& b){if(b > *a){*a = b;}};
-	_po.parallel_reduce_mul2one(&max, _data, get_size(), lamda);
+	auto lambda = [](T* a, const T& b){if(b > *a){*a = b;}};
+	_po.parallel_reduce_mul2one(&max, _data, get_size(), lambda);
 	return max;   
 }
 
@@ -138,8 +138,8 @@ size_t Matrix<T>::argmax() const{
 	}
 	T max = _data[0];
     size_t max_idx = 0;
-	auto lamda = [](T* a, const T& b, size_t* max_idx, const size_t idx){if(b > *a){*a = b; *max_idx = idx;}};
-	_po.parallel_reduce_mul2one(&max, &max_idx, _data, get_size(), lamda);
+	auto lambda = [](T* a, const T& b, size_t* max_idx, const size_t idx){if(b > *a){*a = b; *max_idx = idx;}};
+	_po.parallel_reduce_mul2one(&max, &max_idx, _data, get_size(), lambda);
 	return max_idx;   
 }
 
@@ -199,8 +199,8 @@ T Matrix<T>::min() const{
 		return 0;
 	}
 	T min = _data[0];
-	auto lamda = [](T* a, const T& b){if(b < *a){*a = b;}};
-	_po.parallel_reduce_mul2one(&min, _data, get_size(), lamda);
+	auto lambda = [](T* a, const T& b){if(b < *a){*a = b;}};
+	_po.parallel_reduce_mul2one(&min, _data, get_size(), lambda);
 	return min;   
 }
 
@@ -211,16 +211,16 @@ size_t Matrix<T>::argmin() const{
 	}
 	T min = _data[0];
     size_t min_idx = 0;
-	auto lamda = [](T* a, const T& b, size_t* min_idx, const size_t idx){if(b < *a){*a = b; *min_idx = idx;}};
-	_po.parallel_reduce_mul2one(&min, &min_idx, _data, get_size(), lamda);
+	auto lambda = [](T* a, const T& b, size_t* min_idx, const size_t idx){if(b < *a){*a = b; *min_idx = idx;}};
+	_po.parallel_reduce_mul2one(&min, &min_idx, _data, get_size(), lambda);
 	return min_idx;   
 }
 
 template<class T>
 T Matrix<T>::sum() const{
 	T sum = 0;
-	auto lamda = [](T* a, const T& b){if(b != 0){ *a += b;} };
-	_po.parallel_reduce_mul2one(&sum, _data, get_size(), lamda);
+	auto lambda = [](T* a, const T& b){if(b != 0){ *a += b;} };
+	_po.parallel_reduce_mul2one(&sum, _data, get_size(), lambda);
 	return sum;   
 }
 

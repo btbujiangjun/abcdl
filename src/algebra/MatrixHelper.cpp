@@ -85,8 +85,8 @@ void MatrixHelper<T>::outer(Matrix<T>& mat,
     T* data_a = mat_a.data();
     T* data_b = mat_b.data();
     T* data   = new T[size_a * size_b];
-    auto lamda = [](T* a, const T& b, const T& c){*a = b * c;};
-    _po.parallel_mul2mul_cross(data, data_a, size_a, data_b, size_b, lamda);
+    auto lambda = [](T* a, const T& b, const T& c){*a = b * c;};
+    _po.parallel_mul2mul_cross(data, data_a, size_a, data_b, size_b, lambda);
     mat.set_shallow_data(data, size_a, size_b);
 }
 
@@ -94,56 +94,56 @@ template<class T>
 void MatrixHelper<T>::pow(Matrix<T>& mat,
 						  const Matrix<T>& mat_a,
 						  const T& exponent){
-    auto lamda = [](T* a, const T& b, const T& c){*a = std::pow(b, c);};
+    auto lambda = [](T* a, const T& b, const T& c){*a = std::pow(b, c);};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), exponent, lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), exponent, lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::log(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = std::log(b);};
+    auto lambda = [](T* a, const T& b){ *a = std::log(b);};
     if(mat.get_size() == mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::exp(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = std::exp(std::min(b, (T)EXP_MAX));};
+    auto lambda = [](T* a, const T& b){ *a = std::exp(std::min(b, (T)EXP_MAX));};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::sqrt(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = std::sqrt(b);};
+    auto lambda = [](T* a, const T& b){ *a = std::sqrt(b);};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = 1 / (1 + std::exp(-(std::min((T)SIGMOID_MAX, std::max(b, (T)SIGMOID_MIN)))));};
+    auto lambda = [](T* a, const T& b){ *a = 1 / (1 + std::exp(-(std::min((T)SIGMOID_MAX, std::max(b, (T)SIGMOID_MIN)))));};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::sigmoid_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = b * (1 - b);};
+    auto lambda = [](T* a, const T& b){ *a = b * (1 - b);};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
@@ -153,81 +153,81 @@ void MatrixHelper<T>::softmax(Matrix<T>& mat, const Matrix<T>& mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
 
-    auto lamda = [](T* a, const T& max){*a = std::exp(std::max((*a - max), (T)SOFTMAX_MIN));};
-    _po.parallel_mul2one(mat.data(), mat.get_size(), max, lamda);
+    auto lambda = [](T* a, const T& max){*a = std::exp(std::max((*a - max), (T)SOFTMAX_MIN));};
+    _po.parallel_mul2one(mat.data(), mat.get_size(), max, lambda);
     mat /=  mat.sum();
 }
 
 template<class T>
 void MatrixHelper<T>::tanh(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ *a = 2.0 /(1.0 + std::exp(std::min((T)EXP_MAX, -2 * b))) - 1.0;};
+    auto lambda = [](T* a, const T& b){ *a = 2.0 /(1.0 + std::exp(std::min((T)EXP_MAX, -2 * b))) - 1.0;};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::tanh_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ T tanh = std::exp(std::min((T)EXP_MAX, -2 * b)); *a = 1 - tanh * tanh;};
+    auto lambda = [](T* a, const T& b){ T tanh = std::exp(std::min((T)EXP_MAX, -2 * b)); *a = 1 - tanh * tanh;};
     if(mat.get_size() != mat_a.get_size()){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::relu(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b < 0) {*a = 0;} };
+    auto lambda = [](T* a, const T& b){ if(b < 0) {*a = 0;} };
     if(&mat != &mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b > 0) {*a = 1;} };
+    auto lambda = [](T* a, const T& b){ if(b > 0) {*a = 1;} };
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::leaky_relu(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b < 0) {*a = (T)(0.01 * b);} };
+    auto lambda = [](T* a, const T& b){ if(b < 0) {*a = (T)(0.01 * b);} };
     if(&mat != &mat_a){
         mat.set_data(mat_a.data(), mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::leaky_relu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b >= 0){*a = (T)1;} else{*a = (T)0.01;} };
+    auto lambda = [](T* a, const T& b){ if(b >= 0){*a = (T)1;} else{*a = (T)0.01;} };
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::elu(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = b;} else{*a = std::exp(std::min((T)EXP_MAX, b)) - 1;} };
+    auto lambda = [](T* a, const T& b){ if(b >= 0) {*a = b;} else{*a = std::exp(std::min((T)EXP_MAX, b)) - 1;} };
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>
 void MatrixHelper<T>::elu_derivative(Matrix<T>& mat, const Matrix<T>& mat_a){
-    auto lamda = [](T* a, const T& b){ if(b >= 0) {*a = 1;} else{*a = std::exp(std::min((T)EXP_MAX, b));} };
+    auto lambda = [](T* a, const T& b){ if(b >= 0) {*a = 1;} else{*a = std::exp(std::min((T)EXP_MAX, b));} };
     if(&mat != &mat_a){
         mat.reset(0, mat_a.rows(), mat_a.cols());
     }
-    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lamda);
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
 }
 
 template<class T>

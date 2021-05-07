@@ -43,7 +43,7 @@ public:
     
 	void set_epoch(const size_t epoch){ _epoch = epoch; }
     void set_alpha(const real alpha){ _alpha = alpha; }
-    void set_lamda(const real lamda){ _lamda = lamda; }
+    void set_lambda(const real lambda){ _lambda = lambda; }
     void set_batch_size(const size_t batch_size){ _batch_size = batch_size; }
     void set_loss_function(abcdl::framework::Loss* loss){
         if(_loss != nullptr){
@@ -90,7 +90,7 @@ public:
 private:
     size_t _epoch = 30;
     real _alpha = 0.5;
-    real _lamda = 0.1;
+    real _lambda = 0.1;
     size_t _batch_size = 512;
     std::string _path = "temp_model.fnn.model";
     std::vector<abcdl::fnn::Layer*> _layers;
