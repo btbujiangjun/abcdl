@@ -17,8 +17,8 @@ int main(int argc, char** argv){
     const std::string path = "./data/fnn.model";
 
     abcdl::fnn::FNN fnn;
-    fnn.set_alpha(0.05);
-    fnn.set_epoch(1);
+    fnn.set_alpha(0.1);
+	fnn.set_batch_size(64);
     /*
     std::vector<abcdl::fnn::Layer*> layers;
     layers.push_back(new abcdl::fnn::InputLayer(784));
@@ -33,7 +33,9 @@ int main(int argc, char** argv){
     */
     std::vector<abcdl::fnn::Layer*> layers;
     layers.push_back(new abcdl::fnn::InputLayer(784));
-    layers.push_back(new abcdl::fnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc()));
+    //layers.push_back(new abcdl::fnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc()));
+    layers.push_back(new abcdl::fnn::FullConnLayer(784, 128, new abcdl::framework::ReluActivateFunc()));
+    layers.push_back(new abcdl::fnn::FullConnLayer(128, 30, new abcdl::framework::ReluActivateFunc()));
     layers.push_back(new abcdl::fnn::OutputLayer(30, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
     fnn.set_layers(layers);
 
@@ -52,7 +54,9 @@ int main(int argc, char** argv){
     abcdl::algebra::Mat test_label;
     helper.read_test_vec_label(&test_label, test_size);
     real loss = 0;
-    for(size_t i = 0; i < 100; i++){
+	int epoch = 100;
+    for(int i = 0; i < epoch; i++){
+		printf("Epoch:[%d/%d]\n", i, epoch);
         fnn.train(train_data, train_label);
         fnn.evaluate(test_data, test_label, &loss);
         fnn.write_model(path);

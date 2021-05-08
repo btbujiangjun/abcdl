@@ -30,56 +30,52 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
     abcdl::algebra::Mat label;
     abcdl::utils::Shuffler shuffler(num_train_data);
     auto now = []{return std::chrono::system_clock::now();};
+    auto start_time = now();
+    real total_loss = 0;
+    std::vector<std::pair<real, real>> auc_train_vec;
 
-    for(size_t i = 0; i != _epoch; i++){
-        
-        shuffler.shuffle();
-        auto start_time = now();
-        real total_loss = 0;
-        std::vector<std::pair<real, real>> auc_train_vec;
+    shuffler.shuffle();
+    for(size_t j = 0; j != num_train_data; j++){
+        train_data.get_row(&data, shuffler.get(j));
+        train_label.get_row(&label, shuffler.get(j));
 
-        for(size_t j = 0; j != num_train_data; j++){
-            train_data.get_row(&data, shuffler.get(j));
-            train_label.get_row(&label, shuffler.get(j));
-
-            for(size_t k = 0; k != layer_size; k++){
-                if(k == 0){
-                    ((InputLayer*)_layers[k])->set_x(data);
-                }
-                _layers[k]->forward(_layers[k-1]);
+        for(size_t k = 0; k != layer_size; k++){
+            if(k == 0){
+                ((InputLayer*)_layers[k])->set_x(data);
             }
+            _layers[k]->forward(_layers[k-1]);
+        }
 
-            for(size_t k = layer_size - 1; k > 0; k--){
-                if(k == layer_size - 1){
-                    ((OutputLayer*)_layers[k])->set_y(label);
-                    _layers[k]->backward(_layers[k-1], nullptr);
-                }else{
-                    _layers[k]->backward(_layers[k-1], _layers[k+1]);
-                }
+        for(size_t k = layer_size - 1; k > 0; k--){
+            if(k == layer_size - 1){
+                ((OutputLayer*)_layers[k])->set_y(label);
+                _layers[k]->backward(_layers[k-1], nullptr);
+            }else{
+                _layers[k]->backward(_layers[k-1], _layers[k+1]);
+            }
                
-                //mini_batch_update
-                if(j % _batch_size == _batch_size - 1 || j == num_train_data - 1){
-                    _layers[k]->update_gradient(j % _batch_size + 1, _alpha, _lambda);
-                }
-            }
-
-            total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
-            if(_layers[layer_size - 1]->get_activate_data().cols() == 2){
-                auc_train_vec.push_back(std::make_pair(label.get_data(0, 1), _layers[layer_size - 1]->get_activate_data().get_data(0, 1)));
-            }
-
-            if(j % 100 == 0){
-                printf("Epoch[%ld/%ld] Train[%ld/%ld]\r", i + 1, _epoch, j, num_train_data);
+            //mini_batch_update
+            if(j % _batch_size == _batch_size - 1 || j == num_train_data - 1){
+                _layers[k]->update_gradient(j % _batch_size + 1, _alpha);
             }
         }
-        
-        double auc_score = auc(auc_train_vec);
-        double avg_loss = total_loss / num_train_data;
-        long long int train_time = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count();
 
-        LOG(INFO) << "Epoch["<< i+1 <<"] auc["<< auc_score <<"] loss["<< avg_loss <<"] training run time:["<< train_time <<"]ms";
-        printf("Epoch[%ld] auc[%lf] loss[%lf] training run time:[%lld]ms\n", i + 1, auc_score, avg_loss, train_time);
+        total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
+        if(_layers[layer_size - 1]->get_activate_data().cols() == 2){
+            auc_train_vec.push_back(std::make_pair(label.get_data(0, 1), _layers[layer_size - 1]->get_activate_data().get_data(0, 1)));
+        }
+
+        if(j % 100 == 0){
+            printf("Train[%ld/%ld]\r", j, num_train_data);
+        }
     }
+        
+    double auc_score = auc(auc_train_vec);
+    double avg_loss = total_loss / num_train_data;
+    long long int train_time = std::chrono::duration_cast<std::chrono::milliseconds>(now() - start_time).count();
+
+    LOG(INFO) << "auc["<< auc_score <<"] loss["<< avg_loss <<"] training run time:["<< train_time <<"]ms";
+    printf("auc[%lf] loss[%lf] training run time:[%lld]ms\n", auc_score, avg_loss, train_time);
 }
 
 size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,

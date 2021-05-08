@@ -31,12 +31,10 @@ public:
     virtual void forward(Layer* pre_layer) = 0;
     virtual void backward(Layer* pre_layer, Layer* next_layer) = 0;
     void update_gradient(const size_t batch_size,
-                         const real learning_rate,
-                         const real lambda){
-        real weight_decay = 1.0 - learning_rate * (lambda / batch_size);
-        _weight *= weight_decay;
-        _weight -= _batch_weight * learning_rate / batch_size;
-        _bias   -= _batch_bias * learning_rate / batch_size;
+                         const real learning_rate){
+		real lr = learning_rate / batch_size;
+        _weight -= _batch_weight * lr;
+        _bias   -= _batch_bias * lr;
         
 		_batch_weight.reset(0);
         _batch_bias.reset(0);
@@ -44,7 +42,7 @@ public:
 
     size_t get_input_dim() const{ return _input_dim; }
     size_t get_output_dim() const{ return _output_dim; }
-    abcdl::framework::Layer_type get_layer_type() const{return _layer_type;}
+    abcdl::framework::Layer_type get_layer_type() const {return _layer_type;}
 
     bool set_weight(const abcdl::algebra::Mat& weight){
         if(weight.rows() != _weight.rows()){
