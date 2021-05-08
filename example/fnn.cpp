@@ -19,24 +19,12 @@ int main(int argc, char** argv){
     abcdl::fnn::FNN fnn;
     fnn.set_alpha(0.1);
 	fnn.set_batch_size(64);
-    /*
-    std::vector<abcdl::fnn::Layer*> layers;
-    layers.push_back(new abcdl::fnn::InputLayer(784));
-    layers.push_back(new abcdl::fnn::FullConnLayer(784, 128, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(128, 128, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(128, 64, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(64, 32, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(32, 16, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::OutputLayer(16, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
-    fnn.set_layers(layers);
-    fnn.load_model(path);
-    */
+
     std::vector<abcdl::fnn::Layer*> layers;
     layers.push_back(new abcdl::fnn::InputLayer(784));
     //layers.push_back(new abcdl::fnn::FullConnLayer(784, 30, new abcdl::framework::SigmoidActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(784, 128, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::FullConnLayer(128, 30, new abcdl::framework::ReluActivateFunc()));
-    layers.push_back(new abcdl::fnn::OutputLayer(30, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
+    layers.push_back(new abcdl::fnn::FullConnLayer(784, 32, new abcdl::framework::ReluActivateFunc()));
+    layers.push_back(new abcdl::fnn::OutputLayer(32, 10, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
     fnn.set_layers(layers);
 
     const int train_size = -1;
@@ -55,7 +43,7 @@ int main(int argc, char** argv){
     helper.read_test_vec_label(&test_label, test_size);
     real loss = 0;
 	int epoch = 100;
-    for(int i = 0; i < epoch; i++){
+    for(int i = 1; i <= epoch; i++){
 		printf("Epoch:[%d/%d]\n", i, epoch);
         fnn.train(train_data, train_label);
         fnn.evaluate(test_data, test_label, &loss);

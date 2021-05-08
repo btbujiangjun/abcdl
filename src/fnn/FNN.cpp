@@ -61,12 +61,10 @@ void FNN::train(const abcdl::algebra::Mat& train_data,
         }
 
         total_loss += _loss->loss(label, _layers[layer_size - 1]->get_activate_data());
-        if(_layers[layer_size - 1]->get_activate_data().cols() == 2){
-            auc_train_vec.push_back(std::make_pair(label.get_data(0, 1), _layers[layer_size - 1]->get_activate_data().get_data(0, 1)));
-        }
+        auc_train_vec.push_back(std::make_pair(label.argmax(), _layers[layer_size - 1]->get_activate_data().argmax()));
 
         if(j % 100 == 0){
-            printf("Train[%ld/%ld]\r", j, num_train_data);
+            printf(" Train[%ld/%ld]\r", j, num_train_data);
         }
     }
         
@@ -98,14 +96,10 @@ size_t FNN::evaluate(const abcdl::algebra::Mat& test_data,
 
     for(size_t i = 0; i < rows; i++){
         predict(mat, test_data.get_row(i));
-        if(mat.cols() == 1 && mat == test_label.get_row(i)){
+		if(mat.argmax() == test_label.get_row(i).argmax()){
             ++ predict_num; 
-        }else if(mat.argmax() == test_label.get_row(i).argmax()){
-            ++ predict_num;
         }
-        if(mat.cols() == 2){
-            auc_evaluate_vec.push_back(std::make_pair(test_label.get_row(i).get_data(0, 1), mat.get_data(0, 1)));
-        }
+        auc_evaluate_vec.push_back(std::make_pair(test_label.get_row(i).argmax(), mat.argmax()));
         total_loss += _loss->loss(test_label.get_row(i), mat);
     }
 
