@@ -43,14 +43,14 @@ void CNN::train(const abcdl::algebra::MatSet& train_data,
     
     auto now = []{return std::chrono::system_clock::now();};
     auto time_diff = [](std::chrono::time_point<std::chrono::system_clock> end) -> long long int {
-            return static_cast<long long int>((std::chrono::system_clock::now() - end).count());
+        return static_cast<long long int>((std::chrono::system_clock::now() - end).count());
     };
 
     size_t num_train_data = train_data.size();
     size_t num_test_data = test_data.size();
     abcdl::utils::Shuffler shuffler(num_train_data);
 
-    for(size_t i = 0; i != _epoch; i++){
+    for(size_t i = 1; i <= _epoch; i++){
         auto start_time = now();
         shuffler.shuffle();
 

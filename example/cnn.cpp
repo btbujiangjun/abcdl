@@ -27,17 +27,16 @@ int main(int argc, char** argv){
 
     abcdl::cnn::CNN cnn;
     cnn.set_layers(layers);
+	cnn.set_batch_size(1);
+	cnn.set_alpha(0.1);
 
-    abcdl::utils::FashionMnistReader<real> helper("data");
+    //abcdl::utils::FashionMnistReader<real> helper("data");
+    abcdl::utils::MnistReader<real> helper("data");
     const size_t train_size = 60000;
     const size_t test_size  = 10000;
 
     abcdl::algebra::MatSet train_data;
     helper.read_train_images(train_data, train_size, 30);
-
-    for(size_t i = 0; i != 20 && i != train_data.rows(); i++){
-        ((abcdl::algebra::IMat)train_data[i]).display("", false);
-    }
 
     abcdl::algebra::MatSet train_label;
     helper.read_train_vec_labels(train_label, train_size);

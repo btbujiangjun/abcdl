@@ -15,7 +15,6 @@ public:
 
     void init(const size_t feature_dim, const size_t label_dim){
         fnn.set_alpha(0.05);
-        fnn.set_epoch(1);
         fnn.set_batch_size(1024);
         /*
         std::vector<abcdl::fnn::Layer*> layers;
@@ -30,8 +29,8 @@ public:
         */
         std::vector<abcdl::fnn::Layer*> layers;
         layers.push_back(new abcdl::fnn::InputLayer(feature_dim));
-        layers.push_back(new abcdl::fnn::FullConnLayer(feature_dim, 256, new abcdl::framework::SigmoidActivateFunc()));
-        layers.push_back(new abcdl::fnn::FullConnLayer(256, 64, new abcdl::framework::SigmoidActivateFunc()));
+        layers.push_back(new abcdl::fnn::FullConnLayer(feature_dim, 256, new abcdl::framework::ReluActivateFunc()));
+        layers.push_back(new abcdl::fnn::FullConnLayer(256, 64, new abcdl::framework::ReluActivateFunc()));
         layers.push_back(new abcdl::fnn::OutputLayer(64, label_dim, new abcdl::framework::SigmoidActivateFunc(), new abcdl::framework::CrossEntropyCost()));
         fnn.set_layers(layers);
 
@@ -52,6 +51,7 @@ public:
 private:
     abcdl::fnn::FNN fnn;
 };//class SessionQ
+
 int main(int argc, char** argv){
     abcdl::utils::log::set_min_log_level(abcdl::utils::log::INFO);
     abcdl::utils::log::initialize_log(argc, argv);
