@@ -78,6 +78,20 @@ Matrix<T>& Matrix<T>::sqrt(){
 }
 
 template<class T>
+Matrix<T>& Matrix<T>::sin(){
+    MatrixHelper<T> mh;
+    mh.sin(*this, *this);
+	return *this;
+}
+
+template<class T>
+Matrix<T>& Matrix<T>::cos(){
+    MatrixHelper<T> mh;
+    mh.cos(*this, *this);
+	return *this;
+}
+
+template<class T>
 Matrix<T>& Matrix<T>::sigmoid(){
     MatrixHelper<T> mh;
     mh.sigmoid(*this, *this);

@@ -187,6 +187,8 @@ public:
     Matrix<T>& log();
     Matrix<T>& exp();
     Matrix<T>& sqrt();
+    Matrix<T>& sin();
+    Matrix<T>& cos();
     Matrix<T>& sigmoid();
     Matrix<T>& softmax();
     Matrix<T>& tanh();

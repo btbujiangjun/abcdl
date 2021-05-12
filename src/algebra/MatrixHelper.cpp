@@ -129,6 +129,24 @@ void MatrixHelper<T>::sqrt(Matrix<T>& mat, const Matrix<T>& mat_a){
 }
 
 template<class T>
+void MatrixHelper<T>::sin(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lambda = [](T* a, const T& b){ *a = std::sin(b);};
+    if(mat.get_size() != mat_a.get_size()){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
+}
+
+template<class T>
+void MatrixHelper<T>::cos(Matrix<T>& mat, const Matrix<T>& mat_a){
+    auto lambda = [](T* a, const T& b){ *a = std::cos(b);};
+    if(mat.get_size() != mat_a.get_size()){
+        mat.reset(0, mat_a.rows(), mat_a.cols());
+    }
+    _po.parallel_mul2one_copy(mat.data(), mat_a.data(), mat_a.get_size(), lambda);
+}
+
+template<class T>
 void MatrixHelper<T>::sigmoid(Matrix<T>& mat, const Matrix<T>& mat_a){
     auto lambda = [](T* a, const T& b){ *a = 1 / (1 + std::exp(-(std::min((T)SIGMOID_MAX, std::max(b, (T)SIGMOID_MIN)))));};
     if(mat.get_size() != mat_a.get_size()){
