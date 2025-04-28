@@ -1,5 +1,16 @@
-# abcdl
-A c++ light `Deep Learning` framework for ABC, Include `DNN`, `CNN` and `RNN`. <br>
+# Overview
+`ABCDL` (A Basic C++ Deep Learning framework) is a lightweight C++ implementation of various deep learning architectures. It provides a foundation for building, training, and deploying neural networks with support for Feedforward Neural Networks (FNN), Convolutional Neural Networks (CNN), and Recurrent Neural Networks (RNN).
+
+# Framework Purpose and Scope
+`ABCDL` is designed to be a lightweight and efficient C++ library for deep learning, with a focus on providing:
+
+* A core matrix algebra system for linear algebra operations
+* Implementations of common neural network architectures
+* Support for parallel processing to improve performance
+* Utilities for data loading and model persistence
+* Standard components like activation functions, loss functions, and pooling operations
+
+# Example Usage
 
 ## DNN example <br>
 ### 1. Configure layers <br>
